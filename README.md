@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/llloret/osmid.svg?branch=master)](https://travis-ci.org/llloret/osmid)
+
 # osmid
 
 osmid aims to provide a lightweight, portable, easy to use tool to convert MIDI to OSC and OSC to MIDI.
