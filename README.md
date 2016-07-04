@@ -33,7 +33,7 @@ osmid uses the following libs:
 * boost, for program options parsing and udp networking (external dependency) 
 
 
-## m2o parameters:
+## m2o parameters
 * --midiin or -i <MIDI Input device>: open the specified input device - can be specified multiple times to open more than one device
 * --oscout or -o <UDP port number>: use the specified port from OSC output - can be specified multiple times to send to more than one port
 * --osctemplate or -t <OSC template>: use the specified OSC output template (use $n: midi port name, $c: midi channel, $m: message_type). For example: -t /midi/$c/$m
@@ -43,11 +43,11 @@ osmid uses the following libs:
 * --version: Show the version number
 
 
-## TODO:
+## TODO
 * Hot-plugging / unplugging.
 * "all" devices should mean not only the devices that are found at the beginning of the run, but ALL the devices, even the ones that get plugged in later.
 * Installers
 * TCP as well as UDP for packet transport? (not sure if there is any interest on this)
 
-## LICENSE:
+## LICENSE
 See LICENSE.md file for details.

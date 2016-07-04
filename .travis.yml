@@ -26,6 +26,8 @@ before_install:
 #  - cmake/bin/cmake --version
   - iflin sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
   - iflin sudo apt-get update
+  - iflin sudo apt-get install --yes libboost-system-dev libboost-program-options-dev
+  - iflin sudo apt-get install --yes libasound2-dev
   - iflin sudo apt-get install --yes build-essential gcc-4.9 g++-4.9 cmake pkg-config 
   - iflin sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 60 --slave /usr/bin/g++ g++ /usr/bin/g++-4.9
   - iflin sudo update-alternatives --auto gcc
