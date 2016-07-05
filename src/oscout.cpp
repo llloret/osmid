@@ -19,13 +19,14 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-
+#include <iomanip>
+#include <iostream>
 #include "oscout.h"
 
 using namespace std;
 using boost::asio::ip::udp;
 
-OscOutput::OscOutput(string dstOscHost, int dstOscPort)
+OscOutput::OscOutput(string dstOscHost, int dstOscPort, bool monitor) : m_monitor(monitor)
 {
 #ifdef USE_UDP_OSCPACK
     m_transmitSocket = make_unique<UdpTransmitSocket>(IpEndpointName(dstOscHost, dstOscPort));
@@ -51,28 +52,45 @@ void OscOutput::prepareUDPSocket(int port)
 #endif
 
 
-
-#ifdef USE_UDP_OSCPACK
-void OscOutput::sendUDP(const char *data, std::size_t size)
+void OscOutput::dumpMessage(const char *data, size_t size)
 {
-    m_transmitSocket->Send(data, size);
+    
+    cout << "INFO sent UDP message: ";
+    for (int i = 0; i < size; i++){
+        const unsigned char udata = (unsigned char)(data[i]);
+        // is it printable?
+        if (udata >= 32 && udata <= 127)
+            cout << udata;
+        else
+            cout << hex << "[" << (unsigned int)udata << /*setw(2) << setfill('0') <<*/ "]" << dec;
+    }
+    cout << endl;
 }
-#elif defined(USE_UDP_BOOST_ASYNC)
-void OscOutput::sendUDP(const char *data, std::size_t size)
+
+
+void OscOutput::sendUDP(const char *data, size_t size)
 {
+#ifdef USE_UDP_OSCPACK
+    m_transmitSocket->Send(data, size);
+#elif defined(USE_UDP_BOOST_ASYNC)
     m_socket->async_send_to(boost::asio::buffer(data, size), m_receiverEndpoint,
         [](const boost::system::error_code& error, std::size_t bytes_transferred) {});
+#else
+    try {
+        m_socket->send_to(boost::asio::buffer(data, size), m_receiverEndpoint);
+        if (m_monitor)
+            dumpMessage(data, size);
+        
+    }
+    catch (const boost::system::system_error& e) {
+        cout << "ERROR sending through udp socket: " << e.what() << endl;
+    }
+#endif
 }
 
-
+#ifdef USE_UDP_BOOST_ASYNC
 void OscOutput::ioServiceThread_func()
 {
     m_ioService.run();
 }
-#else
-void OscOutput::sendUDP(const char *data, std::size_t size)
-{
-    m_socket->send_to(boost::asio::buffer(data, size), m_receiverEndpoint);
-}
-
 #endif

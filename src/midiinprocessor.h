@@ -31,22 +31,24 @@
 class MidiInProcessor
 {
 public:
-    MidiInProcessor(std::unique_ptr<MidiIn>&& input, std::vector<std::shared_ptr<OscOutput>> outputs);
+    MidiInProcessor(std::unique_ptr<MidiIn>&& input, std::vector<std::shared_ptr<OscOutput>> outputs, bool monitor = false);
     static void onMidi(double deltatime, std::vector<unsigned char> *message, void *userData);
     void setOscTemplate(const std::string& oscTemplate);
-    void setOscRawMidiMessage(bool oscRawMidiMessage);
     
 private:
-    static void do_template_subst(std::string &str, const std::string& portName, int channel, const std::string& message_type);
+    void doTemplateSubst(std::string &str, const std::string& portName, int portId, int channel, const std::string& message_type) const;
+    void dumpMIDIMessage(std::vector<unsigned char> *message) const;
     std::unique_ptr<MidiIn> m_input;
     std::vector<std::shared_ptr<OscOutput>> m_outputs;
     bool m_useOscTemplate;
     std::string m_oscTemplate;
-    bool m_oscRawMidiMessage;
+
+    bool m_monitor;
 
     // To avoid having to construct the regex everytime
     static std::regex regexName;
+    static std::regex regexId;
     static std::regex regexChannel;
     static std::regex regexMessageType;
-    static std::regex regexremoveDoubleSlash;
+    static std::regex regexDoubleSlash;
 };

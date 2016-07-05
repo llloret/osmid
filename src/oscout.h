@@ -38,10 +38,11 @@
 
 class OscOutput {
 public:
-	OscOutput(std::string dstOscHost, int dstOscPort);
+	OscOutput(std::string dstOscHost, int dstOscPort, bool monitor = false);
 	void sendUDP(const char *data, std::size_t size);
 
 private:
+    void dumpMessage(const char *data, size_t size);
 #ifdef USE_UDP_OSCPACK
     std::unique_ptr<UdpTransmitSocket> m_transmitSocket;
 #else
@@ -54,5 +55,6 @@ private:
     std::thread m_ioServiceThread;
     void ioServiceThread_func();
 #endif
+    bool m_monitor;
 
 };
