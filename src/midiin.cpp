@@ -32,8 +32,8 @@ MidiIn::MidiIn(string portName) {
     cout << "MidiIn contructor for " << portName << endl;
     updateMidiDevicesNamesMapping();
     m_portName = portName;
-    int portId = getPortIdFromName(m_portName);
-    m_midiIn.openPort(portId);
+    m_portId = getPortIdFromName(m_portName);
+    m_midiIn.openPort(m_portId);
     m_midiIn.ignoreTypes(false, false, false);
 }
 
@@ -50,6 +50,27 @@ void MidiIn::setCallback(RtMidiIn::RtMidiCallback callback, void *userData)
 string MidiIn::getPortName() const
 {
     return m_portName;
+}
+
+int MidiIn::getPortId() const
+{
+    return m_portId;
+}
+
+// Checks if the name matches the id. They may stop matching because of adding or removing MIDI devices while running
+// This should be called after we detect a change in the list of MIDI devices, for finer control of which MidiIns to keep
+bool MidiIn::checkValid() const
+{
+    RtMidiIn midiIn;
+    unsigned int nPorts = midiIn.getPortCount();
+    if (m_portId >= nPorts)
+        return false;
+
+    string nameForId = midiIn.getPortName(m_portId);
+    if (nameForId != m_portName)
+        return false;
+
+    return true;
 }
 
 vector<string> MidiIn::getInputNames()

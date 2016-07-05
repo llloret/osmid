@@ -114,27 +114,13 @@ int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions &prog
     return 0;
 }
 
-int main(int argc, char* argv[]) {
-    // midiInputProcessors will contain the list of active MidiIns at a given time
-    vector<shared_ptr<MidiInProcessor>> midiInputProcessors;
-    // midiInputProcessors will contain the list of active OSC output ports 
-    vector<shared_ptr<OscOutput>> oscOutputs;
-    ProgramOptions popts;
 
-    int rc = setup_and_parse_program_options(argc, argv, popts);
-    if (rc != 0) {
-        return rc;
-    }
+void prepareMidiProcessors(vector<shared_ptr<MidiInProcessor>>& midiInputProcessors, const ProgramOptions& popts, vector<shared_ptr<OscOutput>> oscOutputs)
+{
+    // Should we open all devices, or just the ones passed as parameters?
+    vector<string> midiInputsToOpen = (popts.allMidiInputs ? MidiIn::getInputNames() : popts.midiInputNames);
 
-
-    // Open the OSC output ports
-    for (auto port : popts.oscOutputPorts) {
-        auto oscOutput = make_shared<OscOutput>("localhost", port);
-        oscOutputs.push_back(move(oscOutput));
-    }   
-    
-    // Open the MIDI input ports
-    for (auto& input: popts.midiInputNames) {
+    for (auto& input : midiInputsToOpen) {
         cout << "Opening input: " << input << endl;
         try {
             auto midiInput = make_unique<MidiIn>(input);
@@ -146,13 +132,51 @@ int main(int argc, char* argv[]) {
         }
         catch (const std::out_of_range&) {
             cout << "The device " << input << " does not exist";
-            return -1;
-        }        
+            throw;
+        }
+    }
+}
+
+
+int main(int argc, char* argv[]) {
+    // midiInputProcessors will contain the list of active MidiIns at a given time
+    vector<shared_ptr<MidiInProcessor>> midiInputProcessors;
+    // oscOutputs will contain the list of active OSC output ports 
+    vector<shared_ptr<OscOutput>> oscOutputs;
+    ProgramOptions popts;
+
+    int rc = setup_and_parse_program_options(argc, argv, popts);
+    if (rc != 0) {
+        return rc;
+    }
+    
+    // Open the OSC output ports
+    for (auto port : popts.oscOutputPorts) {
+        auto oscOutput = make_shared<OscOutput>("localhost", port);
+        oscOutputs.push_back(move(oscOutput));
+    }   
+    
+    // Open the MIDI input ports
+    try {
+        prepareMidiProcessors(midiInputProcessors, popts, oscOutputs);
+    }
+    catch (const std::out_of_range&) {
+        return -1;
     }
 
+    // For hotplugging
+    vector<string> lastAvailablePorts = MidiIn::getInputNames();
     while(true){
         std::chrono::milliseconds timespan(1000);
         std::this_thread::sleep_for(timespan);
+        vector<string> newAvailablePorts = MidiIn::getInputNames();
+        // Was something added or removed?
+        if (newAvailablePorts != lastAvailablePorts) {
+            midiInputProcessors.clear();
+            prepareMidiProcessors(midiInputProcessors, popts, oscOutputs);
+            lastAvailablePorts = newAvailablePorts;
+        }       
+        
         listAvailablePorts();
     };
 }

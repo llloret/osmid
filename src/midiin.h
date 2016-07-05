@@ -38,8 +38,11 @@ public:
     
     ~MidiIn();
 
+    bool checkValid() const;
+
     void setCallback(RtMidiIn::RtMidiCallback callback, void *userData);
     std::string getPortName() const;
+    int getPortId() const;
 
     static std::vector<std::string> getInputNames();
     static int getPortIdFromName(std::string portName);
@@ -48,6 +51,7 @@ public:
 private:
     RtMidiIn m_midiIn;
     std::string m_portName;
+    unsigned int m_portId;
 
     static std::map<std::string, int> m_midiInputNameToId;
     static std::vector<std::string> m_midiInputIdToName;
