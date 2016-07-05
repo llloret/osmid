@@ -189,8 +189,7 @@ void MidiInProcessor::onMidi(double deltatime, std::vector<unsigned char> *messa
     // And now prepare the OSC message body
     char buffer[1024];
     osc::OutboundPacketStream p(buffer, 1024);
-    p << osc::BeginBundleImmediate
-        << osc::BeginMessage(path.str().c_str());
+    p << osc::BeginMessage(path.str().c_str());
 
     // do we want a raw midi message?
     if (midiInputProcessor->m_oscRawMidiMessage) {
@@ -203,7 +202,7 @@ void MidiInProcessor::onMidi(double deltatime, std::vector<unsigned char> *messa
             p << (int)message->at(i);
         }
     }        
-    p << osc::EndMessage << osc::EndBundle;
+    p << osc::EndMessage;
 
     //start_time = chrono::high_resolution_clock::now();
 
