@@ -51,6 +51,9 @@ public:
 private:
     RtMidiIn m_midiIn;
     std::string m_portName;
+    // TODO: There will be a port id for the rtmidi, and a higher level portid at the MidiIn level, to help with hotplug
+    // getPortId should retyurn the high level one
+    // The RtMIDI one should be internal to this class and completely private
     unsigned int m_portId;
 
     static std::map<std::string, int> m_midiInputNameToId;

@@ -29,9 +29,10 @@
 using namespace std;
 
 regex MidiInProcessor::regexName{ "\\$n" };
+regex MidiInProcessor::regexId{ "\\$i" };
 regex MidiInProcessor::regexChannel{ "\\$c" };
 regex MidiInProcessor::regexMessageType{ "\\$m" };
-regex MidiInProcessor::regexremoveDoubleSlash{ "//" };
+regex MidiInProcessor::regexDoubleSlash{ "//" };
 
 
 MidiInProcessor::MidiInProcessor(unique_ptr<MidiIn>&& input, vector<shared_ptr<OscOutput>> outputs): m_input(move(input)), m_outputs(outputs), m_useOscTemplate(false)
@@ -167,16 +168,17 @@ void MidiInProcessor::onMidi(double deltatime, std::vector<unsigned char> *messa
     
     stringstream path;
     string portNameWithoutSpaces(midiInputProcessor->m_input->getPortName());
+    int portId = midiInputProcessor->m_input->getPortId();
     replace_chars(portNameWithoutSpaces, ' ', '_');
 
     // Was a template specified?
     if (midiInputProcessor->m_useOscTemplate){
         string templateSubst(midiInputProcessor->m_oscTemplate);
-        do_template_subst(templateSubst, portNameWithoutSpaces, channel, message_type);
+        doTemplateSubst(templateSubst, portNameWithoutSpaces, portId, channel, message_type);
         path << templateSubst;
     }
     else{
-        path << "/midi/" << portNameWithoutSpaces;
+        path << "/midi/" << portId;
         if(channel != 0xff) {
             path << "/" << (int)channel;
         }
@@ -228,16 +230,16 @@ void MidiInProcessor::setOscRawMidiMessage(bool oscRawMidiMessage)
     m_oscRawMidiMessage = oscRawMidiMessage;
 }
 
-void MidiInProcessor::do_template_subst(string &str, const string& portName, int channel, const string& message_type)
+void MidiInProcessor::doTemplateSubst(string &str, const string& portName, int portId, int channel, const string& message_type)
 {
-    str = regex_replace(regex_replace(regex_replace(str,
+    str = regex_replace(regex_replace(regex_replace(regex_replace(str,
         regexMessageType, message_type),
         regexChannel, (channel != 0xff ? to_string(channel) : "")),
+        regexId, to_string(portId)),
         regexName, portName);
 
     // And now remove potential double slashes when the message does not have a channel, and remove potential slash at the end
-
-    str = regex_replace(str, regexremoveDoubleSlash, "/");
+    str = regex_replace(str, regexDoubleSlash, "/");
     if (str.back() == '/') {
         str.pop_back();
     }
