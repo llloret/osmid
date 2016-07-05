@@ -175,9 +175,8 @@ int main(int argc, char* argv[]) {
             midiInputProcessors.clear();
             prepareMidiProcessors(midiInputProcessors, popts, oscOutputs);
             lastAvailablePorts = newAvailablePorts;
-        }       
-        
-        listAvailablePorts();
+            listAvailablePorts();
+        }
     };
 }
     
