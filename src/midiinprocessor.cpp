@@ -35,7 +35,8 @@ regex MidiInProcessor::regexMessageType{ "\\$m" };
 regex MidiInProcessor::regexDoubleSlash{ "//" };
 
 
-MidiInProcessor::MidiInProcessor(unique_ptr<MidiIn>&& input, vector<shared_ptr<OscOutput>> outputs): m_input(move(input)), m_outputs(outputs), m_useOscTemplate(false)
+MidiInProcessor::MidiInProcessor(unique_ptr<MidiIn>&& input, vector<shared_ptr<OscOutput>> outputs, bool monitor): 
+    m_input(move(input)), m_outputs(outputs), m_useOscTemplate(false), m_monitor(monitor)
 {
 	m_input->setCallback(&MidiInProcessor::onMidi, this);
 }
@@ -47,7 +48,7 @@ void MidiInProcessor::onMidi(double deltatime, std::vector<unsigned char> *messa
     size_t nBytes = message->size();
 
     assert(nBytes > 0);
-    
+
     if((message->at(0) & 0xf0) != 0xf0) {
         channel = message->at(0) & 0x0f;
         status = message->at(0) & 0xf0;
@@ -57,6 +58,10 @@ void MidiInProcessor::onMidi(double deltatime, std::vector<unsigned char> *messa
 
     // Get the object instance
     MidiInProcessor *midiInputProcessor = static_cast<MidiInProcessor *>(userData);
+    if (midiInputProcessor->m_monitor) {
+        midiInputProcessor->dumpMIDIMessage(message);
+    }
+
 
     // Process the message
     switch(status) {
@@ -97,14 +102,12 @@ void MidiInProcessor::onMidi(double deltatime, std::vector<unsigned char> *messa
 
         case 0xF0:
             message_type = "sysex";
-            // Remove the end of message marker if raw message is not specified
-            if (!midiInputProcessor->m_oscRawMidiMessage)
-                nBytes--;
             break;
 
         case 0xF1:
             message_type = "syscommon_MTC";
             assert(nBytes == 2);
+            break;
 
         case 0xF2:
             message_type = "syscommon_song_position";
@@ -174,7 +177,7 @@ void MidiInProcessor::onMidi(double deltatime, std::vector<unsigned char> *messa
     // Was a template specified?
     if (midiInputProcessor->m_useOscTemplate){
         string templateSubst(midiInputProcessor->m_oscTemplate);
-        doTemplateSubst(templateSubst, portNameWithoutSpaces, portId, channel, message_type);
+        midiInputProcessor->doTemplateSubst(templateSubst, portNameWithoutSpaces, portId, channel, message_type);
         path << templateSubst;
     }
     else{
@@ -193,17 +196,13 @@ void MidiInProcessor::onMidi(double deltatime, std::vector<unsigned char> *messa
     osc::OutboundPacketStream p(buffer, 1024);
     p << osc::BeginMessage(path.str().c_str());
 
-    // do we want a raw midi message?
-    if (midiInputProcessor->m_oscRawMidiMessage) {
-        if (!message->empty()) {
-            p << osc::Blob(&((*message)[0]), static_cast<osc::osc_bundle_element_size_t>(message->size()));
-        }
+    // send device id and name as part of the message
+    p << static_cast<int>(portId) << portNameWithoutSpaces.c_str();
+    
+    // send the raw midi message as part of the body
+    if (!message->empty()){
+        p << osc::Blob(&((*message)[0]), static_cast<osc::osc_bundle_element_size_t>(message->size()));
     }
-    else{
-        for (int i = 1; i < nBytes; i++) {
-            p << (int)message->at(i);
-        }
-    }        
     p << osc::EndMessage;
 
     //start_time = chrono::high_resolution_clock::now();
@@ -225,12 +224,8 @@ void MidiInProcessor::setOscTemplate(const std::string& oscTemplate)
     m_useOscTemplate = true; 
 };
 
-void MidiInProcessor::setOscRawMidiMessage(bool oscRawMidiMessage)
-{
-    m_oscRawMidiMessage = oscRawMidiMessage;
-}
 
-void MidiInProcessor::doTemplateSubst(string &str, const string& portName, int portId, int channel, const string& message_type)
+void MidiInProcessor::doTemplateSubst(string &str, const string& portName, int portId, int channel, const string& message_type) const
 {
     str = regex_replace(regex_replace(regex_replace(regex_replace(str,
         regexMessageType, message_type),
@@ -245,3 +240,12 @@ void MidiInProcessor::doTemplateSubst(string &str, const string& portName, int p
     }
 }
 
+void MidiInProcessor::dumpMIDIMessage(vector<unsigned char> *message) const
+{
+    cout << "INFO received MIDI message: ";
+    for (int i = 0; i < message->size(); i++) {
+        cout << hex << "[" << (unsigned int)message->at(i) << /*setw(2) << setfill('0') <<*/ "]" << dec;
+    }
+    cout << endl;
+
+}

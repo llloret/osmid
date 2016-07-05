@@ -19,7 +19,7 @@ Having two separate tools follows Unix ideas of having a number of smaller stand
 * Compact
 * Very low latency
 * Customizable: can open a number of midi inputs, or all, and can configure the output UDP socket (if it is necessary to forward differnet MIDI devices to different OSC destinations, it is possible to do that invoking the program multiple times, with the appropriate arguments)
-* OSC address templates, that is, the format of the OSC address can be passed as an argument to the program. If the template parameter is not passed, then templates are NOT used (for example, if you REALLY care about latency - but we are talking about tens of microseconds here...). The contents of the OSC message itself can be set to the raw original message (sent as an OSC blob), or a processed version.
+* OSC address templates, that is, the format of the OSC address can be passed as an argument to the program. If the template parameter is not passed, then templates are NOT used (for example, if you REALLY care about latency - but we are talking about tens of microseconds here...). 
 
 
 o2m, the OSC to MIDI conversion is not implemented yet.
@@ -39,11 +39,17 @@ osmid uses the following libs:
 * --midiin or -i <MIDI Input device>: open the specified input device - can be specified multiple times to open more than one device
 * --oscout or -o <UDP port number>: use the specified port from OSC output - can be specified multiple times to send to more than one port
 * --osctemplate or -t <OSC template>: use the specified OSC output template (use $n: midi port name, $i midi port id, $c: midi channel, $m: message_type). For example: -t /midi/$c/$m
-* --oscrawmidimessage or -r: send the raw MIDI data as part of the OSC message
+* --monitor or -m: dump information to standard output about the MIDI messages received and the OSC messages sent
 * --list: List input MIDI devices
 * --help: Display this help message
 * --version: Show the version number
 
+## m2o OSC message format
+The address by default is: /midi/<port id>/<channel>(if the message contains channel information).
+
+The message body is: (int)<port id>, (string)<port name>, (blob)<raw midi data>.
+
+The address can be templated with the -t argument.
 
 ## TODO
 * Hot-plugging / unplugging.
