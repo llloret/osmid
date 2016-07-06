@@ -46,6 +46,7 @@ struct ProgramOptions
 {
     vector<string> midiInputNames;
     bool allMidiInputs;
+    string oscOutputHost;
     vector<int> oscOutputPorts;
     bool useOscTemplate;
     string oscTemplate;
@@ -65,10 +66,11 @@ int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions &prog
     desc.add_options()
         ("list", "List input MIDI devices")
         ("midiin,i", po::value<vector<string>>(&programOptions.midiInputNames), "MIDI Input device (default: all) - can be specified multiple times")
-        ("oscout,o", po::value<vector<int>>(&programOptions.oscOutputPorts), "OSC Output port (default:57120) - can be specified multiple times")
+        ("oschost,H", po::value<string>(&programOptions.oscOutputHost)->default_value("localhost"), "OSC Output host (default:localhost)")
+        ("oscport,o", po::value<vector<int>>(&programOptions.oscOutputPorts), "OSC Output port (default:57120) - can be specified multiple times")
         ("osctemplate,t", po::value<string>(&programOptions.oscTemplate), "OSC output template (use $n: midi port name, $i: midi port id, $c: midi channel, $m: message_type")
         ("monitor,m", po::bool_switch(&programOptions.monitor)->default_value(false), "Monitor MIDI input and OSC output")
-        ("help", "Display this help message")
+        ("help,h", "Display this help message")
         ("version", "Show the version number");
 
     po::variables_map args;
@@ -151,7 +153,7 @@ int main(int argc, char* argv[]) {
     
     // Open the OSC output ports
     for (auto port : popts.oscOutputPorts) {
-        auto oscOutput = make_shared<OscOutput>("localhost", port, popts.monitor);
+        auto oscOutput = make_shared<OscOutput>(popts.oscOutputHost, port, popts.monitor);
         oscOutputs.push_back(move(oscOutput));
     }   
     

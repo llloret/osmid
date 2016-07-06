@@ -37,7 +37,8 @@ osmid uses the following libs:
 
 ## m2o parameters
 * --midiin or -i <MIDI Input device>: open the specified input device - can be specified multiple times to open more than one device
-* --oscout or -o <UDP port number>: use the specified port from OSC output - can be specified multiple times to send to more than one port
+* --oschost or -H <hostname or IP address>: send the OSC output to the specified host
+* --oscport or -o <UDP port number>: send the OSC output to the specified port - can be specified multiple times to send to more than one port
 * --osctemplate or -t <OSC template>: use the specified OSC output template (use $n: midi port name, $i midi port id, $c: midi channel, $m: message_type). For example: -t /midi/$c/$m
 * --monitor or -m: dump information to standard output about the MIDI messages received and the OSC messages sent
 * --list: List input MIDI devices
