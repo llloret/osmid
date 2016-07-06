@@ -34,6 +34,7 @@ public:
     MidiInProcessor(std::unique_ptr<MidiIn>&& input, std::vector<std::shared_ptr<OscOutput>> outputs, bool monitor = false);
     static void onMidi(double deltatime, std::vector<unsigned char> *message, void *userData);
     void setOscTemplate(const std::string& oscTemplate);
+    void setOscRawMidiMessage(bool oscRawMidiMessage);
     
 private:
     void doTemplateSubst(std::string &str, const std::string& portName, int portId, int channel, const std::string& message_type) const;
@@ -42,6 +43,7 @@ private:
     std::vector<std::shared_ptr<OscOutput>> m_outputs;
     bool m_useOscTemplate;
     std::string m_oscTemplate;
+    bool m_oscRawMidiMessage;
 
     bool m_monitor;
 
