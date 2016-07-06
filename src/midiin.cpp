@@ -24,7 +24,7 @@
 
 using namespace std;
 
-map<string, int> MidiIn::m_midiInputNameToId;
+map<string, int> MidiIn::m_midiInputNameToRtmidiId;
 vector<string> MidiIn::m_midiInputIdToName;
 
 
@@ -32,8 +32,8 @@ MidiIn::MidiIn(string portName) {
     cout << "MidiIn contructor for " << portName << endl;
     updateMidiDevicesNamesMapping();
     m_portName = portName;
-    m_portId = getPortIdFromName(m_portName);
-    m_midiIn.openPort(m_portId);
+    m_rtmidiId = getRtmidiIdFromName(m_portName);
+    m_midiIn.openPort(m_rtmidiId);
     m_midiIn.ignoreTypes(false, false, false);
 }
 
@@ -54,7 +54,7 @@ string MidiIn::getPortName() const
 
 int MidiIn::getPortId() const
 {
-    return m_portId;
+    return m_rtmidiId;
 }
 
 // Checks if the name matches the id. They may stop matching because of adding or removing MIDI devices while running
@@ -63,10 +63,10 @@ bool MidiIn::checkValid() const
 {
     RtMidiIn midiIn;
     unsigned int nPorts = midiIn.getPortCount();
-    if (m_portId >= nPorts)
+    if (m_rtmidiId >= nPorts)
         return false;
 
-    string nameForId = midiIn.getPortName(m_portId);
+    string nameForId = midiIn.getPortName(m_rtmidiId);
     if (nameForId != m_portName)
         return false;
 
@@ -88,12 +88,12 @@ void MidiIn::updateMidiDevicesNamesMapping()
 {
     m_midiInputIdToName = MidiIn::getInputNames();
     for (int i = 0; i < m_midiInputIdToName.size(); i++) {
-        m_midiInputNameToId[m_midiInputIdToName[i]] = i;
+        m_midiInputNameToRtmidiId[m_midiInputIdToName[i]] = i;
     }
 }
 
 
-int MidiIn::getPortIdFromName(string portName)
+int MidiIn::getRtmidiIdFromName(string portName)
 {
-    return m_midiInputNameToId.at(portName);
+    return m_midiInputNameToRtmidiId.at(portName);
 }
