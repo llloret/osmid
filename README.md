@@ -15,7 +15,7 @@ osmid is divided in 2 tools:
 Having two separate tools follows Unix ideas of having a number of smaller standalone tools instead of bigger monolithic ones. Since some projects might want to use just one direction for the conversion, it makes sense to keep this separation.
 
 ## m2o features
-* Portable: Works under Windows and Linux (not tested on Mac yet, but the idea is to have it working there, too)
+* Portable: Works under Windows, Linux and Mac
 * Compact
 * Very low latency
 * Customizable: can open a number of midi inputs, or all, and can configure the output UDP socket (if it is necessary to forward differnet MIDI devices to different OSC destinations, it is possible to do that invoking the program multiple times, with the appropriate arguments)
@@ -54,7 +54,8 @@ The address can be templated with the -t argument.
 
 ## TODO
 * Hot-plugging / unplugging.
-* "all" devices should mean not only the devices that are found at the beginning of the run, but ALL the devices, even the ones that get plugged in later.
+* Heartbeat message
+* "all" devices should mean not only the devices that are found at the beginning of the run, but ALL the devices, even the ones that get plugged in later. (I think this is in now)
 * Installers
 * TCP as well as UDP for packet transport? (not sure if there is any interest on this)
 
