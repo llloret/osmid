@@ -1,3 +1,5 @@
 *.o
 *~
 build/
+osmid.sublime-project
+osmid.sublime-workspace
