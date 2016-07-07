@@ -1,8 +1,10 @@
 # If Boost is not found call with -DBOOSTROOT=<path_to_boost>
 
 project (osmid)
-cmake_minimum_required (VERSION 3.2)
-set(CMAKE_CXX_STANDARD 14)
+cmake_minimum_required (VERSION 3.0)
+# Need cmake > 3.1, and debian jessie has 3.0.2
+# set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
