@@ -22,6 +22,6 @@ tar xvf osmid_$VERSION.orig.tar.gz
 
 cp -r $OSMIDDIR/installer/debian/debian $TARGETDIR/debian
 
-echo "Now, go into $TARGETDIR/debian and amend the debian files (mostly debian/changelog) to reflect the current status"
+echo "Now, go into $TARGETDIR/debian and amend the debian files (mostly changelog) to reflect the current status"
 echo "then cd .."
 echo "and execute: debuild -us -uc"
