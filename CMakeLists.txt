@@ -49,3 +49,7 @@ elseif(UNIX)
     add_definitions("-D__LINUX_ALSA__")
     target_link_libraries(m2o pthread ${ALSA_LIBRARY})
 endif(MSVC)
+
+if(UNIX)
+    install (TARGETS m2o DESTINATION bin)
+endif(UNIX)
