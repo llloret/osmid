@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 apt-get update
+apt-get install --yes libboost-system-dev libboost-program-options-dev libasound2-dev
 apt-get install --yes build-essential pkg-config devscripts debhelper git
 
 
