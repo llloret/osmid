@@ -38,7 +38,7 @@
 
 class OscOutput {
 public:
-	OscOutput(std::string dstOscHost, int dstOscPort, bool monitor = false);
+	OscOutput(std::string dstOscHost, int dstOscPort, unsigned int monitor = 0);
 	void sendUDP(const char *data, std::size_t size);
 
 private:
@@ -55,6 +55,6 @@ private:
     std::thread m_ioServiceThread;
     void ioServiceThread_func();
 #endif
-    bool m_monitor;
+    unsigned int m_monitor;
 
 };

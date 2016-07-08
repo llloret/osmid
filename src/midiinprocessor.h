@@ -31,7 +31,7 @@
 class MidiInProcessor
 {
 public:
-    MidiInProcessor(std::unique_ptr<MidiIn>&& input, std::vector<std::shared_ptr<OscOutput>> outputs, bool monitor = false);
+    MidiInProcessor(std::unique_ptr<MidiIn>&& input, std::vector<std::shared_ptr<OscOutput>> outputs, unsigned int monitor = 0);
     static void onMidi(double deltatime, std::vector<unsigned char> *message, void *userData);
     void setOscTemplate(const std::string& oscTemplate);
     void setOscRawMidiMessage(bool oscRawMidiMessage);
@@ -45,7 +45,7 @@ private:
     std::string m_oscTemplate;
     bool m_oscRawMidiMessage;
 
-    bool m_monitor;
+    unsigned int m_monitor;
 
     // To avoid having to construct the regex everytime
     static std::regex regexName;

@@ -35,7 +35,7 @@ regex MidiInProcessor::regexMessageType{ "\\$m" };
 regex MidiInProcessor::regexDoubleSlash{ "//" };
 
 
-MidiInProcessor::MidiInProcessor(unique_ptr<MidiIn>&& input, vector<shared_ptr<OscOutput>> outputs, bool monitor): 
+MidiInProcessor::MidiInProcessor(unique_ptr<MidiIn>&& input, vector<shared_ptr<OscOutput>> outputs, unsigned int monitor): 
     m_input(move(input)), m_outputs(outputs), m_useOscTemplate(false), m_monitor(monitor)
 {
 	m_input->setCallback(&MidiInProcessor::onMidi, this);
@@ -215,6 +215,23 @@ void MidiInProcessor::onMidi(double deltatime, std::vector<unsigned char> *messa
         }
     }
     p << osc::EndMessage;
+
+    // Dump the OSC message
+    if (midiInputProcessor->m_monitor) {
+        cout << "INFO prepared OSC: [" << path.str() << "]" << " -> " << portId << ", " << portNameWithoutSpaces;
+        if (midiInputProcessor->m_oscRawMidiMessage) {
+            if (!message->empty()) {
+                cout << ", <raw_midi_message>" << endl;
+            }
+        }
+        else {
+            for (int i = 1; i < nBytes; i++) {
+                cout << ", " << (int)message->at(i);
+            }
+            cout << endl;
+        }
+    }
+
 
     //start_time = chrono::high_resolution_clock::now();
 
