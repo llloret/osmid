@@ -24,14 +24,21 @@
 
 using namespace std;
 
-map<string, int> MidiIn::m_midiInputNameToRtmidiId;
-vector<string> MidiIn::m_midiInputIdToName;
+map<string, unsigned int> MidiIn::m_midiInputNameToRtmidiId;
+map<string, unsigned int> MidiIn::m_midiInputNameToStickyId;
+vector<string> MidiIn::m_midiRtmidiIdToName;
+unsigned int MidiIn::m_nStickyIds = 0;
 
 
 MidiIn::MidiIn(string portName) {
     cout << "MidiIn contructor for " << portName << endl;
     updateMidiDevicesNamesMapping();
     m_portName = portName;
+    if (!nameInStickyTable(m_portName))
+        m_stickyId = addNameToStickyTable(m_portName);
+    else
+        m_stickyId = getStickyIdFromName(m_portName);
+
     m_rtmidiId = getRtmidiIdFromName(m_portName);
     m_midiIn.openPort(m_rtmidiId);
     m_midiIn.ignoreTypes(false, false, false);
@@ -54,7 +61,7 @@ string MidiIn::getPortName() const
 
 int MidiIn::getPortId() const
 {
-    return m_rtmidiId;
+    return m_stickyId;
 }
 
 // Checks if the name matches the id. They may stop matching because of adding or removing MIDI devices while running
@@ -86,9 +93,9 @@ vector<string> MidiIn::getInputNames()
 
 void MidiIn::updateMidiDevicesNamesMapping()
 {
-    m_midiInputIdToName = MidiIn::getInputNames();
-    for (int i = 0; i < m_midiInputIdToName.size(); i++) {
-        m_midiInputNameToRtmidiId[m_midiInputIdToName[i]] = i;
+    m_midiRtmidiIdToName = MidiIn::getInputNames();
+    for (int i = 0; i < m_midiRtmidiIdToName.size(); i++) {
+        m_midiInputNameToRtmidiId[m_midiRtmidiIdToName[i]] = i;
     }
 }
 
@@ -96,4 +103,21 @@ void MidiIn::updateMidiDevicesNamesMapping()
 int MidiIn::getRtmidiIdFromName(string portName)
 {
     return m_midiInputNameToRtmidiId.at(portName);
+}
+
+bool MidiIn::nameInStickyTable(string portName)
+{
+    auto search = m_midiInputNameToStickyId.find(portName);
+    return (search != m_midiInputNameToStickyId.end());
+}
+
+unsigned int MidiIn::addNameToStickyTable(string portName)
+{
+    m_midiInputNameToStickyId[portName] = m_nStickyIds;
+    return m_nStickyIds++;
+}
+
+unsigned int MidiIn::getStickyIdFromName(string portName)
+{    
+    return m_midiInputNameToStickyId[portName];
 }

@@ -49,12 +49,17 @@ public:
     static void updateMidiDevicesNamesMapping();
 
 private:
+    static bool nameInStickyTable(std::string portName);
+    unsigned int addNameToStickyTable(std::string portName);
+    unsigned int getStickyIdFromName(std::string portName);
+    
     RtMidiIn m_midiIn;
     std::string m_portName;
     unsigned int m_rtmidiId;
     unsigned int m_stickyId;
 
-    static std::map<std::string, int> m_midiInputNameToRtmidiId;
-    static std::map<std::string, int> m_midiInputNameToStickyId;
-    static std::vector<std::string> m_midiInputIdToName;
+    static std::map<std::string, unsigned int> m_midiInputNameToRtmidiId;
+    static std::vector<std::string> m_midiRtmidiIdToName;
+    static std::map<std::string, unsigned int> m_midiInputNameToStickyId;
+    static unsigned int m_nStickyIds;
 };
