@@ -26,7 +26,7 @@
 using namespace std;
 using boost::asio::ip::udp;
 
-OscOutput::OscOutput(string dstOscHost, int dstOscPort, bool monitor) : m_monitor(monitor)
+OscOutput::OscOutput(string dstOscHost, int dstOscPort, unsigned int monitor) : m_monitor(monitor)
 {
 #ifdef USE_UDP_OSCPACK
     m_transmitSocket = make_unique<UdpTransmitSocket>(IpEndpointName(dstOscHost, dstOscPort));
@@ -78,7 +78,7 @@ void OscOutput::sendUDP(const char *data, size_t size)
 #else
     try {
         m_socket->send_to(boost::asio::buffer(data, size), m_receiverEndpoint);
-        if (m_monitor)
+        if (m_monitor >= 2)
             dumpMessage(data, size);
         
     }

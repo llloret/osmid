@@ -1,3 +1,7 @@
 *.o
 *~
 build/
+.vagrant
+osmid.sublime-project
+osmid.sublime-workspace
+

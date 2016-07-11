@@ -40,7 +40,8 @@ osmid uses the following libs:
 * --oschost or -H <hostname or IP address>: send the OSC output to the specified host
 * --oscport or -o <UDP port number>: send the OSC output to the specified port - can be specified multiple times to send to more than one port
 * --osctemplate or -t <OSC template>: use the specified OSC output template (use $n: midi port name, $i midi port id, $c: midi channel, $m: message_type). For example: -t /midi/$c/$m
-* --monitor or -m: dump information to standard output about the MIDI messages received and the OSC messages sent
+* --oscrawmidimessage or -r: send the raw MIDI data in the OSC message, instead of a decoded version
+* --monitor or -m: dump information to standard output about the MIDI messages received and the OSC messages encoded and sent. Use -m 2 to see sent OSC ove the wire.
 * --list: List input MIDI devices
 * --help: Display this help message
 * --version: Show the version number
@@ -48,7 +49,10 @@ osmid uses the following libs:
 ## m2o OSC message format
 The address by default is: /midi/<port id>/<channel>(if the message contains channel information).
 
-The message body is: (int)<port id>, (string)<port name>, (blob)<raw midi data>.
+The message body is: 
+* By default: (int)<port id>, (string)<port name>, <decoded message data>(i.e. for note_on messages, it will be 2 integers: note, velocity)
+* if -r specified: (int)<port id>, (string)<port name>, (blob)<raw midi data>. 
+
 
 The address can be templated with the -t argument.
 
