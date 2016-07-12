@@ -70,6 +70,8 @@ void OscOutput::dumpMessage(const char *data, size_t size)
 
 void OscOutput::sendUDP(const char *data, size_t size)
 {
+    // it is not thread safe to share udp objects...
+    lock_guard<mutex> lock(m_sendMutex);
 #ifdef USE_UDP_OSCPACK
     m_transmitSocket->Send(data, size);
 #elif defined(USE_UDP_BOOST_ASYNC)
