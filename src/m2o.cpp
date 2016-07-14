@@ -66,7 +66,7 @@ int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions &prog
     po::options_description desc("mos Usage");
 
     desc.add_options()
-        ("list", "List input MIDI devices")
+        ("list,l", "List input MIDI devices")
         ("midiin,i", po::value<vector<string>>(&programOptions.midiInputNames), "MIDI Input device (default: all) - can be specified multiple times")
         ("oschost,H", po::value<string>(&programOptions.oscOutputHost)->default_value("localhost"), "OSC Output host (default:localhost)")
         ("oscport,o", po::value<vector<int>>(&programOptions.oscOutputPorts), "OSC Output port (default:57120) - can be specified multiple times")
@@ -200,4 +200,4 @@ int main(int argc, char* argv[]) {
         sendHeartBeat(midiInputProcessors, oscOutputs);
     }
 }
-    
+
