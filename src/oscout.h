@@ -23,6 +23,7 @@
 #pragma once
 #include <string>
 #include <memory>
+#include <mutex>
 #ifdef USE_UDP_BOOST_ASYNC
     #include <thread>
 #endif
@@ -56,5 +57,6 @@ private:
     void ioServiceThread_func();
 #endif
     unsigned int m_monitor;
+    std::mutex m_sendMutex;
 
 };

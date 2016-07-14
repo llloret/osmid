@@ -45,17 +45,21 @@ public:
     int getPortId() const;
 
     static std::vector<std::string> getInputNames();
-    static int getPortIdFromName(std::string portName);
+    static int getRtmidiIdFromName(std::string portName);
     static void updateMidiDevicesNamesMapping();
 
 private:
+    static bool nameInStickyTable(std::string portName);
+    unsigned int addNameToStickyTable(std::string portName);
+    unsigned int getStickyIdFromName(std::string portName);
+    
     RtMidiIn m_midiIn;
     std::string m_portName;
-    // TODO: There will be a port id for the rtmidi, and a higher level portid at the MidiIn level, to help with hotplug
-    // getPortId should retyurn the high level one
-    // The RtMIDI one should be internal to this class and completely private
-    unsigned int m_portId;
+    unsigned int m_rtmidiId;
+    unsigned int m_stickyId;
 
-    static std::map<std::string, int> m_midiInputNameToId;
-    static std::vector<std::string> m_midiInputIdToName;
+    static std::map<std::string, unsigned int> m_midiInputNameToRtmidiId;
+    static std::vector<std::string> m_midiRtmidiIdToName;
+    static std::map<std::string, unsigned int> m_midiInputNameToStickyId;
+    static unsigned int m_nStickyIds;
 };

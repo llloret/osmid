@@ -26,6 +26,7 @@
 #include "midiin.h"
 #include "oscout.h"
 #include "midiinprocessor.h"
+#include "osc/OscOutboundPacketStream.h"
 #include "version.h"
 
 using namespace std;
@@ -65,7 +66,7 @@ int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions &prog
     po::options_description desc("mos Usage");
 
     desc.add_options()
-        ("list", "List input MIDI devices")
+        ("list,l", "List input MIDI devices")
         ("midiin,i", po::value<vector<string>>(&programOptions.midiInputNames), "MIDI Input device (default: all) - can be specified multiple times")
         ("oschost,H", po::value<string>(&programOptions.oscOutputHost)->default_value("localhost"), "OSC Output host (default:localhost)")
         ("oscport,o", po::value<vector<int>>(&programOptions.oscOutputPorts), "OSC Output port (default:57120) - can be specified multiple times")
@@ -141,6 +142,21 @@ void prepareMidiProcessors(vector<shared_ptr<MidiInProcessor>>& midiInputProcess
     }
 }
 
+void sendHeartBeat(const vector<shared_ptr<MidiInProcessor>>& midiProcessors, const vector<shared_ptr<OscOutput>>& oscOutputs)
+{
+    char buffer[1024];
+    osc::OutboundPacketStream p(buffer, 1024);
+    p << osc::BeginMessage("/midi/heartbeat");
+    for (auto midiProcessor : midiProcessors) {
+        p << osc::BeginArray;
+        p << midiProcessor->getInputId() << midiProcessor->getInputPortname().c_str();
+        p << osc::EndArray;
+    }
+    p << osc::EndMessage;
+    for (auto& output : oscOutputs) {
+        output->sendUDP(p.Data(), p.Size());
+    }
+}
 
 int main(int argc, char* argv[]) {
     // midiInputProcessors will contain the list of active MidiIns at a given time
@@ -181,6 +197,7 @@ int main(int argc, char* argv[]) {
             lastAvailablePorts = newAvailablePorts;
             listAvailablePorts();
         }
-    };
+        sendHeartBeat(midiInputProcessors, oscOutputs);
+    }
 }
-    
+

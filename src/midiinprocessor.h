@@ -35,6 +35,8 @@ public:
     static void onMidi(double deltatime, std::vector<unsigned char> *message, void *userData);
     void setOscTemplate(const std::string& oscTemplate);
     void setOscRawMidiMessage(bool oscRawMidiMessage);
+    int getInputId() const { return m_input->getPortId(); };
+    std::string getInputPortname() const { return m_input->getPortName(); } ;
     
 private:
     void doTemplateSubst(std::string &str, const std::string& portName, int portId, int channel, const std::string& message_type) const;
