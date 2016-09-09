@@ -51,7 +51,7 @@ elseif(APPLE)
     set(CMAKE_EXE_LINKER_FLAGS "-framework CoreMIDI -framework CoreAudio -framework CoreFoundation")
 elseif(UNIX)
     add_definitions("-D__LINUX_ALSA__")
-    target_link_libraries(m2o pthread ${ALSA_LIBRARY})
+    target_link_libraries(m2o pthread ${ALSA_LIBRARY} dl rt X11)
 endif(MSVC)
 
 if(UNIX)

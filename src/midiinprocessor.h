@@ -40,7 +40,7 @@ public:
     
 private:
     void doTemplateSubst(std::string &str, const std::string& portName, int portId, int channel, const std::string& message_type) const;
-    void MidiInProcessor::dumpMIDIMessage(const uint8_t *message, int size) const;
+    void dumpMIDIMessage(const uint8_t *message, int size) const;
     std::unique_ptr<MidiIn> m_input;
     std::vector<std::shared_ptr<OscOutput>> m_outputs;
     bool m_useOscTemplate;
