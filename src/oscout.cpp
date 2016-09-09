@@ -32,11 +32,11 @@ OscOutput::OscOutput(string dstOscHost, int dstOscPort, unsigned int monitor) : 
 }
 
 
-void OscOutput::sendUDP(const OSCMessage& msg)
+bool OscOutput::sendUDP(const OSCMessage& msg)
 {
     // it is not thread safe to share udp objects...
     lock_guard<mutex> lock(m_sendMutex);
-    m_socket->send(msg);
+    return m_socket->send(msg);
 }
 
 #if 0

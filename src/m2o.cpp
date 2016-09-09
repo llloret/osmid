@@ -62,12 +62,12 @@ void showVersion()
 
 int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions &programOptions)
 {
-    po::options_description desc("mos Usage");
+    po::options_description desc("m2o Usage");
 
     desc.add_options()
         ("list,l", "List input MIDI devices")
         ("midiin,i", po::value<vector<string>>(&programOptions.midiInputNames), "MIDI Input device (default: all) - can be specified multiple times")
-        ("oschost,H", po::value<string>(&programOptions.oscOutputHost)->default_value("localhost"), "OSC Output host (default:localhost)")
+        ("oschost,H", po::value<string>(&programOptions.oscOutputHost)->default_value("127.0.0.1"), "OSC Output host (default:127.0.01)")
         ("oscport,o", po::value<vector<int>>(&programOptions.oscOutputPorts), "OSC Output port (default:57120) - can be specified multiple times")
         ("osctemplate,t", po::value<string>(&programOptions.oscTemplate), "OSC output template (use $n: midi port name, $i: midi port id, $c: midi channel, $m: message_type")
         ("oscrawmidimessage,r", po::bool_switch(&programOptions.oscRawMidiMessage)->default_value(false), "OSC send the raw MIDI data as part of the OSC message")

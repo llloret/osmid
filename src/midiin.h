@@ -45,7 +45,7 @@ public:
     int getPortId() const;
 
     static std::vector<std::string> getInputNames();
-    static int getRtmidiIdFromName(std::string portName);
+    static int getJuceMidiIdFromName(std::string portName);
     static void updateMidiDevicesNamesMapping();
 
 private:

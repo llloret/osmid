@@ -30,7 +30,7 @@
 class OscOutput {
 public:
 	OscOutput(std::string dstOscHost, int dstOscPort, unsigned int monitor = 0);
-	void sendUDP(const OSCMessage& msg);
+	bool sendUDP(const OSCMessage& msg);
 
 private:
 #if 0

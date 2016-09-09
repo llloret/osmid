@@ -40,8 +40,9 @@ MidiIn::MidiIn(string portName, MidiInputCallback *midiInputCallback) {
     else
         m_stickyId = getStickyIdFromName(m_portName);
 
-    m_juceMidiId = getRtmidiIdFromName(m_portName);
+    m_juceMidiId = getJuceMidiIdFromName(m_portName);
     m_midiIn = MidiInput::openDevice(m_juceMidiId, midiInputCallback);
+    m_midiIn->start();
 }
 
 MidiIn::~MidiIn() {
@@ -96,7 +97,7 @@ void MidiIn::updateMidiDevicesNamesMapping()
 }
 
 
-int MidiIn::getRtmidiIdFromName(string portName)
+int MidiIn::getJuceMidiIdFromName(string portName)
 {
     return m_midiInputNameToJuceMidiId.at(portName);
 }
