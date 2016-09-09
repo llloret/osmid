@@ -126,9 +126,8 @@ void prepareMidiProcessors(vector<shared_ptr<MidiInProcessor>>& midiInputProcess
 
     for (auto& input : midiInputsToOpen) {
         cout << "Opening input: " << input << endl;
-        try {
-            auto midiInput = make_unique<MidiIn>(input);
-            auto midiInputProcessor = make_unique<MidiInProcessor>(move(midiInput), oscOutputs, popts.monitor);
+        try {            
+            auto midiInputProcessor = make_unique<MidiInProcessor>(input, oscOutputs, popts.monitor);
             if (popts.useOscTemplate)
                 midiInputProcessor->setOscTemplate(popts.oscTemplate);
             midiInputProcessor->setOscRawMidiMessage(popts.oscRawMidiMessage);

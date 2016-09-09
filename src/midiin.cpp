@@ -25,13 +25,13 @@
 
 using namespace std;
 
-map<string, unsigned int> MidiIn::m_midiInputNameToRtmidiId;
+map<string, unsigned int> MidiIn::m_midiInputNameToJuceMidiId;
 map<string, unsigned int> MidiIn::m_midiInputNameToStickyId;
-vector<string> MidiIn::m_midiRtmidiIdToName;
+vector<string> MidiIn::m_midiJuceMidiIdToName;
 unsigned int MidiIn::m_nStickyIds = 0;
 
 
-MidiIn::MidiIn(string portName) {
+MidiIn::MidiIn(string portName, MidiInputCallback *midiInputCallback) {
     cout << "MidiIn contructor for " << portName << endl;
     updateMidiDevicesNamesMapping();
     m_portName = portName;
@@ -40,20 +40,14 @@ MidiIn::MidiIn(string portName) {
     else
         m_stickyId = getStickyIdFromName(m_portName);
 
-    m_rtmidiId = getRtmidiIdFromName(m_portName);
-    m_midiIn.openPort(m_rtmidiId);
-    m_midiIn.ignoreTypes(false, false, false);
+    m_juceMidiId = getRtmidiIdFromName(m_portName);
+    m_midiIn = MidiInput::openDevice(m_juceMidiId, midiInputCallback);
 }
 
 MidiIn::~MidiIn() {
     cout << "MidiIn destructor for " << m_portName << endl;
 }
 
-
-void MidiIn::setCallback(RtMidiIn::RtMidiCallback callback, void *userData)
-{
-    m_midiIn.setCallback(callback, userData); 
-}
 
 string MidiIn::getPortName() const
 {
@@ -69,12 +63,12 @@ int MidiIn::getPortId() const
 // This should be called after we detect a change in the list of MIDI devices, for finer control of which MidiIns to keep
 bool MidiIn::checkValid() const
 {
-    RtMidiIn midiIn;
-    unsigned int nPorts = midiIn.getPortCount();
-    if (m_rtmidiId >= nPorts)
+    auto strArray = MidiInput::getDevices();
+    int nPorts = strArray.size();
+    if (m_juceMidiId >= nPorts)
         return false;
 
-    string nameForId = midiIn.getPortName(m_rtmidiId);
+    string nameForId = strArray[m_juceMidiId].toStdString();
     if (nameForId != m_portName)
         return false;
 
@@ -82,28 +76,29 @@ bool MidiIn::checkValid() const
 }
 
 vector<string> MidiIn::getInputNames()
-{
-    RtMidiIn midiIn;
-    unsigned int nPorts = midiIn.getPortCount();
+{    
+    auto strArray = MidiInput::getDevices();
+    int nPorts = strArray.size();
     vector<string> names(nPorts);
+
     for (unsigned int i = 0; i < nPorts; i++) {
-        names[i] = midiIn.getPortName(i);
+        names[i] = strArray[i].toStdString();
     }
     return names;
 }
 
 void MidiIn::updateMidiDevicesNamesMapping()
 {
-    m_midiRtmidiIdToName = MidiIn::getInputNames();
-    for (int i = 0; i < m_midiRtmidiIdToName.size(); i++) {
-        m_midiInputNameToRtmidiId[m_midiRtmidiIdToName[i]] = i;
+    m_midiJuceMidiIdToName = MidiIn::getInputNames();
+    for (int i = 0; i < m_midiJuceMidiIdToName.size(); i++) {
+        m_midiInputNameToJuceMidiId[m_midiJuceMidiIdToName[i]] = i;
     }
 }
 
 
 int MidiIn::getRtmidiIdFromName(string portName)
 {
-    return m_midiInputNameToRtmidiId.at(portName);
+    return m_midiInputNameToJuceMidiId.at(portName);
 }
 
 bool MidiIn::nameInStickyTable(string portName)

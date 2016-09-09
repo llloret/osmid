@@ -33,7 +33,7 @@
 // This class manages a MIDI input device as seen by RtMidi
 class MidiIn {
 public:
-    MidiIn(std::string portName);
+    MidiIn(std::string portName, MidiInputCallback *midiInputCallback);
     MidiIn(const MidiIn&) = delete;
     MidiIn& operator=(const MidiIn&) = delete;
     
@@ -41,7 +41,6 @@ public:
 
     bool checkValid() const;
 
-    void setCallback(RtMidiIn::RtMidiCallback callback, void *userData);
     std::string getPortName() const;
     int getPortId() const;
 
@@ -54,13 +53,13 @@ private:
     unsigned int addNameToStickyTable(std::string portName);
     unsigned int getStickyIdFromName(std::string portName);
     
-    MidiInput m_midiIn;
+    MidiInput *m_midiIn;
     std::string m_portName;
-    unsigned int m_rtmidiId;
+    unsigned int m_juceMidiId;
     unsigned int m_stickyId;
 
-    static std::map<std::string, unsigned int> m_midiInputNameToRtmidiId;
-    static std::vector<std::string> m_midiRtmidiIdToName;
+    static std::map<std::string, unsigned int> m_midiInputNameToJuceMidiId;
+    static std::vector<std::string> m_midiJuceMidiIdToName;
     static std::map<std::string, unsigned int> m_midiInputNameToStickyId;
     static unsigned int m_nStickyIds;
 };
