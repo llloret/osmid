@@ -22,11 +22,10 @@
 
 #include <stdexcept>
 #include <boost/program_options.hpp>
-
+#include <iostream>
 #include "midiin.h"
 #include "oscout.h"
 #include "midiinprocessor.h"
-#include "osc/OscOutboundPacketStream.h"
 #include "version.h"
 
 using namespace std;
@@ -63,12 +62,12 @@ void showVersion()
 
 int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions &programOptions)
 {
-    po::options_description desc("mos Usage");
+    po::options_description desc("m2o Usage");
 
     desc.add_options()
         ("list,l", "List input MIDI devices")
         ("midiin,i", po::value<vector<string>>(&programOptions.midiInputNames), "MIDI Input device (default: all) - can be specified multiple times")
-        ("oschost,H", po::value<string>(&programOptions.oscOutputHost)->default_value("localhost"), "OSC Output host (default:localhost)")
+        ("oschost,H", po::value<string>(&programOptions.oscOutputHost)->default_value("127.0.0.1"), "OSC Output host (default:127.0.01)")
         ("oscport,o", po::value<vector<int>>(&programOptions.oscOutputPorts), "OSC Output port (default:57120) - can be specified multiple times")
         ("osctemplate,t", po::value<string>(&programOptions.oscTemplate), "OSC output template (use $n: midi port name, $i: midi port id, $c: midi channel, $m: message_type")
         ("oscrawmidimessage,r", po::bool_switch(&programOptions.oscRawMidiMessage)->default_value(false), "OSC send the raw MIDI data as part of the OSC message")
@@ -127,9 +126,8 @@ void prepareMidiProcessors(vector<shared_ptr<MidiInProcessor>>& midiInputProcess
 
     for (auto& input : midiInputsToOpen) {
         cout << "Opening input: " << input << endl;
-        try {
-            auto midiInput = make_unique<MidiIn>(input);
-            auto midiInputProcessor = make_unique<MidiInProcessor>(move(midiInput), oscOutputs, popts.monitor);
+        try {            
+            auto midiInputProcessor = make_unique<MidiInProcessor>(input, oscOutputs, popts.monitor);
             if (popts.useOscTemplate)
                 midiInputProcessor->setOscTemplate(popts.oscTemplate);
             midiInputProcessor->setOscRawMidiMessage(popts.oscRawMidiMessage);
@@ -144,17 +142,13 @@ void prepareMidiProcessors(vector<shared_ptr<MidiInProcessor>>& midiInputProcess
 
 void sendHeartBeat(const vector<shared_ptr<MidiInProcessor>>& midiProcessors, const vector<shared_ptr<OscOutput>>& oscOutputs)
 {
-    char buffer[1024];
-    osc::OutboundPacketStream p(buffer, 1024);
-    p << osc::BeginMessage("/midi/heartbeat");
+    OSCMessage msg("/midi/heartbeat");
     for (auto midiProcessor : midiProcessors) {
-        p << osc::BeginArray;
-        p << midiProcessor->getInputId() << midiProcessor->getInputPortname().c_str();
-        p << osc::EndArray;
+        msg.addInt32(midiProcessor->getInputId());
+        msg.addString(midiProcessor->getInputPortname());
     }
-    p << osc::EndMessage;
     for (auto& output : oscOutputs) {
-        output->sendUDP(p.Data(), p.Size());
+        output->sendUDP(msg);
     }
 }
 

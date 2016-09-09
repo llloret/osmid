@@ -27,7 +27,7 @@ o2m, the OSC to MIDI conversion is not implemented yet.
 ## Building
 For build instruction see INSTALL.md.
 
-osmid is built with C++11/14. The build system is based on cmake. Target compiler in Windows is MSVC 2015 Win64, and in Linux is gcc 4.9 or later.
+osmid is built with C++11/14. The build system is based on cmake. Target compiler in Windows is MSVC 2015 Win64, and in Linux is gcc 4.9 or later. Prepare using something like: `cmake -G "Visual Studio 14 2015 Win64" .. -DBOOSTROOT=d:\sdk\boost_1_61_0`
 
 osmid uses the following libs:
 * RtMidi, for the midi handling (included in the tree)

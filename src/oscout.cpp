@@ -24,39 +24,27 @@
 #include "oscout.h"
 
 using namespace std;
-using boost::asio::ip::udp;
 
 OscOutput::OscOutput(string dstOscHost, int dstOscPort, unsigned int monitor) : m_monitor(monitor)
 {
-#ifdef USE_UDP_OSCPACK
-    m_transmitSocket = make_unique<UdpTransmitSocket>(IpEndpointName(dstOscHost, dstOscPort));
-#else
-    prepareUDPSocket(dstOscPort);
-#endif
-#ifdef USE_UDP_BOOST_ASYNC
-    m_ioServiceThread = std::move(thread(std::bind(&MidiIn::ioServiceThread_func, this)));
-#endif  
+    m_socket = make_unique<OSCSender>();
+    m_socket->connect(dstOscHost, dstOscPort);
 }
 
 
-#ifndef USE_UDP_OSCPACK
-void OscOutput::prepareUDPSocket(int port)
+bool OscOutput::sendUDP(const OSCMessage& msg)
 {
-    udp::resolver resolver(m_ioService);
-    udp::resolver::query query(udp::v4(), "localhost", to_string(port));
-    m_receiverEndpoint = std::move(udp::endpoint(*resolver.resolve(query)));
-
-    m_socket = make_unique<udp::socket>(m_ioService);
-    m_socket->open(udp::v4());
+    // it is not thread safe to share udp objects...
+    lock_guard<mutex> lock(m_sendMutex);
+    return m_socket->send(msg);
 }
-#endif
 
-
-void OscOutput::dumpMessage(const char *data, size_t size)
+#if 0
+void OscOutput::dumpMessage(const OSCMessage& msg)
 {
-    
+
     cout << "INFO sent UDP message: ";
-    for (int i = 0; i < size; i++){
+    for (int i = 0; i < size; i++) {
         const unsigned char udata = (unsigned char)(data[i]);
         // is it printable?
         if (udata >= 32 && udata <= 127)
@@ -66,33 +54,5 @@ void OscOutput::dumpMessage(const char *data, size_t size)
     }
     cout << endl;
 }
-
-
-void OscOutput::sendUDP(const char *data, size_t size)
-{
-    // it is not thread safe to share udp objects...
-    lock_guard<mutex> lock(m_sendMutex);
-#ifdef USE_UDP_OSCPACK
-    m_transmitSocket->Send(data, size);
-#elif defined(USE_UDP_BOOST_ASYNC)
-    m_socket->async_send_to(boost::asio::buffer(data, size), m_receiverEndpoint,
-        [](const boost::system::error_code& error, std::size_t bytes_transferred) {});
-#else
-    try {
-        m_socket->send_to(boost::asio::buffer(data, size), m_receiverEndpoint);
-        if (m_monitor >= 2)
-            dumpMessage(data, size);
-        
-    }
-    catch (const boost::system::system_error& e) {
-        cout << "ERROR sending through udp socket: " << e.what() << endl;
-    }
 #endif
-}
 
-#ifdef USE_UDP_BOOST_ASYNC
-void OscOutput::ioServiceThread_func()
-{
-    m_ioService.run();
-}
-#endif

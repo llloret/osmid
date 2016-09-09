@@ -19,12 +19,7 @@ elseif(UNIX)
 endif(APPLE)
 
 
-set(oscpack_path ${PROJECT_SOURCE_DIR}/external_libs/oscpack_1_1_0)
-set(rtmidi_path ${PROJECT_SOURCE_DIR}/ external_libs/rtmidi)
-
-add_subdirectory(${oscpack_path})
-
-include_directories(${oscpack_path} ${Boost_INCLUDE_DIR} ${rtmidi_path})
+include_directories(${Boost_INCLUDE_DIR} JuceLibraryCode JuceLibraryCode/modules)
 
 set(m2o_sources
     src/m2o.cpp
@@ -32,12 +27,17 @@ set(m2o_sources
     src/oscout.cpp
     src/midiinprocessor.cpp
     src/utils.cpp
-    ${rtmidi_path}/RtMidi.cpp    
+    JuceLibraryCode/juce_audio_basics.cpp
+    JuceLibraryCode/juce_audio_devices.cpp
+    JuceLibraryCode/juce_audio_formats.cpp
+    JuceLibraryCode/juce_core.cpp
+    JuceLibraryCode/juce_data_structures.cpp
+    JuceLibraryCode/juce_events.cpp
+    JuceLibraryCode/juce_osc.cpp
 )
 
 link_directories(${Boost_LIBRARY_DIR_DEBUG})
 add_executable(m2o ${m2o_sources})
-target_link_libraries(m2o oscpack)
 target_link_libraries(m2o debug ${Boost_SYSTEM_LIBRARY_DEBUG} optimized ${Boost_SYSTEM_LIBRARY_RELEASE})
 target_link_libraries(m2o debug ${Boost_PROGRAM_OPTIONS_LIBRARY_DEBUG} optimized ${Boost_PROGRAM_OPTIONS_LIBRARY_RELEASE})
 

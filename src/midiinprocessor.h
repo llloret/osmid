@@ -28,11 +28,11 @@
 #include "midiin.h"
 #include "oscout.h"
 
-class MidiInProcessor
+class MidiInProcessor : public MidiInputCallback
 {
 public:
-    MidiInProcessor(std::unique_ptr<MidiIn>&& input, std::vector<std::shared_ptr<OscOutput>> outputs, unsigned int monitor = 0);
-    static void onMidi(double deltatime, std::vector<unsigned char> *message, void *userData);
+    MidiInProcessor(const std::string& inputName, std::vector<std::shared_ptr<OscOutput>> outputs, unsigned int monitor = 0);
+    void handleIncomingMidiMessage(MidiInput *source, const MidiMessage &midiMessage) override;
     void setOscTemplate(const std::string& oscTemplate);
     void setOscRawMidiMessage(bool oscRawMidiMessage);
     int getInputId() const { return m_input->getPortId(); };
@@ -40,7 +40,7 @@ public:
     
 private:
     void doTemplateSubst(std::string &str, const std::string& portName, int portId, int channel, const std::string& message_type) const;
-    void dumpMIDIMessage(std::vector<unsigned char> *message) const;
+    void MidiInProcessor::dumpMIDIMessage(const uint8_t *message, int size) const;
     std::unique_ptr<MidiIn> m_input;
     std::vector<std::shared_ptr<OscOutput>> m_outputs;
     bool m_useOscTemplate;
