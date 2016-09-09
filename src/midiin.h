@@ -27,7 +27,8 @@
 #include <memory>
 #include <vector>
 #include <map>
-#include "RtMidi.h"
+#include <string>
+#include "../JuceLibraryCode/JuceHeader.h"
 
 // This class manages a MIDI input device as seen by RtMidi
 class MidiIn {
@@ -53,7 +54,7 @@ private:
     unsigned int addNameToStickyTable(std::string portName);
     unsigned int getStickyIdFromName(std::string portName);
     
-    RtMidiIn m_midiIn;
+    MidiInput m_midiIn;
     std::string m_portName;
     unsigned int m_rtmidiId;
     unsigned int m_stickyId;

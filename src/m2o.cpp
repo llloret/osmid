@@ -22,11 +22,10 @@
 
 #include <stdexcept>
 #include <boost/program_options.hpp>
-
+#include <iostream>
 #include "midiin.h"
 #include "oscout.h"
 #include "midiinprocessor.h"
-#include "osc/OscOutboundPacketStream.h"
 #include "version.h"
 
 using namespace std;
@@ -144,17 +143,13 @@ void prepareMidiProcessors(vector<shared_ptr<MidiInProcessor>>& midiInputProcess
 
 void sendHeartBeat(const vector<shared_ptr<MidiInProcessor>>& midiProcessors, const vector<shared_ptr<OscOutput>>& oscOutputs)
 {
-    char buffer[1024];
-    osc::OutboundPacketStream p(buffer, 1024);
-    p << osc::BeginMessage("/midi/heartbeat");
+    OSCMessage msg("/midi/heartbeat");
     for (auto midiProcessor : midiProcessors) {
-        p << osc::BeginArray;
-        p << midiProcessor->getInputId() << midiProcessor->getInputPortname().c_str();
-        p << osc::EndArray;
+        msg.addInt32(midiProcessor->getInputId());
+        msg.addString(midiProcessor->getInputPortname());
     }
-    p << osc::EndMessage;
     for (auto& output : oscOutputs) {
-        output->sendUDP(p.Data(), p.Size());
+        output->sendUDP(msg);
     }
 }
 

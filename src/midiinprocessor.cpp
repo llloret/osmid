@@ -22,8 +22,9 @@
 
 #include <regex>
 #include <algorithm>
+#include <sstream>
+#include <cassert>
 #include "midiinprocessor.h"
-#include "osc/OscOutboundPacketStream.h"
 #include "utils.h"
 
 using namespace std;
@@ -195,26 +196,30 @@ void MidiInProcessor::onMidi(double deltatime, std::vector<unsigned char> *messa
     //cout << "Prepare string: " << e << endl << flush;
 
     // And now prepare the OSC message body
-    char buffer[1024];
-    osc::OutboundPacketStream p(buffer, 1024);
-    p << osc::BeginMessage(path.str().c_str());
+    //p << osc::BeginMessage(path.str().c_str());
+    OSCMessage msg(path.str().c_str());
 
     // send device id and name as part of the message
-    p << static_cast<int>(portId) << portNameWithoutSpaces.c_str();
-    
+    //p << static_cast<int>(portId) << portNameWithoutSpaces.c_str();
+    msg.addInt32(static_cast<int>(portId));
+    msg.addString(portNameWithoutSpaces);
+        
     // send the raw midi message as part of the body
     // do we want a raw midi message?
     if (midiInputProcessor->m_oscRawMidiMessage) {
         if (!message->empty()) {
-            p << osc::Blob(&((*message)[0]), static_cast<osc::osc_bundle_element_size_t>(message->size()));
+            //p << osc::Blob(&((*message)[0]), static_cast<osc::osc_bundle_element_size_t>(message->size()));
+            MemoryBlock mb(&((*message)[0]), message->size());
+            msg.addBlob(mb);
         }
     }
     else {
         for (int i = 1; i < nBytes; i++) {
-            p << (int)message->at(i);
+            //p << (int)message->at(i);
+            msg.addInt32((int)message->at(i));
         }
     }
-    p << osc::EndMessage;
+    //p << osc::EndMessage;
 
     // Dump the OSC message
     if (midiInputProcessor->m_monitor) {
@@ -237,7 +242,7 @@ void MidiInProcessor::onMidi(double deltatime, std::vector<unsigned char> *messa
 
     // And send the message to the specified output ports
     for (auto& output : midiInputProcessor->m_outputs) {
-        output->sendUDP(p.Data(), p.Size());
+        output->sendUDP(msg);
     }
 
     //end_time = chrono::high_resolution_clock::now();

@@ -24,38 +24,19 @@
 #include <string>
 #include <memory>
 #include <mutex>
-#ifdef USE_UDP_BOOST_ASYNC
-    #include <thread>
-#endif
-
-
-#ifdef USE_UDP_OSCPACK
-	#include "ip/UdpSocket.h"
-#else
-	#include <boost/asio.hpp>
-#endif
-
+#include "../JuceLibraryCode/JuceHeader.h"
 
 
 class OscOutput {
 public:
 	OscOutput(std::string dstOscHost, int dstOscPort, unsigned int monitor = 0);
-	void sendUDP(const char *data, std::size_t size);
+	void sendUDP(const OSCMessage& msg);
 
 private:
-    void dumpMessage(const char *data, size_t size);
-#ifdef USE_UDP_OSCPACK
-    std::unique_ptr<UdpTransmitSocket> m_transmitSocket;
-#else
-    boost::asio::io_service m_ioService;
-    std::unique_ptr<boost::asio::ip::udp::socket> m_socket;
-    boost::asio::ip::udp::endpoint m_receiverEndpoint;
-    void prepareUDPSocket(int port);
+#if 0
+    void dumpMessage(const OSCMessage& msg);
 #endif
-#ifdef USE_UDP_BOOST_ASYNC
-    std::thread m_ioServiceThread;
-    void ioServiceThread_func();
-#endif
+    std::unique_ptr<OSCSender> m_socket;
     unsigned int m_monitor;
     std::mutex m_sendMutex;
 
