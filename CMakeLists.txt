@@ -4,6 +4,9 @@ project (osmid)
 cmake_minimum_required (VERSION 3.0)
 # Need cmake > 3.1, and debian jessie has 3.0.2
 #set(CMAKE_CXX_STANDARD 14)
+
+set(CMAKE_VERBOSE_MAKEFILE ON)
+
 if(NOT MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 endif(NOT MSVC)
@@ -44,13 +47,13 @@ target_link_libraries(m2o debug ${Boost_PROGRAM_OPTIONS_LIBRARY_DEBUG} optimized
 add_definitions("-DBOOST_REGEX_NO_LIB")
 
 if(MSVC)
-    add_definitions("-D__WINDOWS_MM__ -D_WIN32_WINNT=0x0600")
+    add_definitions("-D_WIN32_WINNT=0x0600 -DJUCER_LINUX_MAKE_6D53C8B4=1 -DJUCE_APP_VERSION=1.0.0 -DJUCE_APP_VERSION_HEX=0x10000")
     target_link_libraries(m2o winmm Ws2_32)
 elseif(APPLE)
-    add_definitions("-D__MACOSX_CORE__")
+    add_definitions("-DNDEBUG=1 -DJUCER_XCODE_MAC_F6D2F4CF=1 -DJUCE_APP_VERSION=1.0.0 -DJUCE_APP_VERSION_HEX=0x10000")
     set(CMAKE_EXE_LINKER_FLAGS "-framework CoreMIDI -framework CoreAudio -framework CoreFoundation")
 elseif(UNIX)
-    add_definitions("-D__LINUX_ALSA__")
+    add_definitions("-DNDEBUG=1")
     target_link_libraries(m2o pthread ${ALSA_LIBRARY} dl rt X11)
 endif(MSVC)
 
