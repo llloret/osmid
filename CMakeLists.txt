@@ -41,7 +41,6 @@ if(APPLE)
         JuceLibraryCode/juce_events.mm
         JuceLibraryCode/juce_osc.mm
     )
-)
 else(APPLE)
     set(juce_sources
         JuceLibraryCode/juce_audio_basics.cpp
