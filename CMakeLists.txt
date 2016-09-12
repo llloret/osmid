@@ -39,7 +39,7 @@ if(APPLE)
         JuceLibraryCode/juce_core.mm
         JuceLibraryCode/juce_data_structures.mm
         JuceLibraryCode/juce_events.mm
-        JuceLibraryCode/juce_osc.mm
+        JuceLibraryCode/juce_osc.cpp
     )
 else(APPLE)
     set(juce_sources
