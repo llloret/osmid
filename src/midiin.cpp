@@ -41,12 +41,15 @@ MidiIn::MidiIn(string portName, MidiInputCallback *midiInputCallback) {
         m_stickyId = getStickyIdFromName(m_portName);
 
     m_juceMidiId = getJuceMidiIdFromName(m_portName);
+	// FIXME: need to check if name does not exist
     m_midiIn = MidiInput::openDevice(m_juceMidiId, midiInputCallback);
     m_midiIn->start();
 }
 
 MidiIn::~MidiIn() {
     cout << "MidiIn destructor for " << m_portName << endl;
+	m_midiIn->stop();
+	delete m_midiIn;
 }
 
 
