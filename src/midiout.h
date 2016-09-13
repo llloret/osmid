@@ -1,4 +1,4 @@
-﻿// MIT License
+// MIT License
 
 // Copyright (c) 2016 Luis Lloret
 
@@ -20,4 +20,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "midiout.h"
+#pragma once
+#include <map>
+#include <vector>
+#include "../JuceLibraryCode/JuceHeader.h"
+
+class MidiOut {
+public:
+    MidiOut(std::string portName);
+    MidiOut(const MidiOut&) = delete;
+    MidiOut& operator=(const MidiOut&) = delete;
+
+    ~MidiOut();
+
+    bool checkValid() const;
+
+    std::string getPortName() const;
+    int getPortId() const;
+
+    static std::vector<std::string> getOutputNames();
+    static int getJuceMidiIdFromName(std::string portName);
+    static void updateMidiDevicesNamesMapping();
+
+private:
+    static bool nameInStickyTable(std::string portName);
+    unsigned int addNameToStickyTable(std::string portName);
+    unsigned int getStickyIdFromName(std::string portName);
+
+    MidiOutput *m_midiIn;
+    std::string m_portName;
+    unsigned int m_juceMidiId;
+    unsigned int m_stickyId;
+
+    static std::map<std::string, unsigned int> m_midiOutputNameToJuceMidiId;
+    static std::vector<std::string> m_midiJuceMidiIdToName;
+    static std::map<std::string, unsigned int> m_midiOutputNameToStickyId;
+    static unsigned int m_nStickyIds;
+};

@@ -24,7 +24,7 @@
 
 using namespace std;
 
-OscInProcessor::OscInProcessor(int oscListenPort, vector<shared_ptr<MidiOutput>> outputs, unsigned int monitor) :
+OscInProcessor::OscInProcessor(int oscListenPort, const vector<string>& outputs, unsigned int monitor) :
     m_monitor(monitor)
 {
     m_input = make_unique<OscIn>(oscListenPort, this);

@@ -23,13 +23,14 @@
 #pragma once
 #include <memory.h>
 #include <vector>
+#include <string>
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "oscin.h"
 
 
 class OscInProcessor : public OSCReceiver::Listener<OSCReceiver::MessageLoopCallback> {
 public:
-	OscInProcessor(int oscListenPort, std::vector<std::shared_ptr<MidiOutput>> outputs, unsigned int monitor = 0);
+	OscInProcessor(int oscListenPort, const std::vector<std::string>& outputs, unsigned int monitor = 0);
     virtual void oscMessageReceived(const OSCMessage &message) override;
     virtual void oscBundleReceived(const OSCBundle &) override;
 
