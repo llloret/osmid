@@ -56,8 +56,6 @@ The message body is:
 The address can be templated with the -t argument.
 
 ## TODO
-* Hot-plugging / unplugging.
-* Heartbeat message
 * "all" devices should mean not only the devices that are found at the beginning of the run, but ALL the devices, even the ones that get plugged in later. (I think this is in now)
 * Installers
 * TCP as well as UDP for packet transport? (not sure if there is any interest on this)
