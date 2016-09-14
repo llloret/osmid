@@ -125,11 +125,11 @@ void prepareOscProcessor(const ProgramOptions& popts)
 }
 
 
-std::atomic<bool> exit_thread = false;
+std::atomic<bool> g_wantToExit(false);
 
 void asyncBreakThread()
 {
-    while (!exit_thread) {
+    while (!g_wantToExit) {
         std::chrono::milliseconds timespan(1000);
         std::this_thread::sleep_for(timespan);
         {
@@ -150,7 +150,7 @@ int main(int argc, char* argv[]) {
         return rc;
     }
 
-    // Open the MIDI input ports
+    // Prepare the OSC input and MIDI outputs
     try {
         prepareOscProcessor(popts);
     }
@@ -162,7 +162,7 @@ int main(int argc, char* argv[]) {
 
     // For hotplugging
     vector<string> lastAvailablePorts = MidiOut::getOutputNames();
-    while (true) {
+    while (!g_wantToExit) {
         cout << "Going to call oscInputProcessor->run()" << endl;
         g_oscInputProcessor->run(); // will run until asyncBreak is called from another thread
         cout << "After call to oscInputProcessor->run()" << endl;
