@@ -23,10 +23,7 @@
 
 #pragma once
 
-#include <thread>
-#include <memory>
 #include <vector>
-#include <map>
 #include <string>
 #include "midicommon.h"
 #include "../JuceLibraryCode/JuceHeader.h"

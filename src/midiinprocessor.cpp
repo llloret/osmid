@@ -48,7 +48,7 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput *source, const MidiMes
     unsigned char channel = 0xff, status = 0;
     string message_type;
     const uint8_t *message = midiMessage.getRawData();
-    size_t nBytes = midiMessage.getRawDataSize();
+    int nBytes = midiMessage.getRawDataSize();
 
     assert(nBytes > 0);
 
