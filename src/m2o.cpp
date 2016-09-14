@@ -26,6 +26,7 @@
 #include "midiin.h"
 #include "oscout.h"
 #include "midiinprocessor.h"
+#include "osc/OscOutboundPacketStream.h"
 #include "version.h"
 
 using namespace std;
@@ -142,13 +143,17 @@ void prepareMidiProcessors(vector<shared_ptr<MidiInProcessor>>& midiInputProcess
 
 void sendHeartBeat(const vector<shared_ptr<MidiInProcessor>>& midiProcessors, const vector<shared_ptr<OscOutput>>& oscOutputs)
 {
-    OSCMessage msg("/midi/heartbeat");
+    char buffer[1024];
+    osc::OutboundPacketStream p(buffer, 1024);
+    p << osc::BeginMessage("/midi/heartbeat");
     for (auto midiProcessor : midiProcessors) {
-        msg.addInt32(midiProcessor->getInputId());
-        msg.addString(midiProcessor->getInputPortname());
+        p << osc::BeginArray;
+        p << midiProcessor->getInputId() << midiProcessor->getInputPortname().c_str();
+        p << osc::EndArray;
     }
+    p << osc::EndMessage;
     for (auto& output : oscOutputs) {
-        output->sendUDP(msg);
+        output->sendUDP(p.Data(), p.Size());
     }
 }
 

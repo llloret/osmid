@@ -31,7 +31,9 @@ osmid is built with C++11/14. The build system is based on cmake. Target compile
 
 osmid uses the following libs:
 * JUCE for the midi handling and OSC handling (included in the tree)
-* boost, for program options parsing (external dependency) 
+* oscpack, for the OSC handling and UDP networking (included in the tree)
+* boost, for program options parsing (external dependency)
+
 
 
 ## m2o parameters

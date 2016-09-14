@@ -20,7 +20,9 @@ elseif(UNIX)
 endif(APPLE)
 
 
-include_directories(${Boost_INCLUDE_DIR} JuceLibraryCode JuceLibraryCode/modules)
+set(oscpack_path ${PROJECT_SOURCE_DIR}/external_libs/oscpack_1_1_0)
+add_subdirectory(${oscpack_path})
+include_directories(${oscpack_path} ${Boost_INCLUDE_DIR} JuceLibraryCode JuceLibraryCode/modules)
 
 set(m2o_sources
     src/m2o.cpp
@@ -64,10 +66,12 @@ endif(APPLE)
 link_directories(${Boost_LIBRARY_DIR_DEBUG})
 # m2o
 add_executable(m2o ${m2o_sources} ${juce_sources})
+target_link_libraries(m2o oscpack)
 target_link_libraries(m2o debug ${Boost_PROGRAM_OPTIONS_LIBRARY_DEBUG} optimized ${Boost_PROGRAM_OPTIONS_LIBRARY_RELEASE})
 
 #o2m
 add_executable(o2m ${o2m_sources} ${juce_sources})
+target_link_libraries(o2m oscpack)
 target_link_libraries(o2m debug ${Boost_PROGRAM_OPTIONS_LIBRARY_DEBUG} optimized ${Boost_PROGRAM_OPTIONS_LIBRARY_RELEASE})
 
 
