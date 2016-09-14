@@ -14,7 +14,7 @@ endif(NOT MSVC)
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 
-find_package(Boost REQUIRED COMPONENTS system program_options)
+find_package(Boost REQUIRED COMPONENTS program_options)
 if(APPLE)
     
 elseif(UNIX)
@@ -66,12 +66,10 @@ endif(APPLE)
 link_directories(${Boost_LIBRARY_DIR_DEBUG})
 # m2o
 add_executable(m2o ${m2o_sources} ${juce_sources})
-target_link_libraries(m2o debug ${Boost_SYSTEM_LIBRARY_DEBUG} optimized ${Boost_SYSTEM_LIBRARY_RELEASE})
 target_link_libraries(m2o debug ${Boost_PROGRAM_OPTIONS_LIBRARY_DEBUG} optimized ${Boost_PROGRAM_OPTIONS_LIBRARY_RELEASE})
 
 #o2m
 add_executable(o2m ${o2m_sources} ${juce_sources})
-target_link_libraries(o2m debug ${Boost_SYSTEM_LIBRARY_DEBUG} optimized ${Boost_SYSTEM_LIBRARY_RELEASE})
 target_link_libraries(o2m debug ${Boost_PROGRAM_OPTIONS_LIBRARY_DEBUG} optimized ${Boost_PROGRAM_OPTIONS_LIBRARY_RELEASE})
 
 
