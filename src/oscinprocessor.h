@@ -29,11 +29,19 @@
 #include "midiout.h"
 
 
-class OscInProcessor : public OSCReceiver::Listener<OSCReceiver::RealtimeCallback> {
+class OscInProcessor : public osc::OscPacketListener {
 public:
 	OscInProcessor(int oscListenPort, const std::vector<std::string>& outputNames, unsigned int monitor = 0);
-    virtual void oscMessageReceived(const OSCMessage &message) override;
-    virtual void oscBundleReceived(const OSCBundle &) override;
+    void run() {
+        m_input->run();
+    }
+
+    void asyncBreak() {
+        m_input->asyncBreak();
+    }
+
+    virtual void ProcessMessage(const osc::ReceivedMessage& m, const IpEndpointName& remoteEndpoint) override;
+    virtual void ProcessBundle(const osc::ReceivedBundle& b, const IpEndpointName& remoteEndpoint) override;
 
 private:
     std::unique_ptr<OscIn> m_input;

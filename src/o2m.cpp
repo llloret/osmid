@@ -23,7 +23,9 @@
 #include <stdexcept>
 #include <chrono>
 #include <thread>
+#include <mutex>
 #include <iostream>
+#include <atomic>
 #include <boost/program_options.hpp>
 #include "midiout.h"
 #include "oscin.h"
@@ -109,17 +111,36 @@ int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions &prog
 }
 
 
-void prepareOscProcessor(unique_ptr<OscInProcessor>& oscInputProcessor, const ProgramOptions& popts)
+static mutex g_oscinMutex;
+static unique_ptr<OscInProcessor> g_oscInputProcessor;
+
+void prepareOscProcessor(const ProgramOptions& popts)
 {
     // Should we open all devices, or just the ones passed as parameters?
     vector<string> midiOutputsToOpen = (popts.allMidiOutputs ? MidiOut::getOutputNames() : popts.midiOutputNames);
-
-    oscInputProcessor = make_unique<OscInProcessor>(popts.oscInputPort, midiOutputsToOpen, popts.monitor);
+    {
+        lock_guard<mutex> lock(g_oscinMutex);
+        g_oscInputProcessor = make_unique<OscInProcessor>(popts.oscInputPort, midiOutputsToOpen, popts.monitor);
+    }
 }
 
 
+std::atomic<bool> exit_thread = false;
+
+void asyncBreakThread()
+{
+    while (!exit_thread) {
+        std::chrono::milliseconds timespan(1000);
+        std::this_thread::sleep_for(timespan);
+        {
+            lock_guard<mutex> lock(g_oscinMutex);
+            g_oscInputProcessor->asyncBreak();
+        }
+    }
+}
+
 int main(int argc, char* argv[]) {
-    unique_ptr<OscInProcessor> oscInputProcessor;
+
     // oscOutputs will contain the list of active OSC output ports 
     vector<shared_ptr<MidiOutput>> midiOutputs;
     ProgramOptions popts;
@@ -131,21 +152,24 @@ int main(int argc, char* argv[]) {
 
     // Open the MIDI input ports
     try {
-        prepareOscProcessor(oscInputProcessor, popts);
+        prepareOscProcessor(popts);
     }
     catch (const std::out_of_range&) {
         return -1;
     }
 
+    std::thread thr(asyncBreakThread);
+
     // For hotplugging
     vector<string> lastAvailablePorts = MidiOut::getOutputNames();
     while (true) {
-        std::chrono::milliseconds timespan(1000);
-        std::this_thread::sleep_for(timespan);
+        cout << "Going to call oscInputProcessor->run()" << endl;
+        g_oscInputProcessor->run(); // will run until asyncBreak is called from another thread
+        cout << "After call to oscInputProcessor->run()" << endl;
         vector<string> newAvailablePorts = MidiOut::getOutputNames();
         // Was something added or removed?
         if (newAvailablePorts != lastAvailablePorts) {
-            prepareOscProcessor(oscInputProcessor, popts);
+            prepareOscProcessor(popts);
             lastAvailablePorts = newAvailablePorts;
             listAvailablePorts();
         }

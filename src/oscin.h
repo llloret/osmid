@@ -21,13 +21,23 @@
 // SOFTWARE.
 
 #pragma once
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <memory>
+#include "osc/OscPacketListener.h"
+#include "ip/UdpSocket.h"
 
 
-class OscIn : private OSCReceiver {
+class OscIn
+{
 public:
-	OscIn(int listenOscPort, OSCReceiver::Listener<OSCReceiver::RealtimeCallback> *listener, unsigned int monitor = 0);
+	OscIn(int listenOscPort, osc::OscPacketListener *listener, unsigned int monitor = 0);
+    void run() {
+        m_socket->Run();
+    }
+    void asyncBreak() {
+        m_socket->AsynchronousBreak();
+    }
 
 private:
+    std::unique_ptr<UdpListeningReceiveSocket> m_socket;
     unsigned int m_monitor;
 };

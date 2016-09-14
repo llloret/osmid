@@ -36,10 +36,10 @@ OscInProcessor::OscInProcessor(int oscListenPort, const vector<string>& outputNa
 }
 
 
-void OscInProcessor::oscMessageReceived(const OSCMessage &message)
+void OscInProcessor::ProcessMessage(const osc::ReceivedMessage& message, const IpEndpointName& remoteEndpoint)
 {
     cout << "Received OSC message!" << endl;
-    cout << "Address pattern: " << message.getAddressPattern().toString() << endl;
+/*    cout << "Address pattern: " << message.getAddressPattern().toString() << endl;
     cout << "Got " << message.size() << "arguments" << endl;
     for (int i = 0; i < message.size(); i++){
         if (message[i].isFloat32())
@@ -51,14 +51,14 @@ void OscInProcessor::oscMessageReceived(const OSCMessage &message)
         else if (message[i].isBlob())
             cout << "B: this is a blob" << endl;
     }
-    
+  */  
     for (auto& output : m_outputs) {
         output->send(MidiMessage::noteOn(1, 32, static_cast<uint8_t>(64)));
     }
 }
 
 
-void OscInProcessor::oscBundleReceived(const OSCBundle &bundle)
+void OscInProcessor::ProcessBundle(const osc::ReceivedBundle& b, const IpEndpointName& remoteEndpoint)
 {
     cout << "Received OSC bundle. Ignoring for now!" << endl;
 }
