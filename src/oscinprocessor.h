@@ -26,16 +26,18 @@
 #include <string>
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "oscin.h"
+#include "midiout.h"
 
 
 class OscInProcessor : public OSCReceiver::Listener<OSCReceiver::MessageLoopCallback> {
 public:
-	OscInProcessor(int oscListenPort, const std::vector<std::string>& outputs, unsigned int monitor = 0);
+	OscInProcessor(int oscListenPort, const std::vector<std::string>& outputNames, unsigned int monitor = 0);
     virtual void oscMessageReceived(const OSCMessage &message) override;
     virtual void oscBundleReceived(const OSCBundle &) override;
 
 private:
     std::unique_ptr<OscIn> m_input;
+    std::vector<std::unique_ptr<MidiOut>> m_outputs;
 
     unsigned int m_monitor;
 };

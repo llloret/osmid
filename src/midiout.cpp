@@ -20,4 +20,48 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <iostream>
 #include "midiout.h"
+
+using namespace std;
+
+MidiOut::MidiOut(string portName)
+{
+    cout << "MidiIn contructor for " << portName << endl;
+    updateMidiDevicesNamesMapping();
+    m_portName = portName;
+    if (!nameInStickyTable(m_portName))
+        m_stickyId = addNameToStickyTable(m_portName);
+    else
+        m_stickyId = getStickyIdFromName(m_portName);
+
+    m_juceMidiId = getJuceMidiIdFromName(m_portName);
+
+    // FIXME: need to check if name does not exist
+    m_midiOut = MidiOutput::openDevice(m_juceMidiId);
+}
+
+MidiOut::~MidiOut() {
+    cout << "MidiOut destructor for " << m_portName << endl;
+    delete m_midiOut;
+}
+
+vector<string> MidiOut::getOutputNames()
+{
+    auto strArray = MidiOutput::getDevices();
+    int nPorts = strArray.size();
+    vector<string> names(nPorts);
+
+    for (int i = 0; i < nPorts; i++) {
+        names[i] = strArray[i].toStdString();
+    }
+    return names;
+}
+
+void MidiOut::updateMidiDevicesNamesMapping()
+{
+    m_midiJuceMidiIdToName = MidiOut::getOutputNames();
+    for (int i = 0; i < m_midiJuceMidiIdToName.size(); i++) {
+        m_midiNameToJuceMidiId[m_midiJuceMidiIdToName[i]] = i;
+    }
+}

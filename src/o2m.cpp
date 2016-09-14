@@ -114,7 +114,7 @@ void prepareOscProcessor(unique_ptr<OscInProcessor>& oscInputProcessor, const Pr
     // Should we open all devices, or just the ones passed as parameters?
     vector<string> midiOutputsToOpen = (popts.allMidiOutputs ? MidiOut::getOutputNames() : popts.midiOutputNames);
 
-    oscInputProcessor = make_unique<OscInProcessor>(popts.oscInputPort, oscOutputs, popts.monitor);
+    oscInputProcessor = make_unique<OscInProcessor>(popts.oscInputPort, midiOutputsToOpen, popts.monitor);
 }
 
 
