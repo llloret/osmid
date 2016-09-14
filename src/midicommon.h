@@ -28,24 +28,34 @@
 #include <vector>
 #include <map>
 #include <string>
-#include "midicommon.h"
 #include "../JuceLibraryCode/JuceHeader.h"
 
-// This class manages a MIDI input device as seen by JUCE
-class MidiIn : public MidiCommon
-{
+// This class manages the common parts of our MIDI handling, like sticky ids
+class MidiCommon {
 public:
-    MidiIn(std::string portName, MidiInputCallback *midiInputCallback);
-    MidiIn(const MidiIn&) = delete;
-    MidiIn& operator=(const MidiIn&) = delete;
+    MidiCommon();
+    MidiCommon(const MidiCommon&) = delete;
+    MidiCommon& operator=(const MidiCommon&) = delete;
     
-    ~MidiIn();
+    virtual ~MidiCommon();
 
-    static std::vector<std::string> getInputNames();
+    bool checkValid() const;
+
+    std::string getPortName() const;
+    int getPortId() const;
+
+    static int getJuceMidiIdFromName(std::string portName);
 
 protected:
-    void updateMidiDevicesNamesMapping() override;
-
-private:
-    MidiInput *m_midiIn;
+    virtual void updateMidiDevicesNamesMapping() = 0;
+    std::string m_portName;
+    int m_juceMidiId;
+    int m_stickyId;
+    static bool nameInStickyTable(std::string portName);
+    unsigned int addNameToStickyTable(std::string portName);
+    unsigned int getStickyIdFromName(std::string portName);
+    static std::map<std::string, int> m_midiNameToJuceMidiId;
+    static std::vector<std::string> m_midiJuceMidiIdToName;
+    static std::map<std::string, int> m_midiNameToStickyId;
+    static unsigned int m_nStickyIds;
 };
