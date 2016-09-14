@@ -37,6 +37,8 @@ class MidiOut : public MidiCommon
         MidiOut& operator=(const MidiOut&) = delete;
 
         ~MidiOut();
+        
+        void send(const MidiMessage &message);
 
         static std::vector<std::string> getOutputNames();
 

@@ -2,8 +2,6 @@
 
 project (osmid)
 cmake_minimum_required (VERSION 3.0)
-# Need cmake > 3.1, and debian jessie has 3.0.2
-#set(CMAKE_CXX_STANDARD 14)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 

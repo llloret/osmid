@@ -26,7 +26,7 @@
 
 class OscIn : private OSCReceiver {
 public:
-	OscIn(int listenOscPort, OSCReceiver::Listener<OSCReceiver::MessageLoopCallback> *listener, unsigned int monitor = 0);
+	OscIn(int listenOscPort, OSCReceiver::Listener<OSCReceiver::RealtimeCallback> *listener, unsigned int monitor = 0);
 
 private:
     unsigned int m_monitor;

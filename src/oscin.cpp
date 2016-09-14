@@ -26,7 +26,7 @@
 
 using namespace std;
 
-OscIn::OscIn(int listenOscPort, OSCReceiver::Listener<OSCReceiver::MessageLoopCallback> *listener, unsigned int monitor)
+OscIn::OscIn(int listenOscPort, OSCReceiver::Listener<OSCReceiver::RealtimeCallback> *listener, unsigned int monitor)
 {
     connect(listenOscPort);
     addListener(listener);

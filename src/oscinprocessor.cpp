@@ -51,6 +51,10 @@ void OscInProcessor::oscMessageReceived(const OSCMessage &message)
         else if (message[i].isBlob())
             cout << "B: this is a blob" << endl;
     }
+    
+    for (auto& output : m_outputs) {
+        output->send(MidiMessage::noteOn(1, 32, static_cast<uint8_t>(64)));
+    }
 }
 
 

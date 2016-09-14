@@ -46,6 +46,11 @@ MidiOut::~MidiOut() {
     delete m_midiOut;
 }
 
+void MidiOut::send(const MidiMessage &message)
+{
+    m_midiOut->sendMessageNow(message);
+}
+
 vector<string> MidiOut::getOutputNames()
 {
     auto strArray = MidiOutput::getDevices();

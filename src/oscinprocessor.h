@@ -29,7 +29,7 @@
 #include "midiout.h"
 
 
-class OscInProcessor : public OSCReceiver::Listener<OSCReceiver::MessageLoopCallback> {
+class OscInProcessor : public OSCReceiver::Listener<OSCReceiver::RealtimeCallback> {
 public:
 	OscInProcessor(int oscListenPort, const std::vector<std::string>& outputNames, unsigned int monitor = 0);
     virtual void oscMessageReceived(const OSCMessage &message) override;
