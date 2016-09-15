@@ -20,6 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <regex>
 #include "oscinprocessor.h"
 
 
@@ -43,8 +44,24 @@ void OscInProcessor::prepareOutputs(const vector<string>& outputNames)
 
 void OscInProcessor::ProcessMessage(const osc::ReceivedMessage& message, const IpEndpointName& remoteEndpoint)
 {
-    cout << "Received OSC message!" << endl;
-/*    cout << "Address pattern: " << message.getAddressPattern().toString() << endl;
+    string addressPattern(message.AddressPattern());
+    if (m_monitor) {
+        cout << "Received OSC message with address pattern: " << addressPattern << endl;
+    }
+    regex addressRegex("/([[:alnum:]]+)/([[:alnum:]]+)(/([[:digit:]]+))?");
+    smatch match;
+        
+    if (regex_match(addressPattern, match, addressRegex)) {
+        cout << "Match (" << match[0] << ", " << match[1] << ", " << match[2] << ", " << match[3] << ", " << match[4] << endl;
+        // We are interested in groups [1], [2] y [4]. [1] -> device, [2] -> command / raw, [4] -> channel
+
+    }
+    else {
+        cout << "No match on address pattern" << endl;
+    }
+
+    // Check what the adress patter contains
+/*
     cout << "Got " << message.size() << "arguments" << endl;
     for (int i = 0; i < message.size(); i++){
         if (message[i].isFloat32())

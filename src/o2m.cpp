@@ -128,7 +128,7 @@ void prepareOscProcessorOutputs(unique_ptr<OscInProcessor>& oscInputProcessor, c
 
 std::atomic<bool> g_wantToExit(false);
 
-
+#if WIN32
 BOOL CtrlHandler(DWORD fdwCtrlType)
 {
     if (fdwCtrlType == CTRL_C_EVENT) {
@@ -137,6 +137,7 @@ BOOL CtrlHandler(DWORD fdwCtrlType)
     }
     return TRUE;
 }
+#endif
 
 
 
@@ -179,9 +180,7 @@ int main(int argc, char* argv[]) {
     // For hotplugging
     vector<string> lastAvailablePorts = MidiOut::getOutputNames();
     while (!g_wantToExit) {
-        cout << "Going to call oscInputProcessor->run()" << endl;
         oscInputProcessor->run(); // will run until asyncBreak is called from another thread
-        cout << "After call to oscInputProcessor->run()" << endl;
         vector<string> newAvailablePorts = MidiOut::getOutputNames();
         // Was something added or removed?
         if (newAvailablePorts != lastAvailablePorts) {

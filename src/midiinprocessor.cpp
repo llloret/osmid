@@ -220,7 +220,7 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput *source, const MidiMes
 
     // Dump the OSC message
     if (m_monitor) {
-        cout << "INFO prepared OSC: [" << path.str() << "]" << " -> " << portId << ", " << portNameWithoutSpaces;
+        cout << "INFO sending OSC: [" << path.str() << "]" << " -> " << portId << ", " << portNameWithoutSpaces;
         if (m_oscRawMidiMessage) {
             if (nBytes > 0) {
                 cout << ", <raw_midi_message>" << endl;

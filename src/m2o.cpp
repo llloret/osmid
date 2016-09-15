@@ -52,6 +52,7 @@ struct ProgramOptions
     bool useOscTemplate;
     string oscTemplate;
     bool oscRawMidiMessage;
+    bool oscHeartbeat;
     unsigned int monitor;
 };
 
@@ -72,6 +73,7 @@ int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions &prog
         ("oscport,o", po::value<vector<int>>(&programOptions.oscOutputPorts), "OSC Output port (default:57120) - can be specified multiple times")
         ("osctemplate,t", po::value<string>(&programOptions.oscTemplate), "OSC output template (use $n: midi port name, $i: midi port id, $c: midi channel, $m: message_type")
         ("oscrawmidimessage,r", po::bool_switch(&programOptions.oscRawMidiMessage)->default_value(false), "OSC send the raw MIDI data as part of the OSC message")
+        ("heartbeat,b", po::bool_switch(&programOptions.oscHeartbeat)->default_value(false), "OSC send the heartbeat with info about the active devices")
         ("monitor,m", po::value<unsigned int>(&programOptions.monitor)->default_value(0)->implicit_value(1), "Monitor MIDI input and OSC output")
         ("help,h", "Display this help message")
         ("version", "Show the version number");
@@ -141,10 +143,10 @@ void prepareMidiProcessors(vector<shared_ptr<MidiInProcessor>>& midiInputProcess
     }
 }
 
-void sendHeartBeat(const vector<shared_ptr<MidiInProcessor>>& midiProcessors, const vector<shared_ptr<OscOutput>>& oscOutputs)
+void sendHeartBeat(const vector<shared_ptr<MidiInProcessor>>& midiProcessors, const vector<shared_ptr<OscOutput>>& oscOutputs, int monitor)
 {
-    char buffer[1024];
-    osc::OutboundPacketStream p(buffer, 1024);
+    char buffer[2048];
+    osc::OutboundPacketStream p(buffer, 2048);
     p << osc::BeginMessage("/midi/heartbeat");
     for (auto midiProcessor : midiProcessors) {
         p << osc::BeginArray;
@@ -152,6 +154,12 @@ void sendHeartBeat(const vector<shared_ptr<MidiInProcessor>>& midiProcessors, co
         p << osc::EndArray;
     }
     p << osc::EndMessage;
+    if (monitor > 1) {
+        cout << "INFO sending OSC: [/midi/heartbeat]" << " -> "; 
+        for (auto midiProcessor : midiProcessors) {
+            cout << "  Array[" << midiProcessor->getInputId() << ", " << midiProcessor->getInputPortname() << "]" << endl;
+        }
+    }
     for (auto& output : oscOutputs) {
         output->sendUDP(p.Data(), p.Size());
     }
@@ -196,7 +204,8 @@ int main(int argc, char* argv[]) {
             lastAvailablePorts = newAvailablePorts;
             listAvailablePorts();
         }
-        sendHeartBeat(midiInputProcessors, oscOutputs);
+        if (popts.oscHeartbeat)
+            sendHeartBeat(midiInputProcessors, oscOutputs, popts.monitor);
     }
 }
 
