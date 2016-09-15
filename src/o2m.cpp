@@ -19,8 +19,10 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-
+#ifdef WIN32
 #include <windows.h>
+#endif
+
 #include <stdexcept>
 #include <chrono>
 #include <thread>
@@ -129,13 +131,18 @@ void prepareOscProcessorOutputs(unique_ptr<OscInProcessor>& oscInputProcessor, c
 std::atomic<bool> g_wantToExit(false);
 
 #if WIN32
-BOOL CtrlHandler(DWORD fdwCtrlType)
+BOOL ctrlHandler(DWORD fdwCtrlType)
 {
     if (fdwCtrlType == CTRL_C_EVENT) {
-        cout << "Ctrl-C event" << endl;
         g_wantToExit = true;
     }
     return TRUE;
+}
+#else
+void ctrlHandler(int signal)
+{
+    cout << "Ctrl-C event" << endl;
+    g_wantToExit = true;
 }
 #endif
 
@@ -171,8 +178,16 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
+    // Exit nicely with CTRL-C
 #if WIN32
-    SetConsoleCtrlHandler((PHANDLER_ROUTINE)CtrlHandler, TRUE);
+    SetConsoleCtrlHandler((PHANDLER_ROUTINE)ctrlHandler, TRUE);
+#else
+    struct sigaction intHandler;
+
+    intHandler.sa_handler = ctrlHandler;
+    sigemptyset(&intHandler.sa_mask);
+    intHandler.sa_flags = 0;
+    sigaction(SIGINT, &intHandler, NULL);
 #endif
 
     std::thread thr(asyncBreakThread, oscInputProcessor.get());

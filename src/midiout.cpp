@@ -27,7 +27,7 @@ using namespace std;
 
 MidiOut::MidiOut(string portName)
 {
-    cout << "MidiIn contructor for " << portName << endl;
+    cout << "MidiOut contructor for " << portName << endl;
     updateMidiDevicesNamesMapping();
     m_portName = portName;
     if (!nameInStickyTable(m_portName))
