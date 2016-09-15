@@ -54,7 +54,33 @@ void OscInProcessor::ProcessMessage(const osc::ReceivedMessage& message, const I
     if (regex_match(addressPattern, match, addressRegex)) {
         cout << "Match (" << match[0] << ", " << match[1] << ", " << match[2] << ", " << match[3] << ", " << match[4] << endl;
         // We are interested in groups [1], [2] y [4]. [1] -> device, [2] -> command / raw, [4] -> channel
-
+        if (match[2] == "raw") {
+            osc::ReceivedMessage::const_iterator arg = message.ArgumentsBegin();
+            if (arg->IsBlob()) {
+                const void *blobData;
+                int blobSize;
+                arg->AsBlob(blobData, blobSize);
+                MidiMessage raw(blobData, blobSize);
+                for (auto& output : m_outputs) {
+                    output->send(raw);
+                }
+            }
+            else {
+                unsigned char midiMessage[1024];
+                int midiMessageSize = 0;
+                
+                while (arg != message.ArgumentsEnd()) {
+                    if (arg->IsInt32()) {
+                        midiMessage[midiMessageSize++] = arg->AsInt32();
+                    }
+                    arg++;
+                }
+                MidiMessage raw(midiMessage, midiMessageSize);
+                for (auto& output : m_outputs) {
+                    output->send(raw);
+                }
+            }
+        }
     }
     else {
         cout << "No match on address pattern" << endl;
@@ -74,9 +100,6 @@ void OscInProcessor::ProcessMessage(const osc::ReceivedMessage& message, const I
             cout << "B: this is a blob" << endl;
     }
   */  
-    for (auto& output : m_outputs) {
-        output->send(MidiMessage::noteOn(1, 32, static_cast<uint8_t>(64)));
-    }
 }
 
 
