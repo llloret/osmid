@@ -20,6 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <windows.h>
 #include <stdexcept>
 #include <chrono>
 #include <thread>
@@ -112,37 +113,47 @@ int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions &prog
 
 
 static mutex g_oscinMutex;
-static unique_ptr<OscInProcessor> g_oscInputProcessor;
 
-void prepareOscProcessor(const ProgramOptions& popts)
+
+void prepareOscProcessorOutputs(unique_ptr<OscInProcessor>& oscInputProcessor, const ProgramOptions& popts)
 {
     // Should we open all devices, or just the ones passed as parameters?
     vector<string> midiOutputsToOpen = (popts.allMidiOutputs ? MidiOut::getOutputNames() : popts.midiOutputNames);
     {
         lock_guard<mutex> lock(g_oscinMutex);
-        g_oscInputProcessor = make_unique<OscInProcessor>(popts.oscInputPort, midiOutputsToOpen, popts.monitor);
+        oscInputProcessor->prepareOutputs(midiOutputsToOpen);
     }
 }
 
 
 std::atomic<bool> g_wantToExit(false);
 
-void asyncBreakThread()
+
+BOOL CtrlHandler(DWORD fdwCtrlType)
+{
+    if (fdwCtrlType == CTRL_C_EVENT) {
+        cout << "Ctrl-C event" << endl;
+        g_wantToExit = true;
+    }
+    return TRUE;
+}
+
+
+
+void asyncBreakThread(OscInProcessor *oscInputProcessor)
 {
     while (!g_wantToExit) {
         std::chrono::milliseconds timespan(1000);
         std::this_thread::sleep_for(timespan);
         {
             lock_guard<mutex> lock(g_oscinMutex);
-            g_oscInputProcessor->asyncBreak();
+            oscInputProcessor->asyncBreak();
         }
     }
 }
 
 int main(int argc, char* argv[]) {
 
-    // oscOutputs will contain the list of active OSC output ports 
-    vector<shared_ptr<MidiOutput>> midiOutputs;
     ProgramOptions popts;
 
     int rc = setup_and_parse_program_options(argc, argv, popts);
@@ -150,29 +161,35 @@ int main(int argc, char* argv[]) {
         return rc;
     }
 
+    auto oscInputProcessor = make_unique<OscInProcessor>(popts.oscInputPort, popts.monitor);
     // Prepare the OSC input and MIDI outputs
     try {
-        prepareOscProcessor(popts);
+        prepareOscProcessorOutputs(oscInputProcessor, popts);
     }
     catch (const std::out_of_range&) {
         return -1;
     }
 
-    std::thread thr(asyncBreakThread);
+#if WIN32
+    SetConsoleCtrlHandler((PHANDLER_ROUTINE)CtrlHandler, TRUE);
+#endif
+
+    std::thread thr(asyncBreakThread, oscInputProcessor.get());
 
     // For hotplugging
     vector<string> lastAvailablePorts = MidiOut::getOutputNames();
     while (!g_wantToExit) {
         cout << "Going to call oscInputProcessor->run()" << endl;
-        g_oscInputProcessor->run(); // will run until asyncBreak is called from another thread
+        oscInputProcessor->run(); // will run until asyncBreak is called from another thread
         cout << "After call to oscInputProcessor->run()" << endl;
         vector<string> newAvailablePorts = MidiOut::getOutputNames();
         // Was something added or removed?
         if (newAvailablePorts != lastAvailablePorts) {
-            prepareOscProcessor(popts);
+            prepareOscProcessorOutputs(oscInputProcessor, popts);
             lastAvailablePorts = newAvailablePorts;
             listAvailablePorts();
         }
     }
+    thr.join();
 }
 

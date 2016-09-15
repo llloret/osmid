@@ -25,11 +25,16 @@
 
 using namespace std;
 
-OscInProcessor::OscInProcessor(int oscListenPort, const vector<string>& outputNames, unsigned int monitor) :
-    m_monitor(monitor)
+OscInProcessor::OscInProcessor(int oscListenPort, unsigned int monitor) : m_monitor(monitor)
 {
     m_input = make_unique<OscIn>(oscListenPort, this);
-    for (auto& outputName : outputNames){
+}
+
+
+void OscInProcessor::prepareOutputs(const vector<string>& outputNames)
+{
+    m_outputs.clear();
+    for (auto& outputName : outputNames) {
         auto midiOut = make_unique<MidiOut>(outputName);
         m_outputs.push_back(move(midiOut));
     }

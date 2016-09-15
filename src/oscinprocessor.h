@@ -31,7 +31,10 @@
 
 class OscInProcessor : public osc::OscPacketListener {
 public:
-	OscInProcessor(int oscListenPort, const std::vector<std::string>& outputNames, unsigned int monitor = 0);
+	OscInProcessor(int oscListenPort, unsigned int monitor = 0);
+
+    void prepareOutputs(const std::vector<std::string>& outputNames);
+
     void run() {
         m_input->run();
     }
@@ -42,6 +45,10 @@ public:
 
     virtual void ProcessMessage(const osc::ReceivedMessage& m, const IpEndpointName& remoteEndpoint) override;
     virtual void ProcessBundle(const osc::ReceivedBundle& b, const IpEndpointName& remoteEndpoint) override;
+
+    ~OscInProcessor() {
+        std::cout << "OscInProcessor destructor" << std::endl;
+    }
 
 private:
     std::unique_ptr<OscIn> m_input;
