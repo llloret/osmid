@@ -20,29 +20,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 #pragma once
-
+#include <memory.h>
 #include <vector>
 #include <string>
-#include "midicommon.h"
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "oscin.h"
+#include "midiout.h"
 
-// This class manages a MIDI input device as seen by JUCE
-class MidiIn : public MidiCommon
-{
+
+class OscInProcessor : public osc::OscPacketListener {
 public:
-    MidiIn(std::string portName, MidiInputCallback *midiInputCallback);
-    MidiIn(const MidiIn&) = delete;
-    MidiIn& operator=(const MidiIn&) = delete;
-    
-    ~MidiIn();
+	OscInProcessor(int oscListenPort, unsigned int monitor = 0);
 
-    static std::vector<std::string> getInputNames();
+    void prepareOutputs(const std::vector<std::string>& outputNames);
 
-protected:
-    void updateMidiDevicesNamesMapping() override;
+    void run() {
+        m_input->run();
+    }
+
+    void asyncBreak() {
+        m_input->asyncBreak();
+    }
+
+    virtual void ProcessMessage(const osc::ReceivedMessage& m, const IpEndpointName& remoteEndpoint) override;
+    virtual void ProcessBundle(const osc::ReceivedBundle& b, const IpEndpointName& remoteEndpoint) override;
+
+    ~OscInProcessor() {
+        std::cout << "OscInProcessor destructor" << std::endl;
+    }
 
 private:
-    MidiInput *m_midiIn;
+    std::unique_ptr<OscIn> m_input;
+    std::vector<std::unique_ptr<MidiOut>> m_outputs;
+
+    unsigned int m_monitor;
 };

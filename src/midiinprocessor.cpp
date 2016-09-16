@@ -25,6 +25,7 @@
 #include <sstream>
 #include <cassert>
 #include "midiinprocessor.h"
+#include "osc/OscOutboundPacketStream.h"
 #include "utils.h"
 
 using namespace std;
@@ -48,7 +49,7 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput *source, const MidiMes
     unsigned char channel = 0xff, status = 0;
     string message_type;
     const uint8_t *message = midiMessage.getRawData();
-    size_t nBytes = midiMessage.getRawDataSize();
+    int nBytes = midiMessage.getRawDataSize();
 
     assert(nBytes > 0);
 
@@ -196,34 +197,30 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput *source, const MidiMes
     //cout << "Prepare string: " << e << endl << flush;
 
     // And now prepare the OSC message body
-    //p << osc::BeginMessage(path.str().c_str());
-    OSCMessage msg(path.str().c_str());
+    char buffer[1024];
+    osc::OutboundPacketStream p(buffer, 1024);
+    p << osc::BeginMessage(path.str().c_str());
 
     // send device id and name as part of the message
-    //p << static_cast<int>(portId) << portNameWithoutSpaces.c_str();
-    msg.addInt32(static_cast<int>(portId));
-    msg.addString(portNameWithoutSpaces);
+    p << static_cast<int>(portId) << portNameWithoutSpaces.c_str();
         
     // send the raw midi message as part of the body
     // do we want a raw midi message?
     if (m_oscRawMidiMessage) {
         if (nBytes > 0) {
-            //p << osc::Blob(&((*message)[0]), static_cast<osc::osc_bundle_element_size_t>(message->size()));
-            MemoryBlock mb(message, nBytes);
-            msg.addBlob(mb);
+            p << osc::Blob(message, static_cast<osc::osc_bundle_element_size_t>(nBytes));
         }
     }
     else {
         for (int i = 1; i < nBytes; i++) {
-            //p << (int)message->at(i);
-            msg.addInt32((int)message[i]);
+            p << (int)message[i];
         }
     }
-    //p << osc::EndMessage;
+    p << osc::EndMessage;
 
     // Dump the OSC message
     if (m_monitor) {
-        cout << "INFO prepared OSC: [" << path.str() << "]" << " -> " << portId << ", " << portNameWithoutSpaces;
+        cout << "INFO sending OSC: [" << path.str() << "]" << " -> " << portId << ", " << portNameWithoutSpaces;
         if (m_oscRawMidiMessage) {
             if (nBytes > 0) {
                 cout << ", <raw_midi_message>" << endl;
@@ -242,7 +239,7 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput *source, const MidiMes
 
     // And send the message to the specified output ports
     for (auto& output : m_outputs) {
-        output->sendUDP(msg);
+        output->sendUDP(p.Data(), p.Size());
     }
 
     //end_time = chrono::high_resolution_clock::now();

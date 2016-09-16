@@ -27,23 +27,14 @@ using namespace std;
 
 OscOutput::OscOutput(string dstOscHost, int dstOscPort, unsigned int monitor) : m_monitor(monitor)
 {
-    m_socket = make_unique<OSCSender>();
-    m_socket->connect(dstOscHost, dstOscPort);
+    m_transmitSocket = make_unique<UdpTransmitSocket>(IpEndpointName(dstOscHost.c_str(), dstOscPort));
 }
 
 
-bool OscOutput::sendUDP(const OSCMessage& msg)
-{
-    // it is not thread safe to share udp objects...
-    lock_guard<mutex> lock(m_sendMutex);
-    return m_socket->send(msg);
-}
-
-#if 0
-void OscOutput::dumpMessage(const OSCMessage& msg)
+void OscOutput::dumpMessage(const char *data, size_t size)
 {
 
-    cout << "INFO sent UDP message: ";
+    cout << "DEBUG sent UDP message: ";
     for (int i = 0; i < size; i++) {
         const unsigned char udata = (unsigned char)(data[i]);
         // is it printable?
@@ -54,5 +45,13 @@ void OscOutput::dumpMessage(const OSCMessage& msg)
     }
     cout << endl;
 }
-#endif
 
+
+void OscOutput::sendUDP(const char *data, size_t size)
+{
+    // it is not thread safe to share udp objects...
+    lock_guard<mutex> lock(m_sendMutex);
+    m_transmitSocket->Send(data, size);
+    if (m_monitor > 2)
+        dumpMessage(data, size);
+}

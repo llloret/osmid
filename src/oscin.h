@@ -20,29 +20,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 #pragma once
+#include <memory>
+#include "osc/OscPacketListener.h"
+#include "ip/UdpSocket.h"
 
-#include <vector>
-#include <string>
-#include "midicommon.h"
-#include "../JuceLibraryCode/JuceHeader.h"
 
-// This class manages a MIDI input device as seen by JUCE
-class MidiIn : public MidiCommon
+class OscIn
 {
 public:
-    MidiIn(std::string portName, MidiInputCallback *midiInputCallback);
-    MidiIn(const MidiIn&) = delete;
-    MidiIn& operator=(const MidiIn&) = delete;
-    
-    ~MidiIn();
-
-    static std::vector<std::string> getInputNames();
-
-protected:
-    void updateMidiDevicesNamesMapping() override;
+	OscIn(int listenOscPort, osc::OscPacketListener *listener, unsigned int monitor = 0);
+    void run() {
+        m_socket->Run();
+    }
+    void asyncBreak() {
+        m_socket->AsynchronousBreak();
+    }
 
 private:
-    MidiInput *m_midiIn;
+    std::unique_ptr<UdpListeningReceiveSocket> m_socket;
+    unsigned int m_monitor;
 };

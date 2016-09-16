@@ -1,4 +1,4 @@
-// MIT License
+﻿// MIT License
 
 // Copyright (c) 2016 Luis Lloret
 
@@ -21,13 +21,13 @@
 // SOFTWARE.
 
 #include <iostream>
-#include "midiin.h"
+#include "midiout.h"
 
 using namespace std;
 
-MidiIn::MidiIn(string portName, MidiInputCallback *midiInputCallback)
+MidiOut::MidiOut(string portName)
 {
-    cout << "MidiIn contructor for " << portName << endl;
+    cout << "MidiOut contructor for " << portName << endl;
     updateMidiDevicesNamesMapping();
     m_portName = portName;
     if (!nameInStickyTable(m_portName))
@@ -37,20 +37,23 @@ MidiIn::MidiIn(string portName, MidiInputCallback *midiInputCallback)
 
     m_juceMidiId = getJuceMidiIdFromName(m_portName);
 
-	// FIXME: need to check if name does not exist
-    m_midiIn = MidiInput::openDevice(m_juceMidiId, midiInputCallback);
-    m_midiIn->start();
+    // FIXME: need to check if name does not exist
+    m_midiOut = MidiOutput::openDevice(m_juceMidiId);
 }
 
-MidiIn::~MidiIn() {
-    cout << "MidiIn destructor for " << m_portName << endl;
-	m_midiIn->stop();
-	delete m_midiIn;
+MidiOut::~MidiOut() {
+    cout << "MidiOut destructor for " << m_portName << endl;
+    delete m_midiOut;
 }
 
-vector<string> MidiIn::getInputNames()
-{    
-    auto strArray = MidiInput::getDevices();
+void MidiOut::send(const MidiMessage &message)
+{
+    m_midiOut->sendMessageNow(message);
+}
+
+vector<string> MidiOut::getOutputNames()
+{
+    auto strArray = MidiOutput::getDevices();
     int nPorts = strArray.size();
     vector<string> names(nPorts);
 
@@ -60,9 +63,9 @@ vector<string> MidiIn::getInputNames()
     return names;
 }
 
-void MidiIn::updateMidiDevicesNamesMapping()
+void MidiOut::updateMidiDevicesNamesMapping()
 {
-    m_midiJuceMidiIdToName = MidiIn::getInputNames();
+    m_midiJuceMidiIdToName = MidiOut::getOutputNames();
     for (int i = 0; i < m_midiJuceMidiIdToName.size(); i++) {
         m_midiNameToJuceMidiId[m_midiJuceMidiIdToName[i]] = i;
     }

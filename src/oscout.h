@@ -24,19 +24,18 @@
 #include <string>
 #include <memory>
 #include <mutex>
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "ip/UdpSocket.h"
+
 
 
 class OscOutput {
 public:
 	OscOutput(std::string dstOscHost, int dstOscPort, unsigned int monitor = 0);
-	bool sendUDP(const OSCMessage& msg);
+	void sendUDP(const char *data, std::size_t size);
 
 private:
-#if 0
-    void dumpMessage(const OSCMessage& msg);
-#endif
-    std::unique_ptr<OSCSender> m_socket;
+    void dumpMessage(const char *data, size_t size);
+    std::unique_ptr<UdpTransmitSocket> m_transmitSocket;
     unsigned int m_monitor;
     std::mutex m_sendMutex;
 

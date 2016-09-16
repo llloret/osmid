@@ -1,4 +1,4 @@
-// MIT License
+﻿// MIT License
 
 // Copyright (c) 2016 Luis Lloret
 
@@ -21,28 +21,14 @@
 // SOFTWARE.
 
 
-#pragma once
+#include <iostream>
+#include "oscin.h"
 
-#include <vector>
-#include <string>
-#include "midicommon.h"
-#include "../JuceLibraryCode/JuceHeader.h"
+using namespace std;
 
-// This class manages a MIDI input device as seen by JUCE
-class MidiIn : public MidiCommon
+OscIn::OscIn(int listenOscPort, osc::OscPacketListener *listener, unsigned int monitor)
 {
-public:
-    MidiIn(std::string portName, MidiInputCallback *midiInputCallback);
-    MidiIn(const MidiIn&) = delete;
-    MidiIn& operator=(const MidiIn&) = delete;
-    
-    ~MidiIn();
+    m_socket = make_unique<UdpListeningReceiveSocket>(IpEndpointName("localhost", listenOscPort), listener);
+}
 
-    static std::vector<std::string> getInputNames();
 
-protected:
-    void updateMidiDevicesNamesMapping() override;
-
-private:
-    MidiInput *m_midiIn;
-};
