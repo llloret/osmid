@@ -10,7 +10,7 @@ The idea now if to see what features are required (or not), and use that to evol
 
 osmid is divided in 2 tools:
 * m2o: MIDI to OSC conversion
-* o2m: OSC to MIDI conversion (not implemented yet)
+* o2m: OSC to MIDI conversion
 
 Having two separate tools follows Unix ideas of having a number of smaller standalone tools instead of bigger monolithic ones. Since some projects might want to use just one direction for the conversion, it makes sense to keep this separation.
 
@@ -22,7 +22,10 @@ Having two separate tools follows Unix ideas of having a number of smaller stand
 * OSC address templates, that is, the format of the OSC address can be passed as an argument to the program. If the template parameter is not passed, then templates are NOT used (for example, if you REALLY care about latency - but we are talking about tens of microseconds here...). 
 
 
-o2m, the OSC to MIDI conversion is not implemented yet.
+## o2m features
+* At the moment very basic OSC parsing implementation that will send RAW MIDI messages to all MIDI output devices
+* Parses OSC messages with Address pattern /<whatever>/raw, with 3 integers or a blob with 3 bytes, that will be converted to MIDI and send as is.
+
 
 ## Building
 For build instruction see INSTALL.md.
@@ -57,10 +60,12 @@ The message body is:
 
 The address can be templated with the -t argument.
 
+## o2m parameters (Need to update this)
+- The default port to listen for OSC is 57200
+
 ## TODO
 * "all" devices should mean not only the devices that are found at the beginning of the run, but ALL the devices, even the ones that get plugged in later. (I think this is in now)
 * Installers
-* TCP as well as UDP for packet transport? (not sure if there is any interest on this)
 
 ## LICENSE
 See LICENSE.md file for details.
