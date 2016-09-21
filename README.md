@@ -45,23 +45,40 @@ osmid uses the following libs:
 * --oscport or -o <UDP port number>: send the OSC output to the specified port - can be specified multiple times to send to more than one port
 * --osctemplate or -t <OSC template>: use the specified OSC output template (use $n: midi port name, $i midi port id, $c: midi channel, $m: message_type). For example: -t /midi/$c/$m
 * --oscrawmidimessage or -r: send the raw MIDI data in the OSC message, instead of a decoded version
-* --monitor or -m: dump information to standard output about the MIDI messages received and the OSC messages encoded and sent. Use -m 2 to see sent OSC ove the wire.
+* --monitor or -m: dump information to standard output about the MIDI messages received and the OSC messages encoded and sent. Use -m 2 to see sent OSC over the wire
 * --list: List input MIDI devices
+* --heartbeat or -b: sends OSC heartbeat message
 * --help: Display this help message
 * --version: Show the version number
 
-## m2o OSC message format
+## m2o outgoing OSC message format
 The address by default is: /midi/<port id>/<channel>(if the message contains channel information).
+The address can be templated with the -t argument.
 
 The message body is: 
 * By default: (int)<port id>, (string)<port name>, <decoded message data>(i.e. for note_on messages, it will be 2 integers: note, velocity)
-* if -r specified: (int)<port id>, (string)<port name>, (blob)<raw midi data>. 
+* if -r specified: (int)<port id>, (string)<port name>, (blob)<raw midi data>.
 
 
-The address can be templated with the -t argument.
+There is also an optional heartbeat message which sends periodic messages with the following format:
+OSC address pattern: /midi/heartbeat. Message body is OSC array of pairs <midi device id>, <midi device name>
+
+
 
 ## o2m parameters (Need to update this)
 - The default port to listen for OSC is 57200
+
+## o2m incoming OSC message format
+- The expected OSC address pattern is /(string)<out midi device name or id>/(string)<midi command>
+- Recognized midi commands, and the expected OSC body:
+	- raw: send a midi command as is. Body can be either a blob or a sequence of int32s
+	- note_on: Body is (int32)channel, (int32)note, (int32)velocity
+	- note_off: Body is (int32)channel, (int32)note, (int32)velocity
+	- control_change: Body is (int32)channel, (int32)control number, (int32)control value
+	- pitch_bend: Body is (int32)channel, (int32)value
+	- channel_pressure: Body is (int32)channel, (int32)value
+	- poly_pressure: Body is (int32)channel, (int32)note, (int32)value
+	- program_change: Body is (int32)channel, (int32)program number
 
 ## TODO
 * "all" devices should mean not only the devices that are found at the beginning of the run, but ALL the devices, even the ones that get plugged in later. (I think this is in now)

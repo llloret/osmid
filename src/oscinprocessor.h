@@ -51,6 +51,18 @@ public:
     }
 
 private:
+    void processRawMessage(const std::string& outDevice, const osc::ReceivedMessage& message);
+    void processNoteOnMessage(const std::string& outDevice, const osc::ReceivedMessage& message);
+    void processNoteOffMessage(const std::string& outDevice, const osc::ReceivedMessage& message);
+    void processControlChangeMessage(const std::string& outDevice, const osc::ReceivedMessage& message);
+    void processPitchBendMessage(const std::string& outDevice, const osc::ReceivedMessage& message);
+    void processChannelPressureMessage(const std::string& outDevice, const osc::ReceivedMessage& message);
+    void processPolyPressureMessage(const std::string& outDevice, const osc::ReceivedMessage& message);
+    void processProgramChangeMessage(const std::string& outDevice, const osc::ReceivedMessage& message);
+
+    //bool validateMessage(const std::string& warningPre, const std::string& validationString, const osc::ReceivedMessage& message);
+    void dumpOscBody(const osc::ReceivedMessage& message);
+
     std::unique_ptr<OscIn> m_input;
     std::vector<std::unique_ptr<MidiOut>> m_outputs;
 
