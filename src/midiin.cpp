@@ -43,8 +43,13 @@ MidiIn::MidiIn(string portName, MidiInputCallback *midiInputCallback, bool isVir
         m_midiIn = MidiInput::openDevice(m_juceMidiId, midiInputCallback);
     }
     else{
+#ifdef WIN32
+        cout << "Virtual MIDI ports are not supported on Windows";
+        exit(-1);
+#else
         cout << "*** Creating new MIDI device: " << m_portName << endl;
         m_midiIn = MidiInput::createNewDevice(m_portName, midiInputCallback); 
+#endif
     }
     m_midiIn->start();
 }

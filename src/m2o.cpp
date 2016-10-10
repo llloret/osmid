@@ -130,7 +130,7 @@ void prepareMidiProcessors(vector<shared_ptr<MidiInProcessor>>& midiInputProcess
     for (auto& input : midiInputsToOpen) {
         cout << "Opening input: " << input << endl;
         try {            
-            auto midiInputProcessor = make_unique<MidiInProcessor>(input, oscOutputs, popts.monitor);
+            auto midiInputProcessor = make_unique<MidiInProcessor>(input, oscOutputs, false, popts.monitor);
             if (popts.useOscTemplate)
                 midiInputProcessor->setOscTemplate(popts.oscTemplate);
             midiInputProcessor->setOscRawMidiMessage(popts.oscRawMidiMessage);
@@ -184,11 +184,12 @@ int main(int argc, char* argv[]) {
     }   
     
     // Create the virtual output port?
+#ifndef WIN32
     unique_ptr<MidiInProcessor> virtualIn;
     if (popts.virtualPort){
-        virtualIn = make_unique<MidiInProcessor>("TO Virtual osmid", oscOutputs, true, popts.monitor);    
+        virtualIn = make_unique<MidiInProcessor>("TO Virtual osmid", oscOutputs, true, popts.monitor);
     }
-
+#endif
     if (popts.listPorts){
         listAvailablePorts();
     }
