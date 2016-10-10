@@ -76,7 +76,7 @@ int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions &prog
         ("oscport,o", po::value<vector<int>>(&programOptions.oscOutputPorts), "OSC Output port (default:57120) - can be specified multiple times")
         ("osctemplate,t", po::value<string>(&programOptions.oscTemplate), "OSC output template (use $n: midi port name, $i: midi port id, $c: midi channel, $m: message_type")
         ("oscrawmidimessage,r", po::bool_switch(&programOptions.oscRawMidiMessage)->default_value(false), "OSC send the raw MIDI data as part of the OSC message")
-        ("heartbeat,b", po::bool_switch(&programOptions.oscHeartbeat)->default_value(false), "OSC send the heartbeat with info about the active devices")
+        ("heartbeat,b", po::bool_switch(&programOptions.oscHeartbeat)->default_value(false), "OSC send the heartbeat with info about the active MIDI devices")
         ("monitor,m", po::value<unsigned int>(&programOptions.monitor)->default_value(0)->implicit_value(1), "Monitor MIDI input and OSC output")
         ("help,h", "Display this help message")
         ("version", "Show the version number");
@@ -114,7 +114,7 @@ int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions &prog
         programOptions.allMidiInputs = false;
     }
 
-    if (!args.count("oscout")) {
+    if (!args.count("oscport")) {
         programOptions.oscOutputPorts.push_back(57120);
     }
 
