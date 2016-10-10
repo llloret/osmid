@@ -25,7 +25,8 @@
 
 using namespace std;
 
-MidiIn::MidiIn(string portName, MidiInputCallback *midiInputCallback)
+
+MidiIn::MidiIn(string portName, MidiInputCallback *midiInputCallback, bool isVirtual)
 {
     cout << "MidiIn contructor for " << portName << endl;
     updateMidiDevicesNamesMapping();
@@ -35,17 +36,25 @@ MidiIn::MidiIn(string portName, MidiInputCallback *midiInputCallback)
     else
         m_stickyId = getStickyIdFromName(m_portName);
 
-    m_juceMidiId = getJuceMidiIdFromName(m_portName);
 
 	// FIXME: need to check if name does not exist
-    m_midiIn = MidiInput::openDevice(m_juceMidiId, midiInputCallback);
+    if (!isVirtual){
+        m_juceMidiId = getJuceMidiIdFromName(m_portName);
+        m_midiIn = MidiInput::openDevice(m_juceMidiId, midiInputCallback);
+    }
+    else{
+        cout << "*** Creating new MIDI device: " << m_portName << endl;
+        m_midiIn = MidiInput::createNewDevice(m_portName, midiInputCallback); 
+    }
     m_midiIn->start();
 }
 
-MidiIn::~MidiIn() {
+MidiIn::~MidiIn()
+{
     cout << "MidiIn destructor for " << m_portName << endl;
 	m_midiIn->stop();
-	delete m_midiIn;
+//    if (!m_isVirtual)
+	    delete m_midiIn;
 }
 
 vector<string> MidiIn::getInputNames()

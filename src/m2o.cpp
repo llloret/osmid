@@ -53,7 +53,9 @@ struct ProgramOptions
     string oscTemplate;
     bool oscRawMidiMessage;
     bool oscHeartbeat;
+    bool virtualPort;
     unsigned int monitor;
+    bool listPorts;
 };
 
 
@@ -67,7 +69,8 @@ int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions &prog
     po::options_description desc("m2o Usage");
 
     desc.add_options()
-        ("list,l", "List input MIDI devices")
+        ("list,l", po::bool_switch(&programOptions.listPorts)->default_value(false), "List input MIDI devices")
+        ("virtualport,v", po::bool_switch(&programOptions.virtualPort)->default_value(false), "Create a Virtual MIDI output port that will be monitored for MIDI (useful to have MIDI->OSC inside your favourite DAW)")
         ("midiin,i", po::value<vector<string>>(&programOptions.midiInputNames), "MIDI Input device (default: all) - can be specified multiple times")
         ("oschost,H", po::value<string>(&programOptions.oscOutputHost)->default_value("127.0.0.1"), "OSC Output host (default:127.0.01)")
         ("oscport,o", po::value<vector<int>>(&programOptions.oscOutputPorts), "OSC Output port (default:57120) - can be specified multiple times")
@@ -91,9 +94,6 @@ int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions &prog
     if (args.count("help")) {
         cout << desc << "\n";
         return 1;
-    }
-    if (args.count("list")) {
-        listAvailablePorts();
     }
 
     if (args.count("version")) {
@@ -183,6 +183,16 @@ int main(int argc, char* argv[]) {
         oscOutputs.push_back(move(oscOutput));
     }   
     
+    // Create the virtual output port?
+    unique_ptr<MidiInProcessor> virtualIn;
+    if (popts.virtualPort){
+        virtualIn = make_unique<MidiInProcessor>("TO Virtual osmid", oscOutputs, true, popts.monitor);    
+    }
+
+    if (popts.listPorts){
+        listAvailablePorts();
+    }
+
     // Open the MIDI input ports
     try {
         prepareMidiProcessors(midiInputProcessors, popts, oscOutputs);

@@ -32,17 +32,16 @@
 class MidiIn : public MidiCommon
 {
 public:
-    MidiIn(std::string portName, MidiInputCallback *midiInputCallback);
+    MidiIn(std::string portName, MidiInputCallback *midiInputCallback, bool isVirtual = false);
     MidiIn(const MidiIn&) = delete;
     MidiIn& operator=(const MidiIn&) = delete;
     
-    ~MidiIn();
+    virtual ~MidiIn();
 
     static std::vector<std::string> getInputNames();
 
 protected:
     void updateMidiDevicesNamesMapping() override;
-
-private:
     MidiInput *m_midiIn;
 };
+
