@@ -31,14 +31,14 @@
 class MidiInProcessor : public MidiInputCallback
 {
 public:
-    MidiInProcessor(const std::string& inputName, std::vector<std::shared_ptr<OscOutput>> outputs, unsigned int monitor = 0);
+    MidiInProcessor(const std::string& inputName, std::vector<std::shared_ptr<OscOutput>> outputs, bool isVirtual = false, unsigned int monitor = 0);
     void handleIncomingMidiMessage(MidiInput *source, const MidiMessage &midiMessage) override;
     void setOscTemplate(const std::string& oscTemplate);
     void setOscRawMidiMessage(bool oscRawMidiMessage);
     int getInputId() const { return m_input->getPortId(); };
     std::string getInputPortname() const { return m_input->getPortName(); } ;
     
-private:
+protected:
     void doTemplateSubst(std::string &str, const std::string& portName, int portId, int channel, const std::string& message_type) const;
     void dumpMIDIMessage(const uint8_t *message, int size) const;
     std::unique_ptr<MidiIn> m_input;
@@ -56,3 +56,5 @@ private:
     static std::regex regexMessageType;
     static std::regex regexDoubleSlash;
 };
+
+
