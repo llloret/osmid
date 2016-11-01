@@ -50,6 +50,10 @@ public:
         std::cout << "OscInProcessor destructor" << std::endl;
     }
 
+    int getNMidiOuts();
+    std::string getMidiOutName(int n);
+    int getMidiOutId(int n);
+
 private:
     void processRawMessage(const std::string& outDevice, const osc::ReceivedMessage& message);
     void processNoteOnMessage(const std::string& outDevice, const osc::ReceivedMessage& message);

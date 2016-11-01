@@ -42,10 +42,12 @@ MidiIn::MidiIn(string portName, MidiInputCallback *midiInputCallback, bool isVir
         m_juceMidiId = getJuceMidiIdFromName(m_portName);
         m_midiIn = MidiInput::openDevice(m_juceMidiId, midiInputCallback);
     }
+#ifndef _WIN32
     else{
         cout << "*** Creating new MIDI device: " << m_portName << endl;
         m_midiIn = MidiInput::createNewDevice(m_portName, midiInputCallback); 
     }
+#endif
     m_midiIn->start();
 }
 
