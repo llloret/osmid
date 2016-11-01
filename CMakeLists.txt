@@ -37,6 +37,7 @@ set(o2m_sources
     src/o2m.cpp
     src/midiout.cpp
     src/oscin.cpp
+    src/oscout.cpp
     src/midicommon.cpp
     src/oscinprocessor.cpp
 )

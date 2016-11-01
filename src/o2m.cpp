@@ -32,7 +32,9 @@
 #include <boost/program_options.hpp>
 #include "midiout.h"
 #include "oscin.h"
+#include "oscout.h"
 #include "oscinprocessor.h"
+#include "osc/OscOutboundPacketStream.h"
 #include "version.h"
 
 using namespace std;
@@ -54,6 +56,9 @@ struct ProgramOptions
     vector<string> midiOutputNames;
     bool allMidiOutputs;
     unsigned int oscInputPort;
+    string oscOutputHost;
+    unsigned int oscOutputPort;
+    bool oscHeartbeat;
     unsigned int monitor;
 };
 
@@ -71,6 +76,9 @@ int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions &prog
         ("list,l", "List output MIDI devices")
         ("midiin,i", po::value<vector<string>>(&programOptions.midiOutputNames), "MIDI Output devices (default: all) - can be specified multiple times")
         ("oscport,o", po::value<unsigned int>(&programOptions.oscInputPort), "OSC Input port (default:57200)")
+        ("heartbeat,b", po::bool_switch(&programOptions.oscHeartbeat)->default_value(false), "OSC send the heartbeat with info about the active MIDI devices")
+        ("oscoutputhost,H", po::value<string>(&programOptions.oscOutputHost)->default_value("127.0.0.1"), "OSC Output host (default:127.0.01). Used for heartbeat")
+        ("oscoutputport,O", po::value<unsigned int>(&programOptions.oscOutputPort), "OSC Output port (default:57120). Used for heartbeat")
         ("monitor,m", po::value<unsigned int>(&programOptions.monitor)->default_value(0)->implicit_value(1), "Monitor OSC input and MIDI output")
         ("help,h", "Display this help message")
         ("version", "Show the version number");
@@ -106,8 +114,12 @@ int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions &prog
         programOptions.allMidiOutputs = false;
     }
 
-    if (!args.count("oscout")) {
+    if (!args.count("oscport")) {
         programOptions.oscInputPort = 57200;
+    }
+
+    if (!args.count("oscoutputport")) {
+        programOptions.oscOutputPort= 57120;
     }
 
     return 0;
@@ -160,13 +172,43 @@ void asyncBreakThread(OscInProcessor *oscInputProcessor)
     }
 }
 
+
+void sendHeartBeat(const unique_ptr<OscInProcessor>& oscInputProcessor, unique_ptr<OscOutput>& oscOutput, int monitor)
+{
+    char buffer[2048];
+    osc::OutboundPacketStream p(buffer, 2048);
+    p << osc::BeginMessage("/o2m/heartbeat");
+    for (int i = 0; i < oscInputProcessor->getNMidiOuts(); i++){
+        p << osc::BeginArray;
+        p << oscInputProcessor->getMidiOutId(i) << oscInputProcessor->getMidiOutName(i).c_str();
+        p << osc::EndArray;
+    }
+    p << osc::EndMessage;
+    if (monitor > 1) {
+        cout << "INFO sending OSC: [/o2m/heartbeat]" << " -> ";
+        for (int i = 0; i < oscInputProcessor->getNMidiOuts(); i++) {
+            cout << "  Array[" << oscInputProcessor->getMidiOutId(i) << ", " << oscInputProcessor->getMidiOutName(i) << "]" << endl;
+        }
+    }
+    
+    oscOutput->sendUDP(p.Data(), p.Size());    
+}
+
+
+
 int main(int argc, char* argv[]) {
 
     ProgramOptions popts;
+    unique_ptr<OscOutput> oscOutput;
 
     int rc = setup_and_parse_program_options(argc, argv, popts);
     if (rc != 0) {
         return rc;
+    }
+
+    if (popts.oscHeartbeat){
+        // Open the OSC output port, for heartbeats
+        oscOutput = make_unique<OscOutput>(popts.oscOutputHost, popts.oscOutputPort, popts.monitor);
     }
 
     auto oscInputProcessor = make_unique<OscInProcessor>(popts.oscInputPort, popts.monitor);
@@ -203,6 +245,8 @@ int main(int argc, char* argv[]) {
             lastAvailablePorts = newAvailablePorts;
             listAvailablePorts();
         }
+        if (popts.oscHeartbeat)
+            sendHeartBeat(oscInputProcessor, oscOutput, popts.monitor);
     }
     thr.join();
 }

@@ -375,3 +375,18 @@ void OscInProcessor::ProcessBundle(const osc::ReceivedBundle& b, const IpEndpoin
     cout << "Received OSC bundle. Ignoring for now!" << endl;
 }
 
+int OscInProcessor::getNMidiOuts()
+{
+    return m_outputs.size();
+}
+
+int OscInProcessor::getMidiOutId(int n)
+{
+    return m_outputs[n]->getPortId();
+}
+
+
+string OscInProcessor::getMidiOutName(int n)
+{
+    return m_outputs[n]->getPortName();
+}
