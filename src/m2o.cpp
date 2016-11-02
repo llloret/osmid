@@ -28,6 +28,7 @@
 #include "midiinprocessor.h"
 #include "osc/OscOutboundPacketStream.h"
 #include "version.h"
+#include "utils.h"
 
 using namespace std;
 
@@ -155,7 +156,7 @@ void sendHeartBeat(const vector<shared_ptr<MidiInProcessor>>& midiProcessors, co
     }
     p << osc::EndMessage;
     if (monitor > 1) {
-        cout << "INFO sending OSC: [/midi/heartbeat]" << " -> "; 
+        cout << timestamp() << "INFO sending OSC: [/midi/heartbeat]" << " -> "; 
         for (auto midiProcessor : midiProcessors) {
             cout << "  Array[" << midiProcessor->getInputId() << ", " << midiProcessor->getInputPortname() << "]" << endl;
         }

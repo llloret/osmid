@@ -22,6 +22,7 @@
 #include <iomanip>
 #include <iostream>
 #include "oscout.h"
+#include "utils.h"
 
 using namespace std;
 
@@ -34,7 +35,7 @@ OscOutput::OscOutput(string dstOscHost, int dstOscPort, unsigned int monitor) : 
 void OscOutput::dumpMessage(const char *data, size_t size)
 {
 
-    cout << "DEBUG sent UDP message: ";
+    cout << timestamp() << "DEBUG sent UDP message: ";
     for (int i = 0; i < size; i++) {
         const unsigned char udata = (unsigned char)(data[i]);
         // is it printable?

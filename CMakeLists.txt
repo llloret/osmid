@@ -40,6 +40,7 @@ set(o2m_sources
     src/oscout.cpp
     src/midicommon.cpp
     src/oscinprocessor.cpp
+    src/utils.cpp
 )
 
 if(APPLE)

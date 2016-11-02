@@ -22,6 +22,7 @@
 
 #include <regex>
 #include "oscinprocessor.h"
+#include "utils.h"
 
 
 using namespace std;
@@ -47,7 +48,7 @@ void OscInProcessor::ProcessMessage(const osc::ReceivedMessage& message, const I
 {
     string addressPattern(message.AddressPattern());
     if (m_monitor) {
-        cout << "Received OSC message with address pattern: " << addressPattern << endl;
+        cout << timestamp() << "Received OSC message with address pattern: " << addressPattern << endl;
     }
     if (m_monitor > 1) {
         dumpOscBody(message);
