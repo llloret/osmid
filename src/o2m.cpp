@@ -36,6 +36,7 @@
 #include "oscinprocessor.h"
 #include "osc/OscOutboundPacketStream.h"
 #include "version.h"
+#include "utils.h"
 
 using namespace std;
 
@@ -185,7 +186,7 @@ void sendHeartBeat(const unique_ptr<OscInProcessor>& oscInputProcessor, unique_p
     }
     p << osc::EndMessage;
     if (monitor > 1) {
-        cout << "INFO sending OSC: [/o2m/heartbeat]" << " -> ";
+        cout << timestamp() << "INFO sending OSC: [/o2m/heartbeat]" << " -> ";
         for (int i = 0; i < oscInputProcessor->getNMidiOuts(); i++) {
             cout << "  Array[" << oscInputProcessor->getMidiOutId(i) << ", " << oscInputProcessor->getMidiOutName(i) << "]" << endl;
         }
