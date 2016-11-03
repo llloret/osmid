@@ -75,8 +75,8 @@ int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions &prog
 
     desc.add_options()
         ("list,l", "List output MIDI devices")
-        ("midiin,i", po::value<vector<string>>(&programOptions.midiOutputNames), "MIDI Output devices (default: all) - can be specified multiple times")
-        ("oscport,o", po::value<unsigned int>(&programOptions.oscInputPort), "OSC Input port (default:57200)")
+        ("midiout,o", po::value<vector<string>>(&programOptions.midiOutputNames), "MIDI Output devices (default: all) - can be specified multiple times")
+        ("oscport,i", po::value<unsigned int>(&programOptions.oscInputPort), "OSC Input port (default:57200)")
         ("heartbeat,b", po::bool_switch(&programOptions.oscHeartbeat)->default_value(false), "OSC send the heartbeat with info about the active MIDI devices")
         ("oscoutputhost,H", po::value<string>(&programOptions.oscOutputHost)->default_value("127.0.0.1"), "OSC Output host (default:127.0.01). Used for heartbeat")
         ("oscoutputport,O", po::value<unsigned int>(&programOptions.oscOutputPort), "OSC Output port (default:57120). Used for heartbeat")
@@ -174,7 +174,7 @@ void asyncBreakThread(OscInProcessor *oscInputProcessor)
 }
 
 
-void sendHeartBeat(const unique_ptr<OscInProcessor>& oscInputProcessor, unique_ptr<OscOutput>& oscOutput, int monitor)
+void sendHeartBeat(const unique_ptr<OscInProcessor>& oscInputProcessor, unique_ptr<OscOutput> const &oscOutput, int monitor)
 {
     char buffer[2048];
     osc::OutboundPacketStream p(buffer, 2048);
