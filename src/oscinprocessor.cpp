@@ -94,7 +94,7 @@ void OscInProcessor::ProcessMessage(const osc::ReceivedMessage& message, const I
         cout << "No match on address pattern" << endl;
     }
 
-    // Check what the adress patter contains
+    // Check what the adress pattern contains
 
 /*
     cout << "Got " << message.size() << "arguments" << endl;

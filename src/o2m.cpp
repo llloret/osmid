@@ -78,7 +78,7 @@ int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions &prog
         ("midiout,o", po::value<vector<string>>(&programOptions.midiOutputNames), "MIDI Output devices (default: all) - can be specified multiple times")
         ("oscport,i", po::value<unsigned int>(&programOptions.oscInputPort), "OSC Input port (default:57200)")
         ("heartbeat,b", po::bool_switch(&programOptions.oscHeartbeat)->default_value(false), "OSC send the heartbeat with info about the active MIDI devices")
-        ("oscoutputhost,H", po::value<string>(&programOptions.oscOutputHost)->default_value("127.0.0.1"), "OSC Output host (default:127.0.01). Used for heartbeat")
+        ("oscoutputhost,H", po::value<string>(&programOptions.oscOutputHost)->default_value("127.0.0.1"), "OSC Output host (default:127.0.0.1). Used for heartbeat")
         ("oscoutputport,O", po::value<unsigned int>(&programOptions.oscOutputPort), "OSC Output port (default:57120). Used for heartbeat")
         ("monitor,m", po::value<unsigned int>(&programOptions.monitor)->default_value(0)->implicit_value(1), "Monitor OSC input and MIDI output")
         ("help,h", "Display this help message")
@@ -218,6 +218,7 @@ int main(int argc, char* argv[]) {
         prepareOscProcessorOutputs(oscInputProcessor, popts);
     }
     catch (const std::out_of_range&) {
+        cout << "Error opening MIDI outputs" << endl;
         return -1;
     }
 

@@ -28,7 +28,7 @@ using namespace std;
 
 MidiIn::MidiIn(string portName, MidiInputCallback *midiInputCallback, bool isVirtual)
 {
-    cout << "MidiIn contructor for " << portName << endl;
+    cout << "MidiIn constructor for " << portName << endl;
     updateMidiDevicesNamesMapping();
     m_portName = portName;
     if (!nameInStickyTable(m_portName))
