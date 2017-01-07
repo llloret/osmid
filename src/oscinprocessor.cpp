@@ -56,13 +56,17 @@ void OscInProcessor::ProcessMessage(const osc::ReceivedMessage& message, const I
 
     regex addressRegex("/([[:alnum:]]+)/(([[:alnum:]]|_)+)");
     smatch match;
-        
+
     if (regex_match(addressPattern, match, addressRegex)) {
         cout << "Match (" << match[0] << ", " << match[1] << ", " << match[2] << endl;
         // We are interested in groups [1] and [2]. [1] -> device, [2] -> command / raw
         const string& outDevice = match[1];
         const string& command = match[2];
-        if (command == "raw") {
+
+        if (command == "clock") {
+          processClockMessage(outDevice);
+        }
+        else if (command == "raw") {
             processRawMessage(outDevice, message);
         }
         else if (command == "note_on") {
@@ -82,6 +86,17 @@ void OscInProcessor::ProcessMessage(const osc::ReceivedMessage& message, const I
         }
         else if (command == "poly_pressure") {
             processPolyPressureMessage(outDevice, message);
+        }
+        else if (command == "start") {
+          processStartMessage(outDevice);
+        }
+        else if (command == "continue") {
+          processContinueMessage(outDevice);
+        }
+        else if (command == "stop") {
+          processStopMessage(outDevice);
+        } else if (command == "active_sense") {
+          processActiveSenseMessage(outDevice);
         }
         else if (command == "program_change") {
             processProgramChangeMessage(outDevice, message);
@@ -182,6 +197,47 @@ void OscInProcessor::processNoteOnMessage(const string& outDevice, const osc::Re
     }
 
     MidiMessage midiMessage{ MidiMessage::noteOn(channel, note, (uint8)velocity) };
+    for (auto& output : m_outputs) {
+        output->send(midiMessage);
+    }
+}
+
+
+void OscInProcessor::processClockMessage(const string& outDevice)
+{
+  MidiMessage midiMessage{ MidiMessage::midiClock() };
+    for (auto& output : m_outputs) {
+        output->send(midiMessage);
+    }
+}
+
+void OscInProcessor::processStartMessage(const string& outDevice)
+{
+  MidiMessage midiMessage{ MidiMessage::midiStart() };
+    for (auto& output : m_outputs) {
+        output->send(midiMessage);
+    }
+}
+
+void OscInProcessor::processContinueMessage(const string& outDevice)
+{
+  MidiMessage midiMessage{ MidiMessage::midiContinue() };
+    for (auto& output : m_outputs) {
+        output->send(midiMessage);
+    }
+}
+
+void OscInProcessor::processStopMessage(const string& outDevice)
+{
+  MidiMessage midiMessage{ MidiMessage::midiStop() };
+    for (auto& output : m_outputs) {
+        output->send(midiMessage);
+    }
+}
+
+void OscInProcessor::processActiveSenseMessage(const string& outDevice)
+{
+  MidiMessage midiMessage{ MidiMessage() };
     for (auto& output : m_outputs) {
         output->send(midiMessage);
     }

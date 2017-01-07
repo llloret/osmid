@@ -79,6 +79,11 @@ OSC address pattern: /midi/heartbeat. Message body is OSC array of pairs <midi d
 	- channel_pressure: Body is (int32)channel, (int32)value
 	- poly_pressure: Body is (int32)channel, (int32)note, (int32)value
 	- program_change: Body is (int32)channel, (int32)program number
+        - clock: Body is empty
+        - start: Body is empty
+        - stop: Body is empty
+        - continue: Body is empty        
+        - active_sense: Body is empty                
 
 ## TODO
 * "all" devices should mean not only the devices that are found at the beginning of the run, but ALL the devices, even the ones that get plugged in later. (I think this is in now)
