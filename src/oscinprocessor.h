@@ -55,6 +55,11 @@ public:
     int getMidiOutId(int n);
 
 private:
+    void processClockMessage(const std::string& outDevice);
+    void processStartMessage(const std::string& outDevice);
+    void processContinueMessage(const std::string& outDevice);
+    void processStopMessage(const std::string& outDevice);
+    void processActiveSenseMessage(const std::string& outDevice);
     void processRawMessage(const std::string& outDevice, const osc::ReceivedMessage& message);
     void processNoteOnMessage(const std::string& outDevice, const osc::ReceivedMessage& message);
     void processNoteOffMessage(const std::string& outDevice, const osc::ReceivedMessage& message);
