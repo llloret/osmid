@@ -29,7 +29,7 @@
 class OscIn
 {
 public:
-	OscIn(int listenOscPort, osc::OscPacketListener *listener, unsigned int monitor = 0);
+	OscIn(int listenOscPort, osc::OscPacketListener *listener);
     void run() {
         m_socket->Run();
     }
@@ -39,5 +39,4 @@ public:
 
 private:
     std::unique_ptr<UdpListeningReceiveSocket> m_socket;
-    unsigned int m_monitor;
 };

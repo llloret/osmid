@@ -78,7 +78,7 @@ int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions &prog
         ("osctemplate,t", po::value<string>(&programOptions.oscTemplate), "OSC output template (use $n: midi port name, $i: midi port id, $c: midi channel, $m: message_type")
         ("oscrawmidimessage,r", po::bool_switch(&programOptions.oscRawMidiMessage)->default_value(false), "OSC send the raw MIDI data as part of the OSC message")
         ("heartbeat,b", po::bool_switch(&programOptions.oscHeartbeat)->default_value(false), "OSC send the heartbeat with info about the active MIDI devices")
-        ("monitor,m", po::value<unsigned int>(&programOptions.monitor)->default_value(0)->implicit_value(1), "Monitor MIDI input and OSC output")
+        ("monitor,m", po::value<unsigned int>(&programOptions.monitor)->default_value(2)->implicit_value(1), "Monitor and logging level (lower more verbose)")
         ("help,h", "Display this help message")
         ("version", "Show the version number");
 
@@ -131,7 +131,7 @@ void prepareMidiProcessors(vector<shared_ptr<MidiInProcessor>>& midiInputProcess
     for (auto& input : midiInputsToOpen) {
         cout << "Opening input: " << input << endl;
         try {            
-            auto midiInputProcessor = make_unique<MidiInProcessor>(input, oscOutputs, false, popts.monitor);
+            auto midiInputProcessor = make_unique<MidiInProcessor>(input, oscOutputs, false);
             if (popts.useOscTemplate)
                 midiInputProcessor->setOscTemplate(popts.oscTemplate);
             midiInputProcessor->setOscRawMidiMessage(popts.oscRawMidiMessage);
@@ -144,7 +144,7 @@ void prepareMidiProcessors(vector<shared_ptr<MidiInProcessor>>& midiInputProcess
     }
 }
 
-void sendHeartBeat(const vector<shared_ptr<MidiInProcessor>>& midiProcessors, const vector<shared_ptr<OscOutput>>& oscOutputs, int monitor)
+void sendHeartBeat(const vector<shared_ptr<MidiInProcessor>>& midiProcessors, const vector<shared_ptr<OscOutput>>& oscOutputs)
 {
     char buffer[2048];
     osc::OutboundPacketStream p(buffer, 2048);
@@ -155,14 +155,14 @@ void sendHeartBeat(const vector<shared_ptr<MidiInProcessor>>& midiProcessors, co
         p << osc::EndArray;
     }
     p << osc::EndMessage;
-    if (monitor > 1) {
-        cout << timestamp() << "INFO sending OSC: [/midi/heartbeat]" << " -> "; 
-        for (auto midiProcessor : midiProcessors) {
-            cout << "  Array[" << midiProcessor->getInputId() << ", " << midiProcessor->getInputPortname() << "]" << endl;
-        }
+    MonitorLogger::getInstance().debug("{}: sending OSC: [/o2m/heartbeat] -> ", timestamp());
+    for (auto midiProcessor : midiProcessors) {
+        MonitorLogger::getInstance().debug("  Array[{}, {}]", midiProcessor->getInputId(), midiProcessor->getInputPortname());
     }
+
     for (auto& output : oscOutputs) {
         output->sendUDP(p.Data(), p.Size());
+        logOSCMessage(p.Data(), p.Size());
     }
 }
 
@@ -178,17 +178,22 @@ int main(int argc, char* argv[]) {
         return rc;
     }
     
+    MonitorLogger::getInstance().setLogLevel(popts.monitor);
+
     // Open the OSC output ports
     for (auto port : popts.oscOutputPorts) {
-        auto oscOutput = make_shared<OscOutput>(popts.oscOutputHost, port, popts.monitor);
+        auto oscOutput = make_shared<OscOutput>(popts.oscOutputHost, port);
         oscOutputs.push_back(move(oscOutput));
-    }   
+    }
+    
+    // Will configure logging on the first OSC port (may want to change this in the future, so that it sends to every port, or be able to select one)
+    MonitorLogger::getInstance().setOscOutput(oscOutputs[0]);
     
     // Create the virtual output port?
 #ifndef WIN32
     unique_ptr<MidiInProcessor> virtualIn;
     if (popts.virtualPort){
-        virtualIn = make_unique<MidiInProcessor>("TO Virtual osmid", oscOutputs, true, popts.monitor);
+        virtualIn = make_unique<MidiInProcessor>("TO Virtual osmid", oscOutputs, true);
     }
 #endif
     if (popts.listPorts){
@@ -217,7 +222,7 @@ int main(int argc, char* argv[]) {
             listAvailablePorts();
         }
         if (popts.oscHeartbeat)
-            sendHeartBeat(midiInputProcessors, oscOutputs, popts.monitor);
+            sendHeartBeat(midiInputProcessors, oscOutputs);
     }
 }
 

@@ -31,3 +31,4 @@ int gettimeofday(struct timeval * tp, struct timezone * tzp);
 #else
 #include <sys/time.h>
 #endif
+void logOSCMessage(const char *data, size_t size);

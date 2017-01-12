@@ -36,8 +36,8 @@ regex MidiInProcessor::regexChannel{ "\\$c" };
 regex MidiInProcessor::regexMessageType{ "\\$m" };
 regex MidiInProcessor::regexDoubleSlash{ "//" };
 
-MidiInProcessor::MidiInProcessor(const std::string& inputName, vector<shared_ptr<OscOutput>> outputs, bool isVirtual, unsigned int monitor):
-    m_outputs(outputs), m_useOscTemplate(false), m_monitor(monitor)
+MidiInProcessor::MidiInProcessor(const std::string& inputName, vector<shared_ptr<OscOutput>> outputs, bool isVirtual):
+    m_outputs(outputs), m_useOscTemplate(false)
 {
     m_input = make_unique<MidiIn>(inputName, this, isVirtual);
 }
@@ -59,9 +59,7 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput *source, const MidiMes
         status = message[0];
     }
 
-    if (m_monitor) {
-        dumpMIDIMessage(message, nBytes);
-    }
+    dumpMIDIMessage(message, nBytes);
 
 
     // Process the message
@@ -218,18 +216,15 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput *source, const MidiMes
     p << osc::EndMessage;
 
     // Dump the OSC message
-    if (m_monitor) {
-        cout << timestamp() << "INFO sending OSC: [" << path.str() << "]" << " -> " << portId << ", " << portNameWithoutSpaces;
-        if (m_oscRawMidiMessage) {
-            if (nBytes > 0) {
-                cout << ", <raw_midi_message>" << endl;
-            }
+    m_logger.info("{}: sending OSC: [{}] -> {}, {}", timestamp(), path.str(), portId, portNameWithoutSpaces);
+    if (m_oscRawMidiMessage) {
+        if (nBytes > 0) {
+            m_logger.info("  <raw_midi_message>");
         }
-        else {
-            for (int i = 1; i < nBytes; i++) {
-                cout << ", " << (int)message[i];
-            }
-            cout << endl;
+    }
+    else {
+        for (int i = 1; i < nBytes; i++) {
+            m_logger.info("   [{}]", (int)message[i]);
         }
     }
 
@@ -239,6 +234,7 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput *source, const MidiMes
     // And send the message to the specified output ports
     for (auto& output : m_outputs) {
         output->sendUDP(p.Data(), p.Size());
+        logOSCMessage(p.Data(), p.Size());
     }
 
     //end_time = chrono::high_resolution_clock::now();
@@ -275,10 +271,8 @@ void MidiInProcessor::doTemplateSubst(string &str, const string& portName, int p
 
 void MidiInProcessor::dumpMIDIMessage(const uint8_t *message, int size) const
 {
-    cout << timestamp() << "INFO received MIDI message: ";
+    m_logger.info("{}: received MIDI message: ", timestamp());
     for (int i = 0; i < size; i++) {
-        cout << hex << "[" << (unsigned int)message[i] << /*setw(2) << setfill('0') <<*/ "]" << dec;
+        m_logger.info("   [{:02x}]", (unsigned int)message[i]);
     }
-    cout << endl;
-
 }

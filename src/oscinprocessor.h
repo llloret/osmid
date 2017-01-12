@@ -27,11 +27,12 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "oscin.h"
 #include "midiout.h"
+#include "monitorlogger.h"
 
 
 class OscInProcessor : public osc::OscPacketListener {
 public:
-	OscInProcessor(int oscListenPort, unsigned int monitor = 0);
+    OscInProcessor(int oscListenPort);
 
     void prepareOutputs(const std::vector<std::string>& outputNames);
 
@@ -68,12 +69,14 @@ private:
     void processChannelPressureMessage(const std::string& outDevice, const osc::ReceivedMessage& message);
     void processPolyPressureMessage(const std::string& outDevice, const osc::ReceivedMessage& message);
     void processProgramChangeMessage(const std::string& outDevice, const osc::ReceivedMessage& message);
+    void processLogLevelMessage(const osc::ReceivedMessage& message);
+    void processLogToOscMessage(const osc::ReceivedMessage& message);
 
     //bool validateMessage(const std::string& warningPre, const std::string& validationString, const osc::ReceivedMessage& message);
     void dumpOscBody(const osc::ReceivedMessage& message);
 
     std::unique_ptr<OscIn> m_input;
     std::vector<std::unique_ptr<MidiOut>> m_outputs;
-
-    unsigned int m_monitor;
+    MonitorLogger &m_logger{ MonitorLogger::getInstance() };
+;
 };

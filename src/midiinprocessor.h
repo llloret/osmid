@@ -25,13 +25,14 @@
 #include <memory>
 #include <regex>
 
+#include "monitorlogger.h"
 #include "midiin.h"
 #include "oscout.h"
 
 class MidiInProcessor : public MidiInputCallback
 {
 public:
-    MidiInProcessor(const std::string& inputName, std::vector<std::shared_ptr<OscOutput>> outputs, bool isVirtual = false, unsigned int monitor = 0);
+    MidiInProcessor(const std::string& inputName, std::vector<std::shared_ptr<OscOutput>> outputs, bool isVirtual = false);
     void handleIncomingMidiMessage(MidiInput *source, const MidiMessage &midiMessage) override;
     void setOscTemplate(const std::string& oscTemplate);
     void setOscRawMidiMessage(bool oscRawMidiMessage);
@@ -47,14 +48,13 @@ protected:
     std::string m_oscTemplate;
     bool m_oscRawMidiMessage;
 
-    unsigned int m_monitor;
-
     // To avoid having to construct the regex everytime
     static std::regex regexName;
     static std::regex regexId;
     static std::regex regexChannel;
     static std::regex regexMessageType;
     static std::regex regexDoubleSlash;
+    MonitorLogger &m_logger{ MonitorLogger::getInstance() };
 };
 
 

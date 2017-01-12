@@ -25,18 +25,18 @@
 #include <memory>
 #include <mutex>
 #include "ip/UdpSocket.h"
+//#include "monitorlogger.h"
 
 
 
 class OscOutput {
 public:
-	OscOutput(std::string dstOscHost, int dstOscPort, unsigned int monitor = 0);
+	OscOutput(std::string dstOscHost, int dstOscPort);
 	void sendUDP(const char *data, std::size_t size);
 
 private:
-    void dumpMessage(const char *data, size_t size);
+    //void dumpMessage(const char *data, size_t size);
     std::unique_ptr<UdpTransmitSocket> m_transmitSocket;
-    unsigned int m_monitor;
     std::mutex m_sendMutex;
-
+    //MonitorLogger &m_logger{ MonitorLogger::getInstance() };
 };

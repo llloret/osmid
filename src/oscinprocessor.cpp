@@ -27,7 +27,7 @@
 
 using namespace std;
 
-OscInProcessor::OscInProcessor(int oscListenPort, unsigned int monitor) : m_monitor(monitor)
+OscInProcessor::OscInProcessor(int oscListenPort)
 {
     m_input = make_unique<OscIn>(oscListenPort, this);
 }
@@ -47,24 +47,19 @@ void OscInProcessor::prepareOutputs(const vector<string>& outputNames)
 void OscInProcessor::ProcessMessage(const osc::ReceivedMessage& message, const IpEndpointName& remoteEndpoint)
 {
     string addressPattern(message.AddressPattern());
-    if (m_monitor) {
-        cout << timestamp() << "Received OSC message with address pattern: " << addressPattern << endl;
-    }
-    if (m_monitor > 1) {
-        dumpOscBody(message);
-    }
+    m_logger.info("Received OSC message with address pattern: {}", addressPattern);
+    dumpOscBody(message);
 
     regex addressRegex("/([[:alnum:]]+)/(([[:alnum:]]|_)+)");
     smatch match;
 
-    if (regex_match(addressPattern, match, addressRegex)) {
-        cout << "Match (" << match[0] << ", " << match[1] << ", " << match[2] << endl;
+    if (regex_match(addressPattern, match, addressRegex)) {        
         // We are interested in groups [1] and [2]. [1] -> device, [2] -> command / raw
         const string& outDevice = match[1];
         const string& command = match[2];
 
         if (command == "clock") {
-          processClockMessage(outDevice);
+            processClockMessage(outDevice);
         }
         else if (command == "raw") {
             processRawMessage(outDevice, message);
@@ -88,60 +83,52 @@ void OscInProcessor::ProcessMessage(const osc::ReceivedMessage& message, const I
             processPolyPressureMessage(outDevice, message);
         }
         else if (command == "start") {
-          processStartMessage(outDevice);
+            processStartMessage(outDevice);
         }
         else if (command == "continue") {
-          processContinueMessage(outDevice);
+            processContinueMessage(outDevice);
         }
         else if (command == "stop") {
-          processStopMessage(outDevice);
-        } else if (command == "active_sense") {
-          processActiveSenseMessage(outDevice);
+            processStopMessage(outDevice);
+        }
+        else if (command == "active_sense") {
+            processActiveSenseMessage(outDevice);
         }
         else if (command == "program_change") {
             processProgramChangeMessage(outDevice, message);
         }
+        else if (command == "log_level") {
+            processLogLevelMessage(message);
+        }
+        else if (command == "log_to_osc") {
+            processLogToOscMessage(message);
+        }
         else {
-            cout << "Unknown command on OSC message. Ignoring";
+            m_logger.error("Unknown command on OSC message: {}. Ignoring", command);
         }
     }
     else {
-        cout << "No match on address pattern" << endl;
-    }
-
-    // Check what the adress pattern contains
-
-/*
-    cout << "Got " << message.size() << "arguments" << endl;
-    for (int i = 0; i < message.size(); i++){
-        if (message[i].isFloat32())
-            cout << "F: " << message[i].getFloat32() << endl;
-        else if (message[i].isInt32())
-            cout << "I: " << message[i].getInt32() << endl;
-        else if (message[i].isString())
-            cout << "S: " << message[i].getString() << endl;
-        else if (message[i].isBlob())
-            cout << "B: this is a blob" << endl;
-    }
-  */  
+        m_logger.error("No match on address pattern: {}", addressPattern);
+    }      
 }
 
 
 void OscInProcessor::dumpOscBody(const osc::ReceivedMessage& message)
 {
-    cout << "Got " << message.ArgumentCount() << " arguments" << endl;
+    m_logger.debug("Got {} arguments", message.ArgumentCount());
+
     auto arg = message.ArgumentsBegin();
     while(arg != message.ArgumentsEnd()){
         if (arg->IsFloat())
-            cout << "F: " << arg->AsFloat() << endl;
+            m_logger.debug("F: {}", arg->AsFloat());
         else if (arg->IsInt32())
-            cout << "I: " << arg->AsInt32() << endl;
+            m_logger.debug("I: {}", arg->AsInt32());
         else if (arg->IsString())
-            cout << "S: " << arg->AsString() << endl;
+            m_logger.debug("S: {}", arg->AsString());
         else if (arg->IsBlob())
-            cout << "B: this is a blob" << endl;
+            m_logger.debug("B: this is a blob");
         else
-            cout << "X: not sure what this field is" << endl;
+            m_logger.debug("X: not sure what this field is");
         
         arg++;
     }
@@ -192,7 +179,7 @@ void OscInProcessor::processNoteOnMessage(const string& outDevice, const osc::Re
         args >> channel >> note >> velocity >> osc::EndMessage;
     }
     catch (osc::Exception& e) {
-        cout << "OSC note_on message: Error parsing args. Expected int32, int32, int32. Ignoring message: " << e.what() << endl;
+        m_logger.error("OSC note_on message: Error parsing args. Expected int32, int32, int32. Ignoring message: {}", e.what());
         return;
     }
 
@@ -256,7 +243,7 @@ void OscInProcessor::processNoteOffMessage(const string& outDevice, const osc::R
         args >> channel >> note >> velocity >> osc::EndMessage;
     }
     catch (osc::Exception& e) {
-        cout << "OSC note_off message: Error parsing args. Expected int32, int32, int32. Ignoring message: " << e.what() << endl;
+        m_logger.error("OSC note_off message: Error parsing args. Expected int32, int32, int32. Ignoring message: {}", e.what());
         return;
     }
 
@@ -278,7 +265,7 @@ void OscInProcessor::processControlChangeMessage(const string& outDevice, const 
         args >> channel >> number >> value>> osc::EndMessage;
     }
     catch (osc::Exception& e) {
-        cout << "OSC control_change message: Error parsing args. Expected int32, int32, int32. Ignoring message: " << e.what() << endl;
+        m_logger.error("OSC control_change message: Error parsing args. Expected int32, int32, int32. Ignoring message: {}", e.what());
         return;
     }
 
@@ -300,7 +287,7 @@ void OscInProcessor::processPitchBendMessage(const string& outDevice, const osc:
         args >> channel >> value >> osc::EndMessage;
     }
     catch (osc::Exception& e) {
-        cout << "OSC pitch_bend message: Error parsing args. Expected int32, int32. Ignoring message: " << e.what() << endl;
+        m_logger.error("OSC pitch_bend message: Error parsing args. Expected int32, int32. Ignoring message: ", e.what());
         return;
     }
 
@@ -321,7 +308,7 @@ void OscInProcessor::processChannelPressureMessage(const string& outDevice, cons
         args >> channel >> value >> osc::EndMessage;
     }
     catch (osc::Exception& e) {
-        cout << "OSC channel_pressure message: Error parsing args. Expected int32, int32. Ignoring message: " << e.what() << endl;
+        m_logger.error("OSC channel_pressure message: Error parsing args. Expected int32, int32. Ignoring message: ", e.what());
         return;
     }
 
@@ -344,7 +331,7 @@ void OscInProcessor::processPolyPressureMessage(const string& outDevice, const o
         args >> channel >> note >> value >> osc::EndMessage;
     }
     catch (osc::Exception& e) {
-        cout << "OSC poly_pressure message: Error parsing args. Expected int32, int32, int32. Ignoring message: " << e.what() << endl;
+        m_logger.error("OSC poly_pressure message: Error parsing args. Expected int32, int32, int32. Ignoring message: ", e.what());
         return;
     }
 
@@ -365,7 +352,7 @@ void OscInProcessor::processProgramChangeMessage(const string& outDevice, const 
         args >> channel >> program >> osc::EndMessage;
     }
     catch (osc::Exception& e) {
-        cout << "OSC change_program message: Error parsing args. Expected int32, int32. Ignoring message: " << e.what() << endl;
+        m_logger.error("OSC change_program message: Error parsing args. Expected int32, int32. Ignoring message: ", e.what());
         return;
     }
 
@@ -375,66 +362,47 @@ void OscInProcessor::processProgramChangeMessage(const string& outDevice, const 
     }
 }
 
-
-// For example, gets a string of the form "iifsb", and checks that it got 4 arguments (int32, int32, float, string, blob)
-// warningText is printed when something wrong is found, so that the user knows what triggered it
-// FIXME: perhaps we do not need this, and we can rely on oscpack message parsing as stream
-#if 0
-bool OscInProcessor::validateMessage(const string& warningPre, const string& validationString, const osc::ReceivedMessage& message)
+void OscInProcessor::processLogLevelMessage(const osc::ReceivedMessage& message)
 {
-    int nArgs = validationString.size();
-    if (message.ArgumentCount() != nArgs) {
-        cout << warningPre << "Expected " << message.ArgumentCount() << " OSC arguments and got " << nArgs << ". IGNORING MESSAGE" << endl;
-        return false;
+    auto args = message.ArgumentStream();
+    int level;
+
+    try {
+        args >> level >> osc::EndMessage;
+    }
+    catch (osc::Exception& e) {
+        m_logger.error("OSC log_level message: Error parsing args. Expected int32. Ignoring message: ", e.what());
+        return;
     }
 
-    auto arg = message.ArgumentsBegin();
-    for (int i = 0; i < nArgs; i++) {
-        switch (validationString[i]) {
-            case 'i':
-                if (!arg->IsInt32()) {
-                    cout << warningPre << "Expected int32 for OSC argument " << i << " and got somethng else. IGNORING MESSAGE" << endl;
-                    return false;
-                }
-                break;
-            case 'f':
-                if (!arg->IsFloat()) {
-                    cout << warningPre << "Expected float for OSC argument " << i << " and got somethng else. IGNORING MESSAGE" << endl;
-                    return false;
-                }
-                break;
-            case 's':
-                if (!arg->IsString()) {
-                    cout << warningPre << "Expected string for OSC argument " << i << " and got somethng else. IGNORING MESSAGE" << endl;
-                    return false;
-                }
-                break;
-            case 'b':
-                if (!arg->IsBlob()) {
-                    cout << warningPre << "Expected blob for OSC argument " << i << " and got somethng else. IGNORING MESSAGE" << endl;
-                    return false;
-                }
-                break;
-            default:
-                assert("Unknown validation character");
-                break;
-        }
-    }
-
-
-    return true;
+    m_logger.setLogLevel(level);
 }
 
-#endif
+void OscInProcessor::processLogToOscMessage(const osc::ReceivedMessage& message)
+{
+    auto args = message.ArgumentStream();
+    int enable;
+
+    try {
+        args >> enable >> osc::EndMessage;
+    }
+    catch (osc::Exception& e) {
+        m_logger.error("OSC log_to_osc message: Error parsing args. Expected int32. Ignoring message: ", e.what());
+        return;
+    }
+
+    m_logger.setSendToOSC(enable != 0);
+}
+
 
 void OscInProcessor::ProcessBundle(const osc::ReceivedBundle& b, const IpEndpointName& remoteEndpoint)
 {
-    cout << "Received OSC bundle. Ignoring for now!" << endl;
+    m_logger.warn("Received OSC bundle. Ignoring for now!");
 }
 
 int OscInProcessor::getNMidiOuts()
 {
-    return m_outputs.size();
+    return static_cast<int>(m_outputs.size());
 }
 
 int OscInProcessor::getMidiOutId(int n)

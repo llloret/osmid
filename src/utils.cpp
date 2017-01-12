@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <time.h>
 #include "utils.h"
+#include "monitorlogger.h"
 
 using namespace std;
 void replace_chars(string& str, char from, char to)
@@ -76,4 +77,17 @@ string timestamp()
     strftime(tmbuf, sizeof tmbuf, "%Y-%m-%d %H:%M:%S", tm);
     snprintf(buf, sizeof buf, "*%s.%06d*: ", tmbuf, tv.tv_usec);
     return string(buf);
+}
+
+void logOSCMessage(const char *data, size_t size)
+{
+    MonitorLogger::getInstance().trace("{}: sent UDP message: ", timestamp());
+    for (int i = 0; i < size; i++) {
+        const unsigned char udata = (unsigned char)(data[i]);
+        // is it printable?
+        if (udata >= 32 && udata <= 127)
+            MonitorLogger::getInstance().trace("{}", udata);
+        else
+            MonitorLogger::getInstance().trace("[{:02x}]", udata);
+    }
 }
