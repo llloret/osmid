@@ -22,7 +22,7 @@ endif(APPLE)
 
 set(oscpack_path ${PROJECT_SOURCE_DIR}/external_libs/oscpack_1_1_0)
 add_subdirectory(${oscpack_path})
-include_directories(${oscpack_path} ${Boost_INCLUDE_DIR} JuceLibraryCode JuceLibraryCode/modules)
+include_directories(${oscpack_path} ${PROJECT_SOURCE_DIR}/external_libs/spdlog-0.11.0/include ${Boost_INCLUDE_DIR} JuceLibraryCode JuceLibraryCode/modules)
 
 set(m2o_sources
     src/m2o.cpp
