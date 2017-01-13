@@ -50,13 +50,13 @@ void OscInProcessor::ProcessMessage(const osc::ReceivedMessage& message, const I
     m_logger.info("Received OSC message with address pattern: {}", addressPattern);
     dumpOscBody(message);
 
-    regex addressRegex("/([[:alnum:]]+)/(([[:alnum:]]|_)+)");
+    regex addressRegex("/(([[:alnum:]]|\\s|\\*)+)/(([[:alnum:]]|_)+)");
     smatch match;
 
     if (regex_match(addressPattern, match, addressRegex)) {        
-        // We are interested in groups [1] and [2]. [1] -> device, [2] -> command / raw
+        // We are interested in groups [1] and [2]. [1] -> device, [3] -> command / raw
         const string& outDevice = match[1];
-        const string& command = match[2];
+        const string& command = match[3];
 
         if (command == "clock") {
             processClockMessage(outDevice);
@@ -135,6 +135,26 @@ void OscInProcessor::dumpOscBody(const osc::ReceivedMessage& message)
 }
 
 
+void OscInProcessor::send(const string& outDevice, const MidiMessage& msg)
+{    
+    if (outDevice == "*") {
+        // send to every known midi device
+        for (auto& output : m_outputs) {
+            output->send(msg);
+        }
+    }
+    else {
+        // send to the specified midi device
+        // Look for it
+        for (auto& output : m_outputs) {
+            if (output->getPortName() == outDevice) {
+                output->send(msg);
+                return;
+            }
+        }
+        m_logger.error("Could not find the MIDI device specified in the OSC message: {}", outDevice);
+    }
+}
 
 // FIXME: For now send to all outputs. Later send only to the appropriate outputs
 void OscInProcessor::processRawMessage(const string& outDevice, const osc::ReceivedMessage& message)
@@ -160,9 +180,7 @@ void OscInProcessor::processRawMessage(const string& outDevice, const osc::Recei
             arg++;
         }
         MidiMessage raw(midiMessage, midiMessageSize);
-        for (auto& output : m_outputs) {
-            output->send(raw);
-        }
+        send(outDevice, raw);
     }
 }
 
@@ -184,50 +202,38 @@ void OscInProcessor::processNoteOnMessage(const string& outDevice, const osc::Re
     }
 
     MidiMessage midiMessage{ MidiMessage::noteOn(channel, note, (uint8)velocity) };
-    for (auto& output : m_outputs) {
-        output->send(midiMessage);
-    }
+    send(outDevice, midiMessage);
 }
 
 
 void OscInProcessor::processClockMessage(const string& outDevice)
 {
-  MidiMessage midiMessage{ MidiMessage::midiClock() };
-    for (auto& output : m_outputs) {
-        output->send(midiMessage);
-    }
+    MidiMessage midiMessage{ MidiMessage::midiClock() };
+    send(outDevice, midiMessage);
 }
 
 void OscInProcessor::processStartMessage(const string& outDevice)
 {
-  MidiMessage midiMessage{ MidiMessage::midiStart() };
-    for (auto& output : m_outputs) {
-        output->send(midiMessage);
-    }
+    MidiMessage midiMessage{ MidiMessage::midiStart() };
+    send(outDevice, midiMessage);
 }
 
 void OscInProcessor::processContinueMessage(const string& outDevice)
 {
-  MidiMessage midiMessage{ MidiMessage::midiContinue() };
-    for (auto& output : m_outputs) {
-        output->send(midiMessage);
-    }
+    MidiMessage midiMessage{ MidiMessage::midiContinue() };
+    send(outDevice, midiMessage);
 }
 
 void OscInProcessor::processStopMessage(const string& outDevice)
 {
-  MidiMessage midiMessage{ MidiMessage::midiStop() };
-    for (auto& output : m_outputs) {
-        output->send(midiMessage);
-    }
+    MidiMessage midiMessage{ MidiMessage::midiStop() };
+    send(outDevice, midiMessage);
 }
 
 void OscInProcessor::processActiveSenseMessage(const string& outDevice)
 {
-  MidiMessage midiMessage{ MidiMessage() };
-    for (auto& output : m_outputs) {
-        output->send(midiMessage);
-    }
+    MidiMessage midiMessage{ MidiMessage() };
+    send(outDevice, midiMessage);
 }
 
 
@@ -248,9 +254,7 @@ void OscInProcessor::processNoteOffMessage(const string& outDevice, const osc::R
     }
 
     MidiMessage midiMessage{ MidiMessage::noteOff(channel, note, (uint8)velocity) };
-    for (auto& output : m_outputs) {
-        output->send(midiMessage);
-    }
+    send(outDevice, midiMessage);
 }
 
 // control_change OSC messages have this layout: channel (int32), note (int32), velocity (int32)
@@ -270,9 +274,7 @@ void OscInProcessor::processControlChangeMessage(const string& outDevice, const 
     }
 
     MidiMessage midiMessage{ MidiMessage::controllerEvent(channel, number, value) };
-    for (auto& output : m_outputs) {
-        output->send(midiMessage);
-    }
+    send(outDevice, midiMessage);
 }
 
 
@@ -292,9 +294,7 @@ void OscInProcessor::processPitchBendMessage(const string& outDevice, const osc:
     }
 
     MidiMessage midiMessage{ MidiMessage::pitchWheel(channel, value) };
-    for (auto& output : m_outputs) {
-        output->send(midiMessage);
-    }
+    send(outDevice, midiMessage);
 }
 
 // channel_pressure OSC messages have this layout: channel (int32), value (int32).
@@ -313,9 +313,7 @@ void OscInProcessor::processChannelPressureMessage(const string& outDevice, cons
     }
 
     MidiMessage midiMessage{ MidiMessage::channelPressureChange(channel, value) };
-    for (auto& output : m_outputs) {
-        output->send(midiMessage);
-    }
+    send(outDevice, midiMessage);
 }
 
 
@@ -336,9 +334,7 @@ void OscInProcessor::processPolyPressureMessage(const string& outDevice, const o
     }
 
     MidiMessage midiMessage{ MidiMessage::aftertouchChange(channel, note, value) };
-    for (auto& output : m_outputs) {
-        output->send(midiMessage);
-    }
+    send(outDevice, midiMessage);
 }
 
 // program_change OSC messages have this layout: channel (int32), program (int32)
@@ -357,9 +353,7 @@ void OscInProcessor::processProgramChangeMessage(const string& outDevice, const 
     }
 
     MidiMessage midiMessage{ MidiMessage::programChange(channel, program) };
-    for (auto& output : m_outputs) {
-        output->send(midiMessage);
-    }
+    send(outDevice, midiMessage);
 }
 
 void OscInProcessor::processLogLevelMessage(const osc::ReceivedMessage& message)

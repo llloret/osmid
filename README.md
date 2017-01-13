@@ -70,7 +70,8 @@ OSC address pattern: /midi/heartbeat. Message body is OSC array of pairs <midi d
 - The default port to listen for OSC is 57200
 
 ## o2m incoming OSC message format
-- The expected OSC address pattern is /(string)<out midi device name or id>/(string)<midi command>
+- The expected OSC address pattern is /(string)<out midi device name or id>/(string)<midi command>. 
+  You can use * in the device name to send to all devices
 - Recognized midi commands, and the expected OSC body:
 	- raw: send a midi command as is. Body can be either a blob or a sequence of int32s
 	- note_on: Body is (int32)channel, (int32)note, (int32)velocity
@@ -80,14 +81,15 @@ OSC address pattern: /midi/heartbeat. Message body is OSC array of pairs <midi d
 	- channel_pressure: Body is (int32)channel, (int32)value
 	- poly_pressure: Body is (int32)channel, (int32)note, (int32)value
 	- program_change: Body is (int32)channel, (int32)program number
-        - clock: Body is empty
-        - start: Body is empty
-        - stop: Body is empty
-        - continue: Body is empty        
-        - active_sense: Body is empty                
+    - clock: Body is empty
+    - start: Body is empty
+    - stop: Body is empty
+    - continue: Body is empty
+    - active_sense: Body is empty
+    - log_level: Body is (int32)log_level
+    - log_to_osc: Body is (int32)enable
 
 ## TODO
-* "all" devices should mean not only the devices that are found at the beginning of the run, but ALL the devices, even the ones that get plugged in later. (I think this is in now)
 * Installers
 
 ## LICENSE
