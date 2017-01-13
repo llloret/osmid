@@ -56,6 +56,7 @@ public:
     int getMidiOutId(int n);
 
 private:
+    void send(const std::string& outDevice, const MidiMessage& msg);
     void processClockMessage(const std::string& outDevice);
     void processStartMessage(const std::string& outDevice);
     void processContinueMessage(const std::string& outDevice);
@@ -78,5 +79,4 @@ private:
     std::unique_ptr<OscIn> m_input;
     std::vector<std::unique_ptr<MidiOut>> m_outputs;
     MonitorLogger &m_logger{ MonitorLogger::getInstance() };
-;
 };
