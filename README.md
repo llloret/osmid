@@ -70,7 +70,7 @@ OSC address pattern: /midi/heartbeat. Message body is OSC array of pairs <midi d
 - The default port to listen for OSC is 57200
 
 ## o2m incoming OSC message format
-- The expected OSC address pattern is /(string)<out midi device name or id>/(string)<midi command>. 
+- The expected OSC address pattern is /(string)"out midi device name or global"/(string)"midi command". 
   You can use * in the device name to send to all devices
 - Recognized midi commands, and the expected OSC body:
 	- raw: send a midi command as is. Body can be either a blob or a sequence of int32s
