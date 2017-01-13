@@ -46,7 +46,7 @@ osmid uses the following libs:
 * --oscport or -o <UDP port number>: send the OSC output to the specified port - can be specified multiple times to send to more than one port
 * --osctemplate or -t <OSC template>: use the specified OSC output template (use $n: midi port name, $i midi port id, $c: midi channel, $m: message_type). For example: -t /midi/$c/$m
 * --oscrawmidimessage or -r: send the raw MIDI data in the OSC message, instead of a decoded version
-* --monitor or -m: dump information to standard output about the MIDI messages received and the OSC messages encoded and sent. Use -m 2 to see sent OSC over the wire
+* --monitor or -m: logging level. Number from 0 to 6. Smaller number is more verbose
 * --list: List input MIDI devices
 * --heartbeat or -b: sends OSC heartbeat message
 * --help: Display this help message
@@ -81,13 +81,13 @@ OSC address pattern: /midi/heartbeat. Message body is OSC array of pairs <midi d
 	- channel_pressure: Body is (int32)channel, (int32)value
 	- poly_pressure: Body is (int32)channel, (int32)note, (int32)value
 	- program_change: Body is (int32)channel, (int32)program number
-    - clock: Body is empty
-    - start: Body is empty
-    - stop: Body is empty
-    - continue: Body is empty
-    - active_sense: Body is empty
-    - log_level: Body is (int32)log_level
-    - log_to_osc: Body is (int32)enable
+ 	- clock: Body is empty
+	- start: Body is empty
+	- stop: Body is empty
+	- continue: Body is empty
+	- active_sense: Body is empty
+	- log_level: Body is (int32)log_level. Value from 0 to 6. The smaller the number the more verbose the output.
+	- log_to_osc: Body is (int32)enable. 0 -> disable, 1 -> enable
 
 ## TODO
 * Installers
