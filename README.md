@@ -23,9 +23,10 @@ Having two separate tools follows Unix ideas of having a number of smaller stand
 
 
 ## o2m features
-* At the moment very basic OSC parsing implementation that will send RAW MIDI messages to all MIDI output devices
-* Parses OSC messages with Address pattern /<whatever>/raw, with 3 integers or a blob with 3 bytes, that will be converted to MIDI and send as is.
-
+* Portable: Works under Windows, Linux and Mac
+* Compact
+* Very low latency
+* For a list of the OSC messages that o2m supports see below in "o2m incoming OSC message format"
 
 ## Building
 For build instruction see INSTALL.md.
@@ -41,13 +42,13 @@ osmid uses the following libs:
 
 
 ## m2o parameters
-* --midiin or -i <MIDI Input device>: open the specified input device - can be specified multiple times to open more than one device
+* --midiin or -i <MIDI Input device>: open the specified input device - can be specified multiple times to open more than one device. By default it will open all input devices and the ones that are connected live
 * --oschost or -H <hostname or IP address>: send the OSC output to the specified host
 * --oscport or -o <UDP port number>: send the OSC output to the specified port - can be specified multiple times to send to more than one port
 * --osctemplate or -t <OSC template>: use the specified OSC output template (use $n: midi port name, $i midi port id, $c: midi channel, $m: message_type). For example: -t /midi/$c/$m
 * --oscrawmidimessage or -r: send the raw MIDI data in the OSC message, instead of a decoded version
-* --monitor or -m: logging level. Number from 0 to 6. Smaller number is more verbose
-* --list: List input MIDI devices
+* --monitor or -m: logging level. Number from 0 to 6. Smaller numbers are more verbose
+* --list or -l: List input MIDI devices
 * --heartbeat or -b: sends OSC heartbeat message
 * --help: Display this help message
 * --version: Show the version number
@@ -65,9 +66,17 @@ There is also an optional heartbeat message which sends periodic messages with t
 OSC address pattern: /midi/heartbeat. Message body is OSC array of pairs <midi device id>, <midi device name>
 
 
-
 ## o2m parameters (Need to update this)
-- The default port to listen for OSC is 57200
+* --list or -l: List output MIDI devices
+* --midiout or -o: open the specified output device - can be specified multiple times to open more than one device. By default it will open all output devices and the ones that are connected live
+* --oscport or -i: OSC Input port (default:57200)
+* --heartbeat or -b": sends OSC heartbeat message. See oscoutputhost and oscoutputport arguments.
+* --oscoutputhost or -H, host to send OSC messages to (default:127.0.0.1). Used for heartbeat
+* --oscoutputport or -O:host to send OSC messages to (default:57120). Used for heartbeat
+* --monitor or -m: logging level. Number from 0 to 6. Smaller numbers are more verbose
+* --help: Display this help message
+* --version: Show the version number
+
 
 ## o2m incoming OSC message format
 - The expected OSC address pattern is /(string)"out midi device name or global"/(string)"midi command". 
