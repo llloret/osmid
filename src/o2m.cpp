@@ -62,6 +62,7 @@ struct ProgramOptions
     unsigned int oscOutputPort;
     bool oscHeartbeat;
     unsigned int monitor;
+    bool listPorts;
 };
 
 
@@ -75,7 +76,7 @@ int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions &prog
     po::options_description desc("o2m Usage");
 
     desc.add_options()
-        ("list,l", "List output MIDI devices")
+        ("list,l", po::bool_switch(&programOptions.listPorts)->default_value(false), "List output MIDI devices")
         ("midiout,o", po::value<vector<string>>(&programOptions.midiOutputNames), "MIDI Output devices (default: all) - can be specified multiple times")
         ("oscport,i", po::value<unsigned int>(&programOptions.oscInputPort), "OSC Input port (default:57200)")
         ("heartbeat,b", po::bool_switch(&programOptions.oscHeartbeat)->default_value(false), "OSC send the heartbeat with info about the active MIDI devices")
@@ -98,9 +99,6 @@ int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions &prog
     if (args.count("help")) {
         cout << desc << "\n";
         return 1;
-    }
-    if (args.count("list")) {
-        listAvailablePorts();
     }
 
     if (args.count("version")) {
@@ -206,6 +204,11 @@ int main(int argc, char* argv[]) {
     int rc = setup_and_parse_program_options(argc, argv, popts);
     if (rc != 0) {
         return rc;
+    }
+
+    if (popts.listPorts) {
+        listAvailablePorts();
+        return 0;
     }
 
     MonitorLogger::getInstance().setLogLevel(popts.monitor);

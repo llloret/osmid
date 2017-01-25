@@ -177,6 +177,11 @@ int main(int argc, char* argv[]) {
     if (rc != 0) {
         return rc;
     }
+
+    if (popts.listPorts) {
+        listAvailablePorts();
+        return 0;
+    }
     
     MonitorLogger::getInstance().setLogLevel(popts.monitor);
 
@@ -196,9 +201,6 @@ int main(int argc, char* argv[]) {
         virtualIn = make_unique<MidiInProcessor>("TO Virtual osmid", oscOutputs, true);
     }
 #endif
-    if (popts.listPorts){
-        listAvailablePorts();
-    }
 
     // Open the MIDI input ports
     try {
