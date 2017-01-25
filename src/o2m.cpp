@@ -179,14 +179,12 @@ void sendHeartBeat(const unique_ptr<OscInProcessor>& oscInputProcessor, shared_p
     osc::OutboundPacketStream p(buffer, 2048);
     p << osc::BeginMessage("/o2m/heartbeat");
     for (int i = 0; i < oscInputProcessor->getNMidiOuts(); i++){
-        p << osc::BeginArray;
         p << oscInputProcessor->getMidiOutId(i) << oscInputProcessor->getMidiOutName(i).c_str();
-        p << osc::EndArray;
     }
     p << osc::EndMessage;
     MonitorLogger::getInstance().debug("{}: sending OSC: [/o2m/heartbeat] -> ", timestamp());
     for (int i = 0; i < oscInputProcessor->getNMidiOuts(); i++) {
-        MonitorLogger::getInstance().debug("  Array[{}, {}]", oscInputProcessor->getMidiOutId(i), oscInputProcessor->getMidiOutName(i));
+        MonitorLogger::getInstance().debug("   {}, {}", oscInputProcessor->getMidiOutId(i), oscInputProcessor->getMidiOutName(i));
     }    
     
     oscOutput->sendUDP(p.Data(), p.Size());

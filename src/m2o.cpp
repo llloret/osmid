@@ -150,14 +150,12 @@ void sendHeartBeat(const vector<shared_ptr<MidiInProcessor>>& midiProcessors, co
     osc::OutboundPacketStream p(buffer, 2048);
     p << osc::BeginMessage("/midi/heartbeat");
     for (auto midiProcessor : midiProcessors) {
-        p << osc::BeginArray;
         p << midiProcessor->getInputId() << midiProcessor->getInputPortname().c_str();
-        p << osc::EndArray;
     }
     p << osc::EndMessage;
     MonitorLogger::getInstance().debug("{}: sending OSC: [/o2m/heartbeat] -> ", timestamp());
     for (auto midiProcessor : midiProcessors) {
-        MonitorLogger::getInstance().debug("  Array[{}, {}]", midiProcessor->getInputId(), midiProcessor->getInputPortname());
+        MonitorLogger::getInstance().debug("   {}, {}", midiProcessor->getInputId(), midiProcessor->getInputPortname());
     }
 
     for (auto& output : oscOutputs) {
