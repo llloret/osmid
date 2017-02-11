@@ -188,7 +188,7 @@ void OscInProcessor::processRawMessage(const string& outDevice, const osc::Recei
 // note_on OSC messages have this layout: channel (int32), note (int32), velocity (int32)
 void OscInProcessor::processNoteOnMessage(const string& outDevice, const osc::ReceivedMessage& message)
 {
-    auto args = message.ArgumentStream();  
+    auto args = message.ArgumentStream();
     int channel;
     int note;
     int velocity;
@@ -205,7 +205,7 @@ void OscInProcessor::processNoteOnMessage(const string& outDevice, const osc::Re
       // Send to specific channel
       MidiMessage midiMessage{ MidiMessage::noteOn(channel, note, (uint8)velocity) };
       send(outDevice, midiMessage);
-    } else if (channel == -1) {
+    } else if (channel <= 0) {
       for (int chan = 1 ; chan <= 16; chan++) {
         // Send to all channels
         MidiMessage midiMessage{ MidiMessage::noteOn(chan, note, (uint8)velocity) };
@@ -266,7 +266,7 @@ void OscInProcessor::processNoteOffMessage(const string& outDevice, const osc::R
       // Send to specific channel
       MidiMessage midiMessage{ MidiMessage::noteOff(channel, note, (uint8)velocity) };
       send(outDevice, midiMessage);
-    } else if (channel == -1) {
+    } else if (channel <= 0) {
       // Send to all channels
       for (int chan = 1 ; chan <= 16; chan++) {
         MidiMessage midiMessage{ MidiMessage::noteOff(chan, note, (uint8)velocity) };
@@ -295,7 +295,7 @@ void OscInProcessor::processControlChangeMessage(const string& outDevice, const 
       // Send to specific channel
       MidiMessage midiMessage{ MidiMessage::controllerEvent(channel, number, value) };
       send(outDevice, midiMessage);
-    } else if (channel == -1) {
+    } else if (channel <= 0) {
       // Send to all channels
       for (int chan = 1 ; chan <= 16; chan++) {
         MidiMessage midiMessage{ MidiMessage::controllerEvent(chan, number, value) };
@@ -324,7 +324,7 @@ void OscInProcessor::processPitchBendMessage(const string& outDevice, const osc:
       // Send to specific channel
       MidiMessage midiMessage{ MidiMessage::pitchWheel(channel, value) };
       send(outDevice, midiMessage);
-    } else if (channel == -1) {
+    } else if (channel <= 0) {
       // Send to all channels
       for (int chan = 1 ; chan <= 16; chan++) {
         MidiMessage midiMessage{ MidiMessage::pitchWheel(chan, value) };
@@ -352,7 +352,7 @@ void OscInProcessor::processChannelPressureMessage(const string& outDevice, cons
       // Send to specific channel
       MidiMessage midiMessage{ MidiMessage::channelPressureChange(channel, value) };
       send(outDevice, midiMessage);
-    } else if (channel == -1) {
+    } else if (channel <= 0) {
       // Send to all channels
       for (int chan = 1 ; chan <= 16; chan++) {
         MidiMessage midiMessage{ MidiMessage::channelPressureChange(chan, value) };
@@ -382,7 +382,7 @@ void OscInProcessor::processPolyPressureMessage(const string& outDevice, const o
       // Send to specific channel
       MidiMessage midiMessage{ MidiMessage::aftertouchChange(channel, note, value) };
       send(outDevice, midiMessage);
-    } else if (channel == -1) {
+    } else if (channel <= 0) {
       // Send to all channels
       for (int chan = 1 ; chan <= 16; chan++) {
       MidiMessage midiMessage{ MidiMessage::aftertouchChange(chan, note, value) };
@@ -410,7 +410,7 @@ void OscInProcessor::processProgramChangeMessage(const string& outDevice, const 
       // Send to specific channel
       MidiMessage midiMessage{ MidiMessage::programChange(channel, program) };
       send(outDevice, midiMessage);
-    } else if (channel == -1) {
+    } else if (channel <= 0) {
       // Send to all channels
       for (int chan = 1 ; chan <= 16; chan++) {
         MidiMessage midiMessage{ MidiMessage::programChange(chan, program) };
