@@ -188,7 +188,7 @@ void OscInProcessor::processRawMessage(const string& outDevice, const osc::Recei
 // note_on OSC messages have this layout: channel (int32), note (int32), velocity (int32)
 void OscInProcessor::processNoteOnMessage(const string& outDevice, const osc::ReceivedMessage& message)
 {
-    auto args = message.ArgumentStream();  
+    auto args = message.ArgumentStream();
     int channel;
     int note;
     int velocity;
@@ -201,8 +201,17 @@ void OscInProcessor::processNoteOnMessage(const string& outDevice, const osc::Re
         return;
     }
 
-    MidiMessage midiMessage{ MidiMessage::noteOn(channel, note, (uint8)velocity) };
-    send(outDevice, midiMessage);
+    if(channel > 0) {
+      // Send to specific channel
+      MidiMessage midiMessage{ MidiMessage::noteOn(channel, note, (uint8)velocity) };
+      send(outDevice, midiMessage);
+    } else if (channel <= 0) {
+      for (int chan = 1 ; chan <= 16; chan++) {
+        // Send to all channels
+        MidiMessage midiMessage{ MidiMessage::noteOn(chan, note, (uint8)velocity) };
+        send(outDevice, midiMessage);
+      }
+    }
 }
 
 
@@ -253,8 +262,17 @@ void OscInProcessor::processNoteOffMessage(const string& outDevice, const osc::R
         return;
     }
 
-    MidiMessage midiMessage{ MidiMessage::noteOff(channel, note, (uint8)velocity) };
-    send(outDevice, midiMessage);
+    if(channel > 0) {
+      // Send to specific channel
+      MidiMessage midiMessage{ MidiMessage::noteOff(channel, note, (uint8)velocity) };
+      send(outDevice, midiMessage);
+    } else if (channel <= 0) {
+      // Send to all channels
+      for (int chan = 1 ; chan <= 16; chan++) {
+        MidiMessage midiMessage{ MidiMessage::noteOff(chan, note, (uint8)velocity) };
+        send(outDevice, midiMessage);
+      }
+    }
 }
 
 // control_change OSC messages have this layout: channel (int32), note (int32), velocity (int32)
@@ -273,8 +291,17 @@ void OscInProcessor::processControlChangeMessage(const string& outDevice, const 
         return;
     }
 
-    MidiMessage midiMessage{ MidiMessage::controllerEvent(channel, number, value) };
-    send(outDevice, midiMessage);
+    if(channel > 0) {
+      // Send to specific channel
+      MidiMessage midiMessage{ MidiMessage::controllerEvent(channel, number, value) };
+      send(outDevice, midiMessage);
+    } else if (channel <= 0) {
+      // Send to all channels
+      for (int chan = 1 ; chan <= 16; chan++) {
+        MidiMessage midiMessage{ MidiMessage::controllerEvent(chan, number, value) };
+        send(outDevice, midiMessage);
+      }
+    }
 }
 
 
@@ -293,8 +320,17 @@ void OscInProcessor::processPitchBendMessage(const string& outDevice, const osc:
         return;
     }
 
-    MidiMessage midiMessage{ MidiMessage::pitchWheel(channel, value) };
-    send(outDevice, midiMessage);
+    if(channel > 0) {
+      // Send to specific channel
+      MidiMessage midiMessage{ MidiMessage::pitchWheel(channel, value) };
+      send(outDevice, midiMessage);
+    } else if (channel <= 0) {
+      // Send to all channels
+      for (int chan = 1 ; chan <= 16; chan++) {
+        MidiMessage midiMessage{ MidiMessage::pitchWheel(chan, value) };
+        send(outDevice, midiMessage);
+      }
+    }
 }
 
 // channel_pressure OSC messages have this layout: channel (int32), value (int32).
@@ -312,8 +348,17 @@ void OscInProcessor::processChannelPressureMessage(const string& outDevice, cons
         return;
     }
 
-    MidiMessage midiMessage{ MidiMessage::channelPressureChange(channel, value) };
-    send(outDevice, midiMessage);
+    if(channel > 0) {
+      // Send to specific channel
+      MidiMessage midiMessage{ MidiMessage::channelPressureChange(channel, value) };
+      send(outDevice, midiMessage);
+    } else if (channel <= 0) {
+      // Send to all channels
+      for (int chan = 1 ; chan <= 16; chan++) {
+        MidiMessage midiMessage{ MidiMessage::channelPressureChange(chan, value) };
+        send(outDevice, midiMessage);
+      }
+    }
 }
 
 
@@ -333,8 +378,17 @@ void OscInProcessor::processPolyPressureMessage(const string& outDevice, const o
         return;
     }
 
-    MidiMessage midiMessage{ MidiMessage::aftertouchChange(channel, note, value) };
-    send(outDevice, midiMessage);
+    if(channel > 0) {
+      // Send to specific channel
+      MidiMessage midiMessage{ MidiMessage::aftertouchChange(channel, note, value) };
+      send(outDevice, midiMessage);
+    } else if (channel <= 0) {
+      // Send to all channels
+      for (int chan = 1 ; chan <= 16; chan++) {
+      MidiMessage midiMessage{ MidiMessage::aftertouchChange(chan, note, value) };
+        send(outDevice, midiMessage);
+      }
+    }
 }
 
 // program_change OSC messages have this layout: channel (int32), program (int32)
@@ -352,8 +406,17 @@ void OscInProcessor::processProgramChangeMessage(const string& outDevice, const 
         return;
     }
 
-    MidiMessage midiMessage{ MidiMessage::programChange(channel, program) };
-    send(outDevice, midiMessage);
+    if(channel > 0) {
+      // Send to specific channel
+      MidiMessage midiMessage{ MidiMessage::programChange(channel, program) };
+      send(outDevice, midiMessage);
+    } else if (channel <= 0) {
+      // Send to all channels
+      for (int chan = 1 ; chan <= 16; chan++) {
+        MidiMessage midiMessage{ MidiMessage::programChange(chan, program) };
+        send(outDevice, midiMessage);
+      }
+    }
 }
 
 void OscInProcessor::processLogLevelMessage(const osc::ReceivedMessage& message)
