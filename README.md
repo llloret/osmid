@@ -70,7 +70,7 @@ OSC address pattern: /midi/heartbeat. Message body is OSC array of pairs <midi d
 * --list or -l: List output MIDI devices
 * --midiout or -o: open the specified output device - can be specified multiple times to open more than one device. By default it will open all output devices and the ones that are connected live
 * --oscport or -i: OSC Input port (default:57200)
-* --heartbeat or -b": sends OSC heartbeat message. See oscoutputhost and oscoutputport arguments.
+* --heartbeat or -b: sends OSC heartbeat message. See oscoutputhost and oscoutputport arguments.
 * --oscoutputhost or -H, host to send OSC messages to (default:127.0.0.1). Used for heartbeat
 * --oscoutputport or -O:host to send OSC messages to (default:57120). Used for heartbeat
 * --monitor or -m: logging level. Number from 0 to 6. Smaller numbers are more verbose
