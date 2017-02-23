@@ -162,7 +162,7 @@ void OscInProcessor::processRawMessage(const string& outDevice, const osc::Recei
     auto arg = message.ArgumentsBegin();
     if (arg->IsBlob()) {
         const void *blobData;
-        int blobSize;
+        osc::int32 blobSize; // Use OSC datatype, otherwise croaks on RPi
         arg->AsBlob(blobData, blobSize);
         MidiMessage raw(blobData, blobSize);
         for (auto& output : m_outputs) {
