@@ -37,7 +37,7 @@ regex MidiInProcessor::regexMessageType{ "\\$m" };
 regex MidiInProcessor::regexDoubleSlash{ "//" };
 
 MidiInProcessor::MidiInProcessor(const std::string& inputName, vector<shared_ptr<OscOutput>> outputs, bool isVirtual):
-    m_outputs(outputs), m_useOscTemplate(false)
+    m_outputs(outputs), m_useOscTemplate(false), m_oscRawMidiMessage(false)
 {
     m_input = make_unique<MidiIn>(inputName, this, isVirtual);
 }

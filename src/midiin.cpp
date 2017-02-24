@@ -36,7 +36,6 @@ MidiIn::MidiIn(string portName, MidiInputCallback *midiInputCallback, bool isVir
     else
         m_stickyId = getStickyIdFromName(m_portName);
 
-
 	// FIXME: need to check if name does not exist
     if (!isVirtual){
         m_juceMidiId = getJuceMidiIdFromName(m_portName);
@@ -60,8 +59,7 @@ MidiIn::~MidiIn()
 {
     cout << "MidiIn destructor for " << m_portName << endl;
 	m_midiIn->stop();
-//    if (!m_isVirtual)
-	    delete m_midiIn;
+    delete m_midiIn;
 }
 
 vector<string> MidiIn::getInputNames()

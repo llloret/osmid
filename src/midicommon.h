@@ -51,7 +51,6 @@ protected:
     std::string m_portName;
     int m_juceMidiId;
     int m_stickyId;
-    bool m_isVirtual;
     static bool nameInStickyTable(std::string portName);
     unsigned int addNameToStickyTable(std::string portName);
     unsigned int getStickyIdFromName(std::string portName);
