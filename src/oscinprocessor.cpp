@@ -162,7 +162,7 @@ void OscInProcessor::processRawMessage(const string& outDevice, const osc::Recei
     auto arg = message.ArgumentsBegin();
     if (arg->IsBlob()) {
         const void *blobData;
-        int blobSize;
+        osc::int32 blobSize; // Use OSC datatype, otherwise croaks on RPi
         arg->AsBlob(blobData, blobSize);
         MidiMessage raw(blobData, blobSize);
         for (auto& output : m_outputs) {
@@ -188,16 +188,13 @@ void OscInProcessor::processRawMessage(const string& outDevice, const osc::Recei
 // note_on OSC messages have this layout: channel (int32), note (int32), velocity (int32)
 void OscInProcessor::processNoteOnMessage(const string& outDevice, const osc::ReceivedMessage& message)
 {
-    auto args = message.ArgumentStream();
-    int channel;
-    int note;
-    int velocity;
+    osc::ReceivedMessage::const_iterator arg = message.ArgumentsBegin();
 
-    try {
-        args >> channel >> note >> velocity >> osc::EndMessage;
-    }
-    catch (osc::Exception& e) {
-        m_logger.error("OSC note_on message: Error parsing args. Expected int32, int32, int32. Ignoring message: {}", e.what());
+    int channel = (arg++)->AsInt32();
+    int note = (arg++)->AsInt32();
+    int velocity = (arg++)->AsInt32();
+    if (arg != message.ArgumentsEnd()){
+        m_logger.error("OSC note_on message: Error parsing args. Expected int32, int32, int32.");
         return;
     }
 
@@ -249,16 +246,13 @@ void OscInProcessor::processActiveSenseMessage(const string& outDevice)
 // note_off OSC messages have this layout: channel (int32), note (int32), velocity (int32)
 void OscInProcessor::processNoteOffMessage(const string& outDevice, const osc::ReceivedMessage& message)
 {
-    auto args = message.ArgumentStream();
-    int channel;
-    int note;
-    int velocity;
+    osc::ReceivedMessage::const_iterator arg = message.ArgumentsBegin();
 
-    try {
-        args >> channel >> note >> velocity >> osc::EndMessage;
-    }
-    catch (osc::Exception& e) {
-        m_logger.error("OSC note_off message: Error parsing args. Expected int32, int32, int32. Ignoring message: {}", e.what());
+    int channel = (arg++)->AsInt32();
+    int note = (arg++)->AsInt32();
+    int velocity = (arg++)->AsInt32();
+    if (arg != message.ArgumentsEnd()) {
+        m_logger.error("OSC note_on message: Error parsing args. Expected int32, int32, int32.");
         return;
     }
 
@@ -266,7 +260,7 @@ void OscInProcessor::processNoteOffMessage(const string& outDevice, const osc::R
       // Send to specific channel
       MidiMessage midiMessage{ MidiMessage::noteOff(channel, note, (uint8)velocity) };
       send(outDevice, midiMessage);
-    } else if (channel <= 0) {
+    } else {
       // Send to all channels
       for (int chan = 1 ; chan <= 16; chan++) {
         MidiMessage midiMessage{ MidiMessage::noteOff(chan, note, (uint8)velocity) };
@@ -275,19 +269,16 @@ void OscInProcessor::processNoteOffMessage(const string& outDevice, const osc::R
     }
 }
 
-// control_change OSC messages have this layout: channel (int32), note (int32), velocity (int32)
+// control_change OSC messages have this layout: channel (int32), number (int32), velocity (int32)
 void OscInProcessor::processControlChangeMessage(const string& outDevice, const osc::ReceivedMessage& message)
 {
-    auto args = message.ArgumentStream();
-    int channel;
-    int number;
-    int value;
+    osc::ReceivedMessage::const_iterator arg = message.ArgumentsBegin();
 
-    try {
-        args >> channel >> number >> value>> osc::EndMessage;
-    }
-    catch (osc::Exception& e) {
-        m_logger.error("OSC control_change message: Error parsing args. Expected int32, int32, int32. Ignoring message: {}", e.what());
+    int channel = (arg++)->AsInt32();
+    int number = (arg++)->AsInt32();
+    int value = (arg++)->AsInt32();
+    if (arg != message.ArgumentsEnd()) {
+        m_logger.error("OSC note_on message: Error parsing args. Expected int32, int32, int32.");
         return;
     }
 
@@ -295,7 +286,7 @@ void OscInProcessor::processControlChangeMessage(const string& outDevice, const 
       // Send to specific channel
       MidiMessage midiMessage{ MidiMessage::controllerEvent(channel, number, value) };
       send(outDevice, midiMessage);
-    } else if (channel <= 0) {
+    } else {
       // Send to all channels
       for (int chan = 1 ; chan <= 16; chan++) {
         MidiMessage midiMessage{ MidiMessage::controllerEvent(chan, number, value) };
@@ -308,15 +299,12 @@ void OscInProcessor::processControlChangeMessage(const string& outDevice, const 
 // pitch_bend OSC messages have this layout: channel (int32), value (int32). Note that the midi resolution for pitch_bend value is 14 bits
 void OscInProcessor::processPitchBendMessage(const string& outDevice, const osc::ReceivedMessage& message)
 {
-    auto args = message.ArgumentStream();
-    int channel;
-    int value;
+    osc::ReceivedMessage::const_iterator arg = message.ArgumentsBegin();
 
-    try {
-        args >> channel >> value >> osc::EndMessage;
-    }
-    catch (osc::Exception& e) {
-        m_logger.error("OSC pitch_bend message: Error parsing args. Expected int32, int32. Ignoring message: ", e.what());
+    int channel = (arg++)->AsInt32();
+    int value = (arg++)->AsInt32();
+    if (arg != message.ArgumentsEnd()) {
+        m_logger.error("OSC note_on message: Error parsing args. Expected int32, int32.");
         return;
     }
 
@@ -324,7 +312,7 @@ void OscInProcessor::processPitchBendMessage(const string& outDevice, const osc:
       // Send to specific channel
       MidiMessage midiMessage{ MidiMessage::pitchWheel(channel, value) };
       send(outDevice, midiMessage);
-    } else if (channel <= 0) {
+    } else {
       // Send to all channels
       for (int chan = 1 ; chan <= 16; chan++) {
         MidiMessage midiMessage{ MidiMessage::pitchWheel(chan, value) };
@@ -336,15 +324,12 @@ void OscInProcessor::processPitchBendMessage(const string& outDevice, const osc:
 // channel_pressure OSC messages have this layout: channel (int32), value (int32).
 void OscInProcessor::processChannelPressureMessage(const string& outDevice, const osc::ReceivedMessage& message)
 {
-    auto args = message.ArgumentStream();
-    int channel;
-    int value;
+    osc::ReceivedMessage::const_iterator arg = message.ArgumentsBegin();
 
-    try {
-        args >> channel >> value >> osc::EndMessage;
-    }
-    catch (osc::Exception& e) {
-        m_logger.error("OSC channel_pressure message: Error parsing args. Expected int32, int32. Ignoring message: ", e.what());
+    int channel = (arg++)->AsInt32();
+    int value = (arg++)->AsInt32();
+    if (arg != message.ArgumentsEnd()) {
+        m_logger.error("OSC note_on message: Error parsing args. Expected int32, int32.");
         return;
     }
 
@@ -352,7 +337,7 @@ void OscInProcessor::processChannelPressureMessage(const string& outDevice, cons
       // Send to specific channel
       MidiMessage midiMessage{ MidiMessage::channelPressureChange(channel, value) };
       send(outDevice, midiMessage);
-    } else if (channel <= 0) {
+    } else {
       // Send to all channels
       for (int chan = 1 ; chan <= 16; chan++) {
         MidiMessage midiMessage{ MidiMessage::channelPressureChange(chan, value) };
@@ -365,24 +350,22 @@ void OscInProcessor::processChannelPressureMessage(const string& outDevice, cons
 // poly_pressure OSC messages have this layout: channel (int32), note (int32), velocity (int32)
 void OscInProcessor::processPolyPressureMessage(const string& outDevice, const osc::ReceivedMessage& message)
 {
-    auto args = message.ArgumentStream();
-    int channel;
-    int note;
-    int value;
+    osc::ReceivedMessage::const_iterator arg = message.ArgumentsBegin();
 
-    try {
-        args >> channel >> note >> value >> osc::EndMessage;
-    }
-    catch (osc::Exception& e) {
-        m_logger.error("OSC poly_pressure message: Error parsing args. Expected int32, int32, int32. Ignoring message: ", e.what());
+    int channel = (arg++)->AsInt32();
+    int note = (arg++)->AsInt32();
+    int value = (arg++)->AsInt32();
+    if (arg != message.ArgumentsEnd()) {
+        m_logger.error("OSC note_on message: Error parsing args. Expected int32, int32, int32.");
         return;
     }
+
 
     if(channel > 0) {
       // Send to specific channel
       MidiMessage midiMessage{ MidiMessage::aftertouchChange(channel, note, value) };
       send(outDevice, midiMessage);
-    } else if (channel <= 0) {
+    } else {
       // Send to all channels
       for (int chan = 1 ; chan <= 16; chan++) {
       MidiMessage midiMessage{ MidiMessage::aftertouchChange(chan, note, value) };
@@ -394,15 +377,12 @@ void OscInProcessor::processPolyPressureMessage(const string& outDevice, const o
 // program_change OSC messages have this layout: channel (int32), program (int32)
 void OscInProcessor::processProgramChangeMessage(const string& outDevice, const osc::ReceivedMessage& message)
 {
-    auto args = message.ArgumentStream();
-    int channel;
-    int program;
+    osc::ReceivedMessage::const_iterator arg = message.ArgumentsBegin();
 
-    try {
-        args >> channel >> program >> osc::EndMessage;
-    }
-    catch (osc::Exception& e) {
-        m_logger.error("OSC change_program message: Error parsing args. Expected int32, int32. Ignoring message: ", e.what());
+    int channel = (arg++)->AsInt32();
+    int program = (arg++)->AsInt32();
+    if (arg != message.ArgumentsEnd()) {
+        m_logger.error("OSC note_on message: Error parsing args. Expected int32, int32.");
         return;
     }
 
@@ -410,7 +390,7 @@ void OscInProcessor::processProgramChangeMessage(const string& outDevice, const 
       // Send to specific channel
       MidiMessage midiMessage{ MidiMessage::programChange(channel, program) };
       send(outDevice, midiMessage);
-    } else if (channel <= 0) {
+    } else {
       // Send to all channels
       for (int chan = 1 ; chan <= 16; chan++) {
         MidiMessage midiMessage{ MidiMessage::programChange(chan, program) };
@@ -421,14 +401,11 @@ void OscInProcessor::processProgramChangeMessage(const string& outDevice, const 
 
 void OscInProcessor::processLogLevelMessage(const osc::ReceivedMessage& message)
 {
-    auto args = message.ArgumentStream();
-    int level;
+    osc::ReceivedMessage::const_iterator arg = message.ArgumentsBegin();
 
-    try {
-        args >> level >> osc::EndMessage;
-    }
-    catch (osc::Exception& e) {
-        m_logger.error("OSC log_level message: Error parsing args. Expected int32. Ignoring message: ", e.what());
+    int level = (arg++)->AsInt32();
+    if (arg != message.ArgumentsEnd()) {
+        m_logger.error("OSC note_on message: Error parsing args. Expected int32.");
         return;
     }
 
@@ -437,14 +414,11 @@ void OscInProcessor::processLogLevelMessage(const osc::ReceivedMessage& message)
 
 void OscInProcessor::processLogToOscMessage(const osc::ReceivedMessage& message)
 {
-    auto args = message.ArgumentStream();
-    int enable;
+    osc::ReceivedMessage::const_iterator arg = message.ArgumentsBegin();
 
-    try {
-        args >> enable >> osc::EndMessage;
-    }
-    catch (osc::Exception& e) {
-        m_logger.error("OSC log_to_osc message: Error parsing args. Expected int32. Ignoring message: ", e.what());
+    int enable = (arg++)->AsInt32();
+    if (arg != message.ArgumentsEnd()) {
+        m_logger.error("OSC note_on message: Error parsing args. Expected int32.");
         return;
     }
 
