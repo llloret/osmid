@@ -216,7 +216,7 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput *source, const MidiMes
     p << osc::EndMessage;
 
     // Dump the OSC message
-    m_logger.info("{}: sending OSC: [{}] -> {}, {}", timestamp(), path.str(), portId, portNameWithoutSpaces);
+    m_logger.info("sending OSC: [{}] -> {}, {}", path.str(), portId, portNameWithoutSpaces);
     if (m_oscRawMidiMessage) {
         if (nBytes > 0) {
             m_logger.info("  <raw_midi_message>");
@@ -271,7 +271,7 @@ void MidiInProcessor::doTemplateSubst(string &str, const string& portName, int p
 
 void MidiInProcessor::dumpMIDIMessage(const uint8_t *message, int size) const
 {
-    m_logger.info("{}: received MIDI message: ", timestamp());
+    m_logger.info("received MIDI message: ");
     for (int i = 0; i < size; i++) {
         m_logger.info("   [{:02x}]", (unsigned int)message[i]);
     }

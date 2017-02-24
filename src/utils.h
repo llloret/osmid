@@ -25,10 +25,4 @@
 #include <string>
 
 void replace_chars(std::string& str, char from, char to);
-std::string timestamp();
-#ifdef _WIN32
-int gettimeofday(struct timeval * tp, struct timezone * tzp);
-#else
-#include <sys/time.h>
-#endif
 void logOSCMessage(const char *data, size_t size);
