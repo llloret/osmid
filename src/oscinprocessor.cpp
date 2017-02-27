@@ -27,9 +27,9 @@
 
 using namespace std;
 
-OscInProcessor::OscInProcessor(int oscListenPort)
+OscInProcessor::OscInProcessor(bool local, int oscListenPort)
 {
-    m_input = make_unique<OscIn>(oscListenPort, this);
+    m_input = make_unique<OscIn>(local, oscListenPort, this);
 }
 
 

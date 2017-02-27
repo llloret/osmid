@@ -63,6 +63,7 @@ struct ProgramOptions
     bool oscHeartbeat;
     unsigned int monitor;
     bool listPorts;
+    bool oscLocal;
 };
 
 
@@ -78,10 +79,11 @@ int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions &prog
     desc.add_options()
         ("list,l", po::bool_switch(&programOptions.listPorts)->default_value(false), "List output MIDI devices")
         ("midiout,o", po::value<vector<string>>(&programOptions.midiOutputNames), "MIDI Output devices (default: all) - can be specified multiple times")
-        ("oscport,i", po::value<unsigned int>(&programOptions.oscInputPort), "OSC Input port (default:57200)")
+        ("oscport,i", po::value<unsigned int>(&programOptions.oscInputPort)->default_value(57200), "OSC Input port (default:57200)")
+        ("local,L", po::bool_switch(&programOptions.oscLocal)->default_value(false), "OSC listen only on the local network interface")
         ("heartbeat,b", po::bool_switch(&programOptions.oscHeartbeat)->default_value(false), "OSC send the heartbeat with info about the active MIDI devices")
         ("oscoutputhost,H", po::value<string>(&programOptions.oscOutputHost)->default_value("127.0.0.1"), "OSC Output host (default:127.0.0.1). Used for heartbeat")
-        ("oscoutputport,O", po::value<unsigned int>(&programOptions.oscOutputPort), "OSC Output port (default:57120). Used for heartbeat")
+        ("oscoutputport,O", po::value<unsigned int>(&programOptions.oscOutputPort)->default_value(57120), "OSC Output port (default:57120). Used for heartbeat")
         ("monitor,m", po::value<unsigned int>(&programOptions.monitor)->default_value(2)->implicit_value(1), "Monitor and logging level (lower more verbose)")
         ("help,h", "Display this help message")
         ("version", "Show the version number");
@@ -112,14 +114,6 @@ int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions &prog
     }
     else {
         programOptions.allMidiOutputs = false;
-    }
-
-    if (!args.count("oscport")) {
-        programOptions.oscInputPort = 57200;
-    }
-
-    if (!args.count("oscoutputport")) {
-        programOptions.oscOutputPort= 57120;
     }
 
     return 0;
@@ -215,7 +209,7 @@ int main(int argc, char* argv[]) {
     oscOutput = make_shared<OscOutput>(popts.oscOutputHost, popts.oscOutputPort);
     MonitorLogger::getInstance().setOscOutput(oscOutput);
 
-    auto oscInputProcessor = make_unique<OscInProcessor>(popts.oscInputPort);
+    auto oscInputProcessor = make_unique<OscInProcessor>(popts.oscLocal, popts.oscInputPort);
     // Prepare the OSC input and MIDI outputs
     try {
         prepareOscProcessorOutputs(oscInputProcessor, popts);

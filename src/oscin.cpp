@@ -26,9 +26,12 @@
 
 using namespace std;
 
-OscIn::OscIn(int listenOscPort, osc::OscPacketListener *listener)
+OscIn::OscIn(bool local, int listenOscPort, osc::OscPacketListener *listener)
 {
-    m_socket = make_unique<UdpListeningReceiveSocket>(IpEndpointName("localhost", listenOscPort), listener);
+    if (local)
+        m_socket = make_unique<UdpListeningReceiveSocket>(IpEndpointName("localhost", listenOscPort), listener);        
+    else
+        m_socket = make_unique<UdpListeningReceiveSocket>(IpEndpointName(listenOscPort), listener);
 }
 
 

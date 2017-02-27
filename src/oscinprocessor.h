@@ -32,7 +32,7 @@
 
 class OscInProcessor : public osc::OscPacketListener {
 public:
-    OscInProcessor(int oscListenPort);
+    OscInProcessor(bool local, int oscListenPort);
 
     void prepareOutputs(const std::vector<std::string>& outputNames);
 
