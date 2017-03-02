@@ -29,7 +29,7 @@
 class OscIn
 {
 public:
-	OscIn(int listenOscPort, osc::OscPacketListener *listener);
+	OscIn(bool local, int listenOscPort, osc::OscPacketListener *listener);
     void run() {
         m_socket->Run();
     }
