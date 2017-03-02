@@ -26,6 +26,7 @@
 
 
 using namespace std;
+using namespace juce;
 
 OscInProcessor::OscInProcessor(bool local, int oscListenPort)
 {
@@ -189,11 +190,17 @@ void OscInProcessor::processRawMessage(const string& outDevice, const osc::Recei
 void OscInProcessor::processNoteOnMessage(const string& outDevice, const osc::ReceivedMessage& message)
 {
     osc::ReceivedMessage::const_iterator arg = message.ArgumentsBegin();
-
-    int channel = (arg++)->AsInt32();
-    int note = (arg++)->AsInt32();
-    int velocity = (arg++)->AsInt32();
-    if (arg != message.ArgumentsEnd()){
+    int channel, note, velocity;
+    try {
+        channel = (arg++)->AsInt32();
+        note = (arg++)->AsInt32();
+        velocity = (arg++)->AsInt32();
+        if (arg != message.ArgumentsEnd()) {
+            throw (osc::WrongArgumentTypeException());
+            return;
+        }
+    }
+    catch (const osc::WrongArgumentTypeException&) {
         m_logger.error("OSC note_on message: Error parsing args. Expected int32, int32, int32.");
         return;
     }
@@ -247,12 +254,17 @@ void OscInProcessor::processActiveSenseMessage(const string& outDevice)
 void OscInProcessor::processNoteOffMessage(const string& outDevice, const osc::ReceivedMessage& message)
 {
     osc::ReceivedMessage::const_iterator arg = message.ArgumentsBegin();
-
-    int channel = (arg++)->AsInt32();
-    int note = (arg++)->AsInt32();
-    int velocity = (arg++)->AsInt32();
-    if (arg != message.ArgumentsEnd()) {
-        m_logger.error("OSC note_on message: Error parsing args. Expected int32, int32, int32.");
+    int channel, note, velocity;
+    try {
+        channel = (arg++)->AsInt32();
+        note = (arg++)->AsInt32();
+        velocity = (arg++)->AsInt32();
+        if (arg != message.ArgumentsEnd()) {
+            throw (osc::WrongArgumentTypeException());
+        }
+    }
+    catch (const osc::WrongArgumentTypeException&) {
+        m_logger.error("OSC note_off message: Error parsing args. Expected int32, int32, int32.");
         return;
     }
 
@@ -273,12 +285,17 @@ void OscInProcessor::processNoteOffMessage(const string& outDevice, const osc::R
 void OscInProcessor::processControlChangeMessage(const string& outDevice, const osc::ReceivedMessage& message)
 {
     osc::ReceivedMessage::const_iterator arg = message.ArgumentsBegin();
-
-    int channel = (arg++)->AsInt32();
-    int number = (arg++)->AsInt32();
-    int value = (arg++)->AsInt32();
-    if (arg != message.ArgumentsEnd()) {
-        m_logger.error("OSC note_on message: Error parsing args. Expected int32, int32, int32.");
+    int channel, number, value;
+    try {
+        channel = (arg++)->AsInt32();
+        number = (arg++)->AsInt32();
+        value = (arg++)->AsInt32();
+        if (arg != message.ArgumentsEnd()) {
+            throw (osc::WrongArgumentTypeException());
+        }
+    }
+    catch (const osc::WrongArgumentTypeException&) {
+        m_logger.error("OSC control_change message: Error parsing args. Expected int32, int32, int32.");
         return;
     }
 
@@ -300,11 +317,16 @@ void OscInProcessor::processControlChangeMessage(const string& outDevice, const 
 void OscInProcessor::processPitchBendMessage(const string& outDevice, const osc::ReceivedMessage& message)
 {
     osc::ReceivedMessage::const_iterator arg = message.ArgumentsBegin();
-
-    int channel = (arg++)->AsInt32();
-    int value = (arg++)->AsInt32();
-    if (arg != message.ArgumentsEnd()) {
-        m_logger.error("OSC note_on message: Error parsing args. Expected int32, int32.");
+    int channel, value;
+    try {
+        channel = (arg++)->AsInt32();
+        value = (arg++)->AsInt32();
+        if (arg != message.ArgumentsEnd()) {
+            throw (osc::WrongArgumentTypeException());
+        }
+    }
+    catch (const osc::WrongArgumentTypeException&) {
+        m_logger.error("OSC pitch_bend message: Error parsing args. Expected int32, int32.");
         return;
     }
 
@@ -325,11 +347,16 @@ void OscInProcessor::processPitchBendMessage(const string& outDevice, const osc:
 void OscInProcessor::processChannelPressureMessage(const string& outDevice, const osc::ReceivedMessage& message)
 {
     osc::ReceivedMessage::const_iterator arg = message.ArgumentsBegin();
-
-    int channel = (arg++)->AsInt32();
-    int value = (arg++)->AsInt32();
-    if (arg != message.ArgumentsEnd()) {
-        m_logger.error("OSC note_on message: Error parsing args. Expected int32, int32.");
+    int channel, value;
+    try {
+        channel = (arg++)->AsInt32();
+        value = (arg++)->AsInt32();
+        if (arg != message.ArgumentsEnd()) {
+            throw (osc::WrongArgumentTypeException());
+        }
+    }
+    catch (const osc::WrongArgumentTypeException&) {
+        m_logger.error("OSC channel_pressure message: Error parsing args. Expected int32, int32.");
         return;
     }
 
@@ -351,15 +378,19 @@ void OscInProcessor::processChannelPressureMessage(const string& outDevice, cons
 void OscInProcessor::processPolyPressureMessage(const string& outDevice, const osc::ReceivedMessage& message)
 {
     osc::ReceivedMessage::const_iterator arg = message.ArgumentsBegin();
-
-    int channel = (arg++)->AsInt32();
-    int note = (arg++)->AsInt32();
-    int value = (arg++)->AsInt32();
-    if (arg != message.ArgumentsEnd()) {
-        m_logger.error("OSC note_on message: Error parsing args. Expected int32, int32, int32.");
+    int channel, note, value;
+    try {
+        channel = (arg++)->AsInt32();
+        note = (arg++)->AsInt32();
+        value = (arg++)->AsInt32();
+        if (arg != message.ArgumentsEnd()) {
+            throw (osc::WrongArgumentTypeException());
+        }
+    }
+    catch (const osc::WrongArgumentTypeException&) {
+        m_logger.error("OSC poly_pressure message: Error parsing args. Expected int32, int32, int32.");
         return;
     }
-
 
     if(channel > 0) {
       // Send to specific channel
@@ -378,11 +409,16 @@ void OscInProcessor::processPolyPressureMessage(const string& outDevice, const o
 void OscInProcessor::processProgramChangeMessage(const string& outDevice, const osc::ReceivedMessage& message)
 {
     osc::ReceivedMessage::const_iterator arg = message.ArgumentsBegin();
-
-    int channel = (arg++)->AsInt32();
-    int program = (arg++)->AsInt32();
-    if (arg != message.ArgumentsEnd()) {
-        m_logger.error("OSC note_on message: Error parsing args. Expected int32, int32.");
+    int channel, program;
+    try {
+        channel = (arg++)->AsInt32();
+        program = (arg++)->AsInt32();
+        if (arg != message.ArgumentsEnd()) {
+            throw (osc::WrongArgumentTypeException());
+        }
+    }
+    catch (const osc::WrongArgumentTypeException&) {
+        m_logger.error("OSC program_change message: Error parsing args. Expected int32, int32.");
         return;
     }
 
@@ -402,33 +438,41 @@ void OscInProcessor::processProgramChangeMessage(const string& outDevice, const 
 void OscInProcessor::processLogLevelMessage(const osc::ReceivedMessage& message)
 {
     osc::ReceivedMessage::const_iterator arg = message.ArgumentsBegin();
-
-    int level = (arg++)->AsInt32();
-    if (arg != message.ArgumentsEnd()) {
-        m_logger.error("OSC note_on message: Error parsing args. Expected int32.");
+    int level;
+    try {
+        level = (arg++)->AsInt32();
+        if (arg != message.ArgumentsEnd()) {
+            throw (osc::WrongArgumentTypeException());
+        }
+    }
+    catch (const osc::WrongArgumentTypeException&) {
+        m_logger.error("OSC log_level message: Error parsing args. Expected int32.");
         return;
     }
-
     m_logger.setLogLevel(level);
 }
 
 void OscInProcessor::processLogToOscMessage(const osc::ReceivedMessage& message)
 {
     osc::ReceivedMessage::const_iterator arg = message.ArgumentsBegin();
-
-    int enable = (arg++)->AsInt32();
-    if (arg != message.ArgumentsEnd()) {
-        m_logger.error("OSC note_on message: Error parsing args. Expected int32.");
+    int enable;
+    try {
+        enable = (arg++)->AsInt32();
+        if (arg != message.ArgumentsEnd()) {
+            throw (osc::WrongArgumentTypeException());
+        }
+    }
+    catch (const osc::WrongArgumentTypeException&) {
+        m_logger.error("OSC log_to_osc message: Error parsing args. Expected int32.");
         return;
     }
-
     m_logger.setSendToOSC(enable != 0);
 }
 
 
 void OscInProcessor::ProcessBundle(const osc::ReceivedBundle& b, const IpEndpointName& remoteEndpoint)
 {
-    m_logger.warn("Received OSC bundle. Ignoring for now!");
+    m_logger.error("Received OSC bundle. Ignoring for now!");
 }
 
 int OscInProcessor::getNMidiOuts()
