@@ -36,7 +36,7 @@ MidiIn::MidiIn(string portName, MidiInputCallback *midiInputCallback, bool isVir
     else
         m_stickyId = getStickyIdFromName(m_portName);
 
-	// FIXME: need to check if name does not exist
+    // FIXME: need to check if name does not exist
     if (!isVirtual){
         m_juceMidiId = getJuceMidiIdFromName(m_portName);
         m_midiIn = MidiInput::openDevice(m_juceMidiId, midiInputCallback);
@@ -48,7 +48,7 @@ MidiIn::MidiIn(string portName, MidiInputCallback *midiInputCallback, bool isVir
         exit(-1);
 #else
         cout << "*** Creating new MIDI device: " << m_portName << endl;
-        m_midiIn = MidiInput::createNewDevice(m_portName, midiInputCallback); 
+        m_midiIn = MidiInput::createNewDevice(m_portName, midiInputCallback);
 #endif
     }
 #endif
@@ -58,12 +58,12 @@ MidiIn::MidiIn(string portName, MidiInputCallback *midiInputCallback, bool isVir
 MidiIn::~MidiIn()
 {
     cout << "MidiIn destructor for " << m_portName << endl;
-	m_midiIn->stop();
+    m_midiIn->stop();
     delete m_midiIn;
 }
 
 vector<string> MidiIn::getInputNames()
-{    
+{
     auto strArray = MidiInput::getDevices();
     int nPorts = strArray.size();
     vector<string> names(nPorts);

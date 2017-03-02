@@ -179,8 +179,8 @@ void sendHeartBeat(const unique_ptr<OscInProcessor>& oscInputProcessor, shared_p
     MonitorLogger::getInstance().debug("sending OSC: [/o2m/heartbeat] -> ");
     for (int i = 0; i < oscInputProcessor->getNMidiOuts(); i++) {
         MonitorLogger::getInstance().debug("   {}, {}", oscInputProcessor->getMidiOutId(i), oscInputProcessor->getMidiOutName(i));
-    }    
-    
+    }
+
     oscOutput->sendUDP(p.Data(), p.Size());
     logOSCMessage(p.Data(), p.Size());
 

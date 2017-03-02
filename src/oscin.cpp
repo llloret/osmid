@@ -29,7 +29,7 @@ using namespace std;
 OscIn::OscIn(bool local, int listenOscPort, osc::OscPacketListener *listener)
 {
     if (local)
-        m_socket = make_unique<UdpListeningReceiveSocket>(IpEndpointName("localhost", listenOscPort), listener);        
+        m_socket = make_unique<UdpListeningReceiveSocket>(IpEndpointName("localhost", listenOscPort), listener);
     else
         m_socket = make_unique<UdpListeningReceiveSocket>(IpEndpointName(listenOscPort), listener);
 }

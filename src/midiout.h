@@ -29,7 +29,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 
 // This class manages a MIDI output device as seen by JUCE
-class MidiOut : public MidiCommon 
+class MidiOut : public MidiCommon
 {
     public:
         MidiOut(std::string portName);
@@ -37,7 +37,7 @@ class MidiOut : public MidiCommon
         MidiOut& operator=(const MidiOut&) = delete;
 
         ~MidiOut();
-        
+
         void send(const MidiMessage &message);
 
         static std::vector<std::string> getOutputNames();

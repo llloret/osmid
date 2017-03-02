@@ -130,7 +130,7 @@ void prepareMidiProcessors(vector<shared_ptr<MidiInProcessor>>& midiInputProcess
 
     for (auto& input : midiInputsToOpen) {
         cout << "Opening input: " << input << endl;
-        try {            
+        try {
             auto midiInputProcessor = make_unique<MidiInProcessor>(input, oscOutputs, false);
             if (popts.useOscTemplate)
                 midiInputProcessor->setOscTemplate(popts.oscTemplate);
@@ -167,7 +167,7 @@ void sendHeartBeat(const vector<shared_ptr<MidiInProcessor>>& midiProcessors, co
 int main(int argc, char* argv[]) {
     // midiInputProcessors will contain the list of active MidiIns at a given time
     vector<shared_ptr<MidiInProcessor>> midiInputProcessors;
-    // oscOutputs will contain the list of active OSC output ports 
+    // oscOutputs will contain the list of active OSC output ports
     vector<shared_ptr<OscOutput>> oscOutputs;
     ProgramOptions popts;
 
@@ -180,7 +180,7 @@ int main(int argc, char* argv[]) {
         listAvailablePorts();
         return 0;
     }
-    
+
     MonitorLogger::getInstance().setLogLevel(popts.monitor);
 
     // Open the OSC output ports
@@ -188,10 +188,10 @@ int main(int argc, char* argv[]) {
         auto oscOutput = make_shared<OscOutput>(popts.oscOutputHost, port);
         oscOutputs.push_back(move(oscOutput));
     }
-    
+
     // Will configure logging on the first OSC port (may want to change this in the future, so that it sends to every port, or be able to select one)
     MonitorLogger::getInstance().setOscOutput(oscOutputs[0]);
-    
+
     // Create the virtual output port?
 #ifndef WIN32
     unique_ptr<MidiInProcessor> virtualIn;

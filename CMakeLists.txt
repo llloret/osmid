@@ -14,7 +14,7 @@ set(Boost_USE_MULTITHREADED ON)
 
 find_package(Boost REQUIRED COMPONENTS program_options)
 if(APPLE)
-    
+
 elseif(UNIX)
     find_package(ALSA REQUIRED)
 endif(APPLE)

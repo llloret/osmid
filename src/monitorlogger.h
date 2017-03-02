@@ -20,7 +20,7 @@ public:
 
     void setLogLevel(int level) { spdlog::set_level(static_cast<spdlog::level::level_enum>(level)); }
     void setSendToOSC(bool send) { m_sendToOSC = send; }
-    void setOscOutput(std::shared_ptr<OscOutput> oscOutput) { 
+    void setOscOutput(std::shared_ptr<OscOutput> oscOutput) {
         m_osc = spdlog::create<spdlog::sinks::osc_sink_mt>("osc", oscOutput);
     }
 
@@ -77,7 +77,7 @@ public:
 private:
     MonitorLogger() {
         m_sendToOSC = true;
-        m_console = spdlog::stdout_logger_mt("console");        
+        m_console = spdlog::stdout_logger_mt("console");
     }
 
 

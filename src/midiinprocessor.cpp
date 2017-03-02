@@ -138,7 +138,7 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput *source, const MidiMes
             break;
 
         case 0xF9:
-        case 0xFD: 
+        case 0xFD:
             message_type = "sysrt_undefined";
             assert(nBytes == 1);
             break;
@@ -159,9 +159,9 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput *source, const MidiMes
             break;
 
         case 0xFE:
-        	message_type = "sysrt_active_sensing";
+            message_type = "sysrt_active_sensing";
             assert(nBytes == 1);
-        	break;
+            break;
 
         default:
             message_type = "unknown_message";
@@ -170,7 +170,7 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput *source, const MidiMes
 
     // Prepare the OSC address
     //auto start_time = chrono::high_resolution_clock::now();
-    
+
     stringstream path;
     string portNameWithoutSpaces(m_input->getPortName());
     int portId = m_input->getPortId();
@@ -200,7 +200,7 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput *source, const MidiMes
 
     // send device id and name as part of the message
     p << static_cast<int>(portId) << portNameWithoutSpaces.c_str();
-        
+
     // send the raw midi message as part of the body
     // do we want a raw midi message?
     if (m_oscRawMidiMessage) {
@@ -240,13 +240,13 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput *source, const MidiMes
     //end_time = chrono::high_resolution_clock::now();
     //e = chrono::duration <double, micro>(end_time - start_time).count();
     //cout << "SEND: " << e << endl << flush;
-    
+
 }
 
 void MidiInProcessor::setOscTemplate(const std::string& oscTemplate)
-{ 
-    m_oscTemplate = oscTemplate; 
-    m_useOscTemplate = true; 
+{
+    m_oscTemplate = oscTemplate;
+    m_useOscTemplate = true;
 };
 
 void MidiInProcessor::setOscRawMidiMessage(bool oscRawMidiMessage)

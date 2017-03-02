@@ -35,7 +35,7 @@ public:
     MidiIn(std::string portName, MidiInputCallback *midiInputCallback, bool isVirtual = false);
     MidiIn(const MidiIn&) = delete;
     MidiIn& operator=(const MidiIn&) = delete;
-    
+
     virtual ~MidiIn();
 
     static std::vector<std::string> getInputNames();

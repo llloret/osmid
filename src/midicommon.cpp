@@ -82,6 +82,6 @@ unsigned int MidiCommon::addNameToStickyTable(string portName)
 }
 
 unsigned int MidiCommon::getStickyIdFromName(string portName)
-{    
+{
     return m_midiNameToStickyId[portName];
 }

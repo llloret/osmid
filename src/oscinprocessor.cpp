@@ -53,7 +53,7 @@ void OscInProcessor::ProcessMessage(const osc::ReceivedMessage& message, const I
     regex addressRegex("/(([[:alnum:]]|\\s|\\*)+)/(([[:alnum:]]|_)+)");
     smatch match;
 
-    if (regex_match(addressPattern, match, addressRegex)) {        
+    if (regex_match(addressPattern, match, addressRegex)) {
         // We are interested in groups [1] and [2]. [1] -> device, [3] -> command / raw
         const string& outDevice = match[1];
         const string& command = match[3];
@@ -109,7 +109,7 @@ void OscInProcessor::ProcessMessage(const osc::ReceivedMessage& message, const I
     }
     else {
         m_logger.error("No match on address pattern: {}", addressPattern);
-    }      
+    }
 }
 
 
@@ -129,14 +129,14 @@ void OscInProcessor::dumpOscBody(const osc::ReceivedMessage& message)
             m_logger.debug("B: this is a blob");
         else
             m_logger.debug("X: not sure what this field is");
-        
+
         arg++;
     }
 }
 
 
 void OscInProcessor::send(const string& outDevice, const MidiMessage& msg)
-{    
+{
     if (outDevice == "*") {
         // send to every known midi device
         for (auto& output : m_outputs) {

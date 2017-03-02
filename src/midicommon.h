@@ -36,7 +36,7 @@ public:
     MidiCommon();
     MidiCommon(const MidiCommon&) = delete;
     MidiCommon& operator=(const MidiCommon&) = delete;
-    
+
     virtual ~MidiCommon();
 
     bool checkValid() const;

@@ -38,7 +38,7 @@ public:
     void setOscRawMidiMessage(bool oscRawMidiMessage);
     int getInputId() const { return m_input->getPortId(); };
     std::string getInputPortname() const { return m_input->getPortName(); } ;
-    
+
 protected:
     void doTemplateSubst(std::string &str, const std::string& portName, int portId, int channel, const std::string& message_type) const;
     void dumpMIDIMessage(const uint8_t *message, int size) const;
