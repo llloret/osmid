@@ -320,6 +320,11 @@ public:
     */
     ValueTree getParent() const noexcept;
 
+    /** Recusrively finds the highest-level parent node that contains this one.
+        If the node has no parent, this will return itself.
+    */
+    ValueTree getRoot() const noexcept;
+
     /** Returns one of this node's siblings in its parent's child list.
 
         The delta specifies how far to move through the list, so a value of 1 would return the node
@@ -327,6 +332,25 @@ public:
         If the requested position is beyond the range of available nodes, this will return ValueTree::invalid.
     */
     ValueTree getSibling (int delta) const noexcept;
+
+    //==============================================================================
+    struct Iterator
+    {
+        Iterator (const ValueTree&, bool isEnd) noexcept;
+        Iterator& operator++() noexcept;
+
+        bool operator!= (const Iterator&) const noexcept;
+        ValueTree operator*() const;
+
+    private:
+        void* internal;
+    };
+
+    /** Returns a start iterator for the children in this tree. */
+    Iterator begin() const noexcept;
+
+    /** Returns an end iterator for the children in this tree. */
+    Iterator end() const noexcept;
 
     //==============================================================================
     /** Creates an XmlElement that holds a complete image of this node and all its children.
@@ -464,6 +488,13 @@ public:
     /** Removes a listener that was previously added with addListener(). */
     void removeListener (Listener* listener);
 
+    /** Changes a named property of the node, but will not notify a specified listener of the change.
+        @see setProperty
+    */
+    ValueTree& setPropertyExcludingListener (Listener* listenerToExclude,
+                                             const Identifier& name, const var& newValue,
+                                             UndoManager* undoManager);
+
     /** Causes a property-change callback to be triggered for the specified property,
         calling any listeners that are registered.
     */
@@ -504,10 +535,13 @@ public:
         }
     }
 
+   #if JUCE_ALLOW_STATIC_NULL_VARIABLES
     /** An invalid ValueTree that can be used if you need to return one as an error condition, etc.
-        This invalid object is equivalent to ValueTree created with its default constructor.
+        This invalid object is equivalent to ValueTree created with its default constructor, but
+        you should always prefer to avoid it and use ValueTree() or {} instead.
     */
     static const ValueTree invalid;
+   #endif
 
     /** Returns the total number of references to the shared underlying data structure that this
         ValueTree is using.
