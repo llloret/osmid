@@ -1,27 +1,29 @@
 /*
   ==============================================================================
 
-   This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2016 - ROLI Ltd.
 
-   Permission to use, copy, modify, and/or distribute this software for any purpose with
-   or without fee is hereby granted, provided that the above copyright notice and this
-   permission notice appear in all copies.
+   Permission is granted to use this software under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license/
 
-   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
-   TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
-   NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
-   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
-   IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
-   CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+   Permission to use, copy, modify, and/or distribute this software for any
+   purpose with or without fee is hereby granted, provided that the above
+   copyright notice and this permission notice appear in all copies.
 
-   ------------------------------------------------------------------------------
+   THE SOFTWARE IS PROVIDED "AS IS" AND ISC DISCLAIMS ALL WARRANTIES WITH REGARD
+   TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+   FITNESS. IN NO EVENT SHALL ISC BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT,
+   OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF
+   USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+   TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
+   OF THIS SOFTWARE.
 
-   NOTE! This permissive ISC license applies ONLY to files within the juce_core module!
-   All other JUCE modules are covered by a dual GPL/commercial license, so if you are
-   using any other modules, be sure to check that you also comply with their license.
+   -----------------------------------------------------------------------------
 
-   For more details, visit www.juce.com
+   To release a closed-source product which uses other parts of JUCE not
+   licensed under the ISC terms, commercial licenses are available: visit
+   www.juce.com for more information.
 
   ==============================================================================
 */
@@ -68,7 +70,9 @@ File& File::operator= (File&& other) noexcept
 }
 #endif
 
+#if JUCE_ALLOW_STATIC_NULL_VARIABLES
 const File File::nonexistent;
+#endif
 
 //==============================================================================
 static String removeEllipsis (const String& path)
@@ -298,6 +302,21 @@ bool File::copyFileTo (const File& newFile) const
 {
     return (*this == newFile)
             || (exists() && newFile.deleteFile() && copyInternal (newFile));
+}
+
+bool File::replaceFileIn (const File& newFile) const
+{
+    if (newFile.fullPath == fullPath)
+        return true;
+
+    if (! newFile.exists())
+        return moveFileTo (newFile);
+
+    if (! replaceInternal (newFile))
+        return false;
+
+    deleteFile();
+    return true;
 }
 
 bool File::copyDirectoryTo (const File& newDirectory) const
@@ -608,18 +627,21 @@ File File::getNonexistentChildFile (const String& suggestedPrefix,
             }
         }
 
-        // also use brackets if it ends in a digit.
-        putNumbersInBrackets = putNumbersInBrackets
-                                 || CharacterFunctions::isDigit (prefix.getLastCharacter());
-
         do
         {
             String newName (prefix);
 
             if (putNumbersInBrackets)
+            {
                 newName << '(' << ++number << ')';
+            }
             else
+            {
+                if (CharacterFunctions::isDigit (prefix.getLastCharacter()))
+                    newName << '_'; // pad with an underscore if the name already ends in a digit
+
                 newName << ++number;
+            }
 
             f = getChildFile (newName + suffix);
 
@@ -966,16 +988,16 @@ bool File::createSymbolicLink (const File& linkFileToCreate, bool overwriteExist
 }
 
 //==============================================================================
-MemoryMappedFile::MemoryMappedFile (const File& file, MemoryMappedFile::AccessMode mode)
+MemoryMappedFile::MemoryMappedFile (const File& file, MemoryMappedFile::AccessMode mode, bool exclusive)
     : address (nullptr), range (0, file.getSize()), fileHandle (0)
 {
-    openInternal (file, mode);
+    openInternal (file, mode, exclusive);
 }
 
-MemoryMappedFile::MemoryMappedFile (const File& file, const Range<int64>& fileRange, AccessMode mode)
+MemoryMappedFile::MemoryMappedFile (const File& file, const Range<int64>& fileRange, AccessMode mode, bool exclusive)
     : address (nullptr), range (fileRange.getIntersectionWith (Range<int64> (0, file.getSize()))), fileHandle (0)
 {
-    openInternal (file, mode);
+    openInternal (file, mode, exclusive);
 }
 
 
@@ -994,9 +1016,9 @@ public:
         const File home (File::getSpecialLocation (File::userHomeDirectory));
         const File temp (File::getSpecialLocation (File::tempDirectory));
 
-        expect (! File::nonexistent.exists());
-        expect (! File::nonexistent.existsAsFile());
-        expect (! File::nonexistent.isDirectory());
+        expect (! File().exists());
+        expect (! File().existsAsFile());
+        expect (! File().isDirectory());
        #if ! JUCE_WINDOWS
         expect (File("/").isDirectory());
        #endif
