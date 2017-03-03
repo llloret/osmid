@@ -29,6 +29,7 @@
 #include <map>
 #include <string>
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "monitorlogger.h"
 
 // This class manages the common parts of our MIDI handling, like sticky ids
 class MidiCommon {
@@ -58,4 +59,5 @@ protected:
     static std::vector<std::string> m_midiJuceMidiIdToName;
     static std::map<std::string, int> m_midiNameToStickyId;
     static unsigned int m_nStickyIds;
+    MonitorLogger &m_logger{ MonitorLogger::getInstance() };
 };

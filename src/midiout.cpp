@@ -48,6 +48,11 @@ MidiOut::~MidiOut() {
 
 void MidiOut::send(const MidiMessage &message)
 {
+    m_logger.info("Sending MIDI to: {} ->", m_portName);
+    auto *data = message.getRawData();
+    for (int i = 0; i < message.getRawDataSize(); i++) {
+        m_logger.info("   [{:02x}]", data[i]);
+    }
     m_midiOut->sendMessageNow(message);
 }
 
