@@ -1,5 +1,5 @@
 '''
-Check if the files in a directory confoirm to whitespace rules
+Check if the files in a directory conform to whitespace rules
 '''
 import os
 from os.path import join
@@ -11,8 +11,8 @@ def check_line_endings(fname):
     '''
     true is good, false is bad
     '''
-    with open(fname) as fd:
-        for line in fd:
+    with open(fname) as fdesc:
+        for line in fdesc:
             line = line.rstrip('\n')
             if len(line) > 0:
                 if line[len(line) - 1] == ' ' or line[len(line) - 1] == '\t':
@@ -20,6 +20,7 @@ def check_line_endings(fname):
 
     return True
 
+bad_files = 0
 for root, dirs, files in os.walk('.'):
     for name in files:
         fullname = join(root, name)
@@ -27,5 +28,6 @@ for root, dirs, files in os.walk('.'):
             if fullname.endswith(end):
                 if not check_line_endings(fullname):
                     print(fullname + " contains trailing whitespace")
-#                else:
-#                    print(fullname + " is OK")
+                    bad_files += 1
+
+exit(0 if bad_files == 0 else 1)
