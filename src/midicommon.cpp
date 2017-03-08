@@ -30,12 +30,11 @@ map<string, int> MidiCommon::m_midiNameToStickyId;
 vector<string> MidiCommon::m_midiJuceMidiIdToName;
 unsigned int MidiCommon::m_nStickyIds = 0;
 
-
 MidiCommon::MidiCommon() {}
 
-MidiCommon::~MidiCommon() {
+MidiCommon::~MidiCommon()
+{
 }
-
 
 string MidiCommon::getPortName() const
 {
@@ -62,7 +61,6 @@ bool MidiCommon::checkValid() const
 
     return true;
 }
-
 
 int MidiCommon::getJuceMidiIdFromName(string portName)
 {

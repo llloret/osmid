@@ -27,12 +27,10 @@
 #include "ip/UdpSocket.h"
 //#include "monitorlogger.h"
 
-
-
 class OscOutput {
 public:
-	OscOutput(std::string dstOscHost, int dstOscPort);
-	void sendUDP(const char *data, std::size_t size);
+    OscOutput(std::string dstOscHost, int dstOscPort);
+    void sendUDP(const char* data, std::size_t size);
 
 private:
     //void dumpMessage(const char *data, size_t size);

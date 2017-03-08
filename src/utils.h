@@ -25,4 +25,4 @@
 #include <string>
 
 void replace_chars(std::string& str, char from, char to);
-void logOSCMessage(const char *data, size_t size);
+void logOSCMessage(const char* data, size_t size);

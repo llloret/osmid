@@ -29,21 +29,20 @@
 #include "midiin.h"
 #include "oscout.h"
 
-class MidiInProcessor : public MidiInputCallback
-{
+class MidiInProcessor : public MidiInputCallback {
 public:
-    MidiInProcessor(const std::string& inputName, std::vector<std::shared_ptr<OscOutput>> outputs, bool isVirtual = false);
-    void handleIncomingMidiMessage(MidiInput *source, const MidiMessage &midiMessage) override;
+    MidiInProcessor(const std::string& inputName, std::vector<std::shared_ptr<OscOutput> > outputs, bool isVirtual = false);
+    void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& midiMessage) override;
     void setOscTemplate(const std::string& oscTemplate);
     void setOscRawMidiMessage(bool oscRawMidiMessage);
     int getInputId() const { return m_input->getPortId(); };
-    std::string getInputPortname() const { return m_input->getPortName(); } ;
+    std::string getInputPortname() const { return m_input->getPortName(); };
 
 protected:
-    void doTemplateSubst(std::string &str, const std::string& portName, int portId, int channel, const std::string& message_type) const;
-    void dumpMIDIMessage(const uint8_t *message, int size) const;
+    void doTemplateSubst(std::string& str, const std::string& portName, int portId, int channel, const std::string& message_type) const;
+    void dumpMIDIMessage(const uint8_t* message, int size) const;
     std::unique_ptr<MidiIn> m_input;
-    std::vector<std::shared_ptr<OscOutput>> m_outputs;
+    std::vector<std::shared_ptr<OscOutput> > m_outputs;
     bool m_useOscTemplate;
     std::string m_oscTemplate;
     bool m_oscRawMidiMessage;
@@ -54,7 +53,5 @@ protected:
     static std::regex regexChannel;
     static std::regex regexMessageType;
     static std::regex regexDoubleSlash;
-    MonitorLogger &m_logger{ MonitorLogger::getInstance() };
+    MonitorLogger& m_logger{ MonitorLogger::getInstance() };
 };
-
-

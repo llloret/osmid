@@ -41,15 +41,16 @@ MidiOut::MidiOut(string portName)
     m_midiOut = MidiOutput::openDevice(m_juceMidiId);
 }
 
-MidiOut::~MidiOut() {
+MidiOut::~MidiOut()
+{
     cout << "MidiOut destructor for " << m_portName << endl;
     delete m_midiOut;
 }
 
-void MidiOut::send(const MidiMessage &message)
+void MidiOut::send(const MidiMessage& message)
 {
     m_logger.info("Sending MIDI to: {} ->", m_portName);
-    auto *data = message.getRawData();
+    auto* data = message.getRawData();
     for (int i = 0; i < message.getRawDataSize(); i++) {
         m_logger.info("   [{:02x}]", data[i]);
     }
