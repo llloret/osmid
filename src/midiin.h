@@ -20,7 +20,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 #pragma once
 
 #include <vector>
@@ -29,10 +28,9 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 
 // This class manages a MIDI input device as seen by JUCE
-class MidiIn : public MidiCommon
-{
+class MidiIn : public MidiCommon {
 public:
-    MidiIn(std::string portName, MidiInputCallback *midiInputCallback, bool isVirtual = false);
+    MidiIn(std::string portName, MidiInputCallback* midiInputCallback, bool isVirtual = false);
     MidiIn(const MidiIn&) = delete;
     MidiIn& operator=(const MidiIn&) = delete;
 
@@ -42,6 +40,5 @@ public:
 
 protected:
     void updateMidiDevicesNamesMapping() override;
-    MidiInput *m_midiIn;
+    MidiInput* m_midiIn;
 };
-

@@ -25,8 +25,7 @@
 
 using namespace std;
 
-
-MidiIn::MidiIn(string portName, MidiInputCallback *midiInputCallback, bool isVirtual)
+MidiIn::MidiIn(string portName, MidiInputCallback* midiInputCallback, bool isVirtual)
 {
     cout << "MidiIn constructor for " << portName << endl;
     updateMidiDevicesNamesMapping();
@@ -37,12 +36,12 @@ MidiIn::MidiIn(string portName, MidiInputCallback *midiInputCallback, bool isVir
         m_stickyId = getStickyIdFromName(m_portName);
 
     // FIXME: need to check if name does not exist
-    if (!isVirtual){
+    if (!isVirtual) {
         m_juceMidiId = getJuceMidiIdFromName(m_portName);
         m_midiIn = MidiInput::openDevice(m_juceMidiId, midiInputCallback);
     }
 #ifndef _WIN32
-    else{
+    else {
 #ifdef WIN32
         cout << "Virtual MIDI ports are not supported on Windows";
         exit(-1);

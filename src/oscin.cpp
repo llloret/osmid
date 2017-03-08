@@ -20,18 +20,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 #include <iostream>
 #include "oscin.h"
 
 using namespace std;
 
-OscIn::OscIn(bool local, int listenOscPort, osc::OscPacketListener *listener)
+OscIn::OscIn(bool local, int listenOscPort, osc::OscPacketListener* listener)
 {
     if (local)
         m_socket = make_unique<UdpListeningReceiveSocket>(IpEndpointName("localhost", listenOscPort), listener);
     else
         m_socket = make_unique<UdpListeningReceiveSocket>(IpEndpointName(listenOscPort), listener);
 }
-
-

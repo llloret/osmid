@@ -43,8 +43,8 @@ using namespace std;
 
 namespace po = boost::program_options;
 
-
-void listAvailablePorts() {
+void listAvailablePorts()
+{
     auto outputs = MidiOut::getOutputNames();
     cout << "Found " << outputs.size() << " MIDI outputs." << endl;
     for (unsigned int i = 0; i < outputs.size(); i++) {
@@ -52,9 +52,7 @@ void listAvailablePorts() {
     }
 }
 
-
-struct ProgramOptions
-{
+struct ProgramOptions {
     vector<string> midiOutputNames;
     bool allMidiOutputs;
     unsigned int oscInputPort;
@@ -66,34 +64,32 @@ struct ProgramOptions
     bool oscLocal;
 };
 
-
 void showVersion()
 {
     cout << "o2m version " << O2M_VERSION << endl;
 }
 
-int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions &programOptions)
+int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions& programOptions)
 {
     po::options_description desc("o2m Usage");
 
     desc.add_options()
-        ("list,l", po::bool_switch(&programOptions.listPorts)->default_value(false), "List output MIDI devices")
-        ("midiout,o", po::value<vector<string>>(&programOptions.midiOutputNames), "MIDI Output devices (default: all) - can be specified multiple times")
-        ("oscport,i", po::value<unsigned int>(&programOptions.oscInputPort)->default_value(57200), "OSC Input port (default:57200)")
-        ("local,L", po::bool_switch(&programOptions.oscLocal)->default_value(false), "OSC listen only on the local network interface")
-        ("heartbeat,b", po::bool_switch(&programOptions.oscHeartbeat)->default_value(false), "OSC send the heartbeat with info about the active MIDI devices")
-        ("oscoutputhost,H", po::value<string>(&programOptions.oscOutputHost)->default_value("127.0.0.1"), "OSC Output host (default:127.0.0.1). Used for heartbeat")
-        ("oscoutputport,O", po::value<unsigned int>(&programOptions.oscOutputPort)->default_value(57120), "OSC Output port (default:57120). Used for heartbeat")
-        ("monitor,m", po::value<unsigned int>(&programOptions.monitor)->default_value(2)->implicit_value(1), "Monitor and logging level (lower more verbose)")
-        ("help,h", "Display this help message")
-        ("version", "Show the version number");
+    ("list,l", po::bool_switch(&programOptions.listPorts)->default_value(false), "List output MIDI devices")
+    ("midiout,o", po::value<vector<string> >(&programOptions.midiOutputNames), "MIDI Output devices (default: all) - can be specified multiple times")
+    ("oscport,i", po::value<unsigned int>(&programOptions.oscInputPort)->default_value(57200), "OSC Input port (default:57200)")
+    ("local,L", po::bool_switch(&programOptions.oscLocal)->default_value(false), "OSC listen only on the local network interface")
+    ("heartbeat,b", po::bool_switch(&programOptions.oscHeartbeat)->default_value(false), "OSC send the heartbeat with info about the active MIDI devices")
+    ("oscoutputhost,H", po::value<string>(&programOptions.oscOutputHost)->default_value("127.0.0.1"), "OSC Output host (default:127.0.0.1). Used for heartbeat")
+    ("oscoutputport,O", po::value<unsigned int>(&programOptions.oscOutputPort)->default_value(57120), "OSC Output port (default:57120). Used for heartbeat")
+    ("monitor,m", po::value<unsigned int>(&programOptions.monitor)->default_value(2)->implicit_value(1), "Monitor and logging level (lower more verbose)")
+    ("help,h", "Display this help message")
+    ("version", "Show the version number");
 
     po::variables_map args;
     try {
         po::store(po::command_line_parser(argc, argv).options(desc).run(), args);
         po::notify(args);
-    }
-    catch (const po::unknown_option& e) {
+    } catch (const po::unknown_option& e) {
         cout << e.what() << endl;
         return -1;
     }
@@ -111,17 +107,14 @@ int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions &prog
         // by default add all input devices
         programOptions.midiOutputNames = MidiOut::getOutputNames();
         programOptions.allMidiOutputs = true;
-    }
-    else {
+    } else {
         programOptions.allMidiOutputs = false;
     }
 
     return 0;
 }
 
-
 static mutex g_oscinMutex;
-
 
 void prepareOscProcessorOutputs(unique_ptr<OscInProcessor>& oscInputProcessor, const ProgramOptions& popts)
 {
@@ -132,7 +125,6 @@ void prepareOscProcessorOutputs(unique_ptr<OscInProcessor>& oscInputProcessor, c
         oscInputProcessor->prepareOutputs(midiOutputsToOpen);
     }
 }
-
 
 std::atomic<bool> g_wantToExit(false);
 
@@ -152,9 +144,7 @@ void ctrlHandler(int signal)
 }
 #endif
 
-
-
-void asyncBreakThread(OscInProcessor *oscInputProcessor)
+void asyncBreakThread(OscInProcessor* oscInputProcessor)
 {
     while (!g_wantToExit) {
         std::chrono::milliseconds timespan(1000);
@@ -166,13 +156,12 @@ void asyncBreakThread(OscInProcessor *oscInputProcessor)
     }
 }
 
-
-void sendHeartBeat(const unique_ptr<OscInProcessor>& oscInputProcessor, shared_ptr<OscOutput> const &oscOutput)
+void sendHeartBeat(const unique_ptr<OscInProcessor>& oscInputProcessor, shared_ptr<OscOutput> const& oscOutput)
 {
     char buffer[2048];
     osc::OutboundPacketStream p(buffer, 2048);
     p << osc::BeginMessage("/o2m/heartbeat");
-    for (int i = 0; i < oscInputProcessor->getNMidiOuts(); i++){
+    for (int i = 0; i < oscInputProcessor->getNMidiOuts(); i++) {
         p << oscInputProcessor->getMidiOutId(i) << oscInputProcessor->getMidiOutName(i).c_str();
     }
     p << osc::EndMessage;
@@ -183,12 +172,10 @@ void sendHeartBeat(const unique_ptr<OscInProcessor>& oscInputProcessor, shared_p
 
     oscOutput->sendUDP(p.Data(), p.Size());
     logOSCMessage(p.Data(), p.Size());
-
 }
 
-
-
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
 
     ProgramOptions popts;
     shared_ptr<OscOutput> oscOutput;
@@ -213,13 +200,12 @@ int main(int argc, char* argv[]) {
     // Prepare the OSC input and MIDI outputs
     try {
         prepareOscProcessorOutputs(oscInputProcessor, popts);
-    }
-    catch (const std::out_of_range&) {
+    } catch (const std::out_of_range&) {
         cout << "Error opening MIDI outputs" << endl;
         return -1;
     }
 
-    // Exit nicely with CTRL-C
+// Exit nicely with CTRL-C
 #if WIN32
     SetConsoleCtrlHandler((PHANDLER_ROUTINE)ctrlHandler, TRUE);
 #else
@@ -249,4 +235,3 @@ int main(int argc, char* argv[]) {
     }
     thr.join();
 }
-

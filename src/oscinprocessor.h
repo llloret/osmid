@@ -29,25 +29,27 @@
 #include "midiout.h"
 #include "monitorlogger.h"
 
-
 class OscInProcessor : public osc::OscPacketListener {
 public:
     OscInProcessor(bool local, int oscListenPort);
 
     void prepareOutputs(const std::vector<std::string>& outputNames);
 
-    void run() {
+    void run()
+    {
         m_input->run();
     }
 
-    void asyncBreak() {
+    void asyncBreak()
+    {
         m_input->asyncBreak();
     }
 
     virtual void ProcessMessage(const osc::ReceivedMessage& m, const IpEndpointName& remoteEndpoint) override;
     virtual void ProcessBundle(const osc::ReceivedBundle& b, const IpEndpointName& remoteEndpoint) override;
 
-    ~OscInProcessor() {
+    ~OscInProcessor()
+    {
         std::cout << "OscInProcessor destructor" << std::endl;
     }
 
@@ -77,6 +79,6 @@ private:
     void dumpOscBody(const osc::ReceivedMessage& message);
 
     std::unique_ptr<OscIn> m_input;
-    std::vector<std::unique_ptr<MidiOut>> m_outputs;
-    MonitorLogger &m_logger{ MonitorLogger::getInstance() };
+    std::vector<std::unique_ptr<MidiOut> > m_outputs;
+    MonitorLogger& m_logger{ MonitorLogger::getInstance() };
 };

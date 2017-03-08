@@ -36,23 +36,24 @@ regex MidiInProcessor::regexChannel{ "\\$c" };
 regex MidiInProcessor::regexMessageType{ "\\$m" };
 regex MidiInProcessor::regexDoubleSlash{ "//" };
 
-MidiInProcessor::MidiInProcessor(const std::string& inputName, vector<shared_ptr<OscOutput>> outputs, bool isVirtual):
-    m_outputs(outputs), m_useOscTemplate(false), m_oscRawMidiMessage(false)
+MidiInProcessor::MidiInProcessor(const std::string& inputName, vector<shared_ptr<OscOutput> > outputs, bool isVirtual)
+    : m_outputs(outputs),
+      m_useOscTemplate(false),
+      m_oscRawMidiMessage(false)
 {
     m_input = make_unique<MidiIn>(inputName, this, isVirtual);
 }
 
-
-void MidiInProcessor::handleIncomingMidiMessage(MidiInput *source, const MidiMessage &midiMessage)
+void MidiInProcessor::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& midiMessage)
 {
     unsigned char channel = 0xff, status = 0;
     string message_type;
-    const uint8_t *message = midiMessage.getRawData();
+    const uint8_t* message = midiMessage.getRawData();
     int nBytes = midiMessage.getRawDataSize();
 
     assert(nBytes > 0);
 
-    if((message[0] & 0xf0) != 0xf0) {
+    if ((message[0] & 0xf0) != 0xf0) {
         channel = message[0] & 0x0f;
         status = message[0] & 0xf0;
     } else {
@@ -61,111 +62,110 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput *source, const MidiMes
 
     dumpMIDIMessage(message, nBytes);
 
-
     // Process the message
-    switch(status) {
-        case 0x80:
-            message_type = "note_off";
-            assert(nBytes == 3);
-            break;
+    switch (status) {
+    case 0x80:
+        message_type = "note_off";
+        assert(nBytes == 3);
+        break;
 
-        case 0x90:
-            message_type = "note_on";
-            assert(nBytes == 3);
-            break;
+    case 0x90:
+        message_type = "note_on";
+        assert(nBytes == 3);
+        break;
 
-        case 0xA0:
-            message_type = "polyphonic_key_pressure";
-            assert(nBytes == 3);
-            break;
+    case 0xA0:
+        message_type = "polyphonic_key_pressure";
+        assert(nBytes == 3);
+        break;
 
-        case 0xB0:
-            message_type = "control_change";
-            assert(nBytes == 3);
-            break;
+    case 0xB0:
+        message_type = "control_change";
+        assert(nBytes == 3);
+        break;
 
-        case 0xC0:
-            message_type = "program_change";
-            assert(nBytes == 2);
-            break;
+    case 0xC0:
+        message_type = "program_change";
+        assert(nBytes == 2);
+        break;
 
-        case 0xD0:
-            message_type = "channel_pressure";
-            assert(nBytes == 2);
-            break;
+    case 0xD0:
+        message_type = "channel_pressure";
+        assert(nBytes == 2);
+        break;
 
-        case 0xE0:
-            message_type = "pitch_bend_change";
-            assert(nBytes == 3);
-            break;
+    case 0xE0:
+        message_type = "pitch_bend_change";
+        assert(nBytes == 3);
+        break;
 
-        case 0xF0:
-            message_type = "sysex";
-            // Remove the end of message marker if raw message is not specified
-            if (!m_oscRawMidiMessage)
-                nBytes--;
-            break;
+    case 0xF0:
+        message_type = "sysex";
+        // Remove the end of message marker if raw message is not specified
+        if (!m_oscRawMidiMessage)
+            nBytes--;
+        break;
 
-        case 0xF1:
-            message_type = "syscommon_MTC";
-            assert(nBytes == 2);
-            break;
+    case 0xF1:
+        message_type = "syscommon_MTC";
+        assert(nBytes == 2);
+        break;
 
-        case 0xF2:
-            message_type = "syscommon_song_position";
-            assert(nBytes == 3);
-            break;
+    case 0xF2:
+        message_type = "syscommon_song_position";
+        assert(nBytes == 3);
+        break;
 
-        case 0xF3:
-            message_type = "syscommon_song_select";
-            assert(nBytes == 2);
-            break;
+    case 0xF3:
+        message_type = "syscommon_song_select";
+        assert(nBytes == 2);
+        break;
 
-        case 0xF4:
-        case 0xF5:
-            message_type = "syscommon_undefined";
-            assert(nBytes == 1);
-            break;
+    case 0xF4:
+    case 0xF5:
+        message_type = "syscommon_undefined";
+        assert(nBytes == 1);
+        break;
 
-        case 0xF6:
-            message_type = "syscommon_tune_request";
-            assert(nBytes == 1);
-            break;
+    case 0xF6:
+        message_type = "syscommon_tune_request";
+        assert(nBytes == 1);
+        break;
 
-        case 0xF8:
-            message_type = "sysrt_timing_tick";
-            assert(nBytes == 1);
-            break;
+    case 0xF8:
+        message_type = "sysrt_timing_tick";
+        assert(nBytes == 1);
+        break;
 
-        case 0xF9:
-        case 0xFD:
-            message_type = "sysrt_undefined";
-            assert(nBytes == 1);
-            break;
+    case 0xF9:
+    case 0xFD:
+        message_type = "sysrt_undefined";
+        assert(nBytes == 1);
+        break;
 
-        case 0xFA:
-            message_type = "sysrt_start_song";
-            assert(nBytes == 1);
-            break;
+    case 0xFA:
+        message_type = "sysrt_start_song";
+        assert(nBytes == 1);
+        break;
 
-        case 0xFB:
-            message_type = "sysrt_continue_song";
-            assert(nBytes == 1);
-            break;
+    case 0xFB:
+        message_type = "sysrt_continue_song";
+        assert(nBytes == 1);
+        break;
 
-        case 0xFC:
-            message_type = "sysrt_stop_song";
-            assert(nBytes == 1);
-            break;
+    case 0xFC:
+        message_type = "sysrt_stop_song";
+        assert(nBytes == 1);
+        break;
 
-        case 0xFE:
-            message_type = "sysrt_active_sensing";
-            assert(nBytes == 1);
-            break;
+    case 0xFE:
+        message_type = "sysrt_active_sensing";
+        assert(nBytes == 1);
+        break;
 
-        default:
-            message_type = "unknown_message";
-            break;
+    default:
+        message_type = "unknown_message";
+        break;
     }
 
     // Prepare the OSC address
@@ -177,14 +177,13 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput *source, const MidiMes
     replace_chars(portNameWithoutSpaces, ' ', '_');
 
     // Was a template specified?
-    if (m_useOscTemplate){
+    if (m_useOscTemplate) {
         string templateSubst(m_oscTemplate);
         doTemplateSubst(templateSubst, portNameWithoutSpaces, portId, channel, message_type);
         path << templateSubst;
-    }
-    else{
+    } else {
         path << "/midi/" << portId;
-        if(channel != 0xff) {
+        if (channel != 0xff) {
             path << "/" << (int)channel;
         }
         path << "/" << message_type;
@@ -207,8 +206,7 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput *source, const MidiMes
         if (nBytes > 0) {
             p << osc::Blob(message, static_cast<osc::osc_bundle_element_size_t>(nBytes));
         }
-    }
-    else {
+    } else {
         for (int i = 1; i < nBytes; i++) {
             p << (int)message[i];
         }
@@ -221,13 +219,11 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput *source, const MidiMes
         if (nBytes > 0) {
             m_logger.info("  <raw_midi_message>");
         }
-    }
-    else {
+    } else {
         for (int i = 1; i < nBytes; i++) {
             m_logger.info("   [{}]", (int)message[i]);
         }
     }
-
 
     //start_time = chrono::high_resolution_clock::now();
 
@@ -240,7 +236,6 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput *source, const MidiMes
     //end_time = chrono::high_resolution_clock::now();
     //e = chrono::duration <double, micro>(end_time - start_time).count();
     //cout << "SEND: " << e << endl << flush;
-
 }
 
 void MidiInProcessor::setOscTemplate(const std::string& oscTemplate)
@@ -254,12 +249,12 @@ void MidiInProcessor::setOscRawMidiMessage(bool oscRawMidiMessage)
     m_oscRawMidiMessage = oscRawMidiMessage;
 }
 
-void MidiInProcessor::doTemplateSubst(string &str, const string& portName, int portId, int channel, const string& message_type) const
+void MidiInProcessor::doTemplateSubst(string& str, const string& portName, int portId, int channel, const string& message_type) const
 {
     str = regex_replace(regex_replace(regex_replace(regex_replace(str,
-        regexMessageType, message_type),
-        regexChannel, (channel != 0xff ? to_string(channel) : "")),
-        regexId, to_string(portId)),
+                                                        regexMessageType, message_type),
+                                          regexChannel, (channel != 0xff ? to_string(channel) : "")),
+                            regexId, to_string(portId)),
         regexName, portName);
 
     // And now remove potential double slashes when the message does not have a channel, and remove potential slash at the end
@@ -269,7 +264,7 @@ void MidiInProcessor::doTemplateSubst(string &str, const string& portName, int p
     }
 }
 
-void MidiInProcessor::dumpMIDIMessage(const uint8_t *message, int size) const
+void MidiInProcessor::dumpMIDIMessage(const uint8_t* message, int size) const
 {
     m_logger.info("received MIDI message: ");
     for (int i = 0; i < size; i++) {
