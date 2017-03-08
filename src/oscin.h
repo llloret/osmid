@@ -25,15 +25,15 @@
 #include "osc/OscPacketListener.h"
 #include "ip/UdpSocket.h"
 
-
-class OscIn
-{
+class OscIn {
 public:
-	OscIn(bool local, int listenOscPort, osc::OscPacketListener *listener);
-    void run() {
+    OscIn(bool local, int listenOscPort, osc::OscPacketListener* listener);
+    void run()
+    {
         m_socket->Run();
     }
-    void asyncBreak() {
+    void asyncBreak()
+    {
         m_socket->AsynchronousBreak();
     }
 
