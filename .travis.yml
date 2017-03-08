@@ -57,6 +57,7 @@ install: true
 # step does not leave anything behind
 script:
   - cd $TRAVIS_BUILD_DIR
+  - if [[ $TRAVIS_OS_NAME == linux ]]; then python utils/check_whitespace.py; fi
   - rm -rf build
   - mkdir build && cd build
   - cmake ..
