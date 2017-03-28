@@ -126,7 +126,7 @@ void prepareOscProcessorOutputs(unique_ptr<OscInProcessor>& oscInputProcessor, c
     }
 }
 
-std::atomic<bool> g_wantToExit(false);
+static std::atomic<bool> g_wantToExit(false);
 
 #if WIN32
 BOOL ctrlHandler(DWORD fdwCtrlType)

@@ -137,6 +137,24 @@ void prepareMidiProcessors(vector<unique_ptr<MidiInProcessor> >& midiInputProces
     }
 }
 
+static std::atomic<bool> g_wantToExit(false);
+
+#if WIN32
+BOOL ctrlHandler(DWORD fdwCtrlType)
+{
+    if (fdwCtrlType == CTRL_C_EVENT) {
+        g_wantToExit = true;
+    }
+    return TRUE;
+}
+#else
+void ctrlHandler(int signal)
+{
+    cout << "Ctrl-C event" << endl;
+    g_wantToExit = true;
+}
+#endif
+
 void sendHeartBeat(const vector<unique_ptr<MidiInProcessor> >& midiProcessors, const vector<shared_ptr<OscOutput> >& oscOutputs)
 {
     char buffer[2048];
@@ -201,9 +219,22 @@ int main(int argc, char* argv[])
         return -1;
     }
 
+    // Exit nicely with CTRL-C
+#if WIN32
+    SetConsoleCtrlHandler((PHANDLER_ROUTINE)ctrlHandler, TRUE);
+#else
+    struct sigaction intHandler;
+
+    intHandler.sa_handler = ctrlHandler;
+    sigemptyset(&intHandler.sa_mask);
+    intHandler.sa_flags = 0;
+    sigaction(SIGINT, &intHandler, NULL);
+#endif
+
+
     // For hotplugging
     vector<string> lastAvailablePorts = MidiIn::getInputNames();
-    while (true) {
+    while (!g_wantToExit) {
         std::chrono::milliseconds timespan(1000);
         std::this_thread::sleep_for(timespan);
         vector<string> newAvailablePorts = MidiIn::getInputNames();
