@@ -126,7 +126,7 @@ void prepareOscProcessorOutputs(unique_ptr<OscInProcessor>& oscInputProcessor, c
     }
 }
 
-std::atomic<bool> g_wantToExit(false);
+static std::atomic<bool> g_wantToExit(false);
 
 #if WIN32
 BOOL ctrlHandler(DWORD fdwCtrlType)
@@ -156,21 +156,21 @@ void asyncBreakThread(OscInProcessor* oscInputProcessor)
     }
 }
 
-void sendHeartBeat(const unique_ptr<OscInProcessor>& oscInputProcessor, shared_ptr<OscOutput> const& oscOutput)
+void sendHeartBeat(const OscInProcessor& oscInputProcessor, OscOutput& oscOutput)
 {
     char buffer[2048];
     osc::OutboundPacketStream p(buffer, 2048);
     p << osc::BeginMessage("/o2m/heartbeat");
-    for (int i = 0; i < oscInputProcessor->getNMidiOuts(); i++) {
-        p << oscInputProcessor->getMidiOutId(i) << oscInputProcessor->getMidiOutName(i).c_str();
+    for (int i = 0; i < oscInputProcessor.getNMidiOuts(); i++) {
+        p << oscInputProcessor.getMidiOutId(i) << oscInputProcessor.getMidiOutName(i).c_str();
     }
     p << osc::EndMessage;
     MonitorLogger::getInstance().debug("sending OSC: [/o2m/heartbeat] -> ");
-    for (int i = 0; i < oscInputProcessor->getNMidiOuts(); i++) {
-        MonitorLogger::getInstance().debug("   {}, {}", oscInputProcessor->getMidiOutId(i), oscInputProcessor->getMidiOutName(i));
+    for (int i = 0; i < oscInputProcessor.getNMidiOuts(); i++) {
+        MonitorLogger::getInstance().debug("   {}, {}", oscInputProcessor.getMidiOutId(i), oscInputProcessor.getMidiOutName(i));
     }
 
-    oscOutput->sendUDP(p.Data(), p.Size());
+    oscOutput.sendUDP(p.Data(), p.Size());
     logOSCMessage(p.Data(), p.Size());
 }
 
@@ -231,7 +231,7 @@ int main(int argc, char* argv[])
             listAvailablePorts();
         }
         if (popts.oscHeartbeat)
-            sendHeartBeat(oscInputProcessor, oscOutput);
+            sendHeartBeat(*oscInputProcessor, *oscOutput);
     }
     thr.join();
 }

@@ -27,7 +27,7 @@ using namespace std;
 
 MidiOut::MidiOut(string portName)
 {
-    cout << "MidiOut constructor for " << portName << endl;
+    m_logger.trace("MidiOut constructor for {}", portName);
     updateMidiDevicesNamesMapping();
     m_portName = portName;
     if (!nameInStickyTable(m_portName))
@@ -43,7 +43,7 @@ MidiOut::MidiOut(string portName)
 
 MidiOut::~MidiOut()
 {
-    cout << "MidiOut destructor for " << m_portName << endl;
+    m_logger.trace("MidiOut destructor for {}", m_portName);
     delete m_midiOut;
 }
 

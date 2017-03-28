@@ -27,7 +27,7 @@ using namespace std;
 
 MidiIn::MidiIn(string portName, MidiInputCallback* midiInputCallback, bool isVirtual)
 {
-    cout << "MidiIn constructor for " << portName << endl;
+    m_logger.trace("MidiIn constructor for {}", portName);
     updateMidiDevicesNamesMapping();
     m_portName = portName;
     if (!nameInStickyTable(m_portName))
@@ -43,10 +43,10 @@ MidiIn::MidiIn(string portName, MidiInputCallback* midiInputCallback, bool isVir
 #ifndef _WIN32
     else {
 #ifdef WIN32
-        cout << "Virtual MIDI ports are not supported on Windows";
+        m_logger.error("Virtual MIDI ports are not supported on Windows");
         exit(-1);
 #else
-        cout << "*** Creating new MIDI device: " << m_portName << endl;
+        m_logger.trace("*** Creating new MIDI device: ", m_portName);
         m_midiIn = MidiInput::createNewDevice(m_portName, midiInputCallback);
 #endif
     }
@@ -56,7 +56,7 @@ MidiIn::MidiIn(string portName, MidiInputCallback* midiInputCallback, bool isVir
 
 MidiIn::~MidiIn()
 {
-    cout << "MidiIn destructor for " << m_portName << endl;
+    m_logger.trace("MidiIn destructor for {}", m_portName);
     m_midiIn->stop();
     delete m_midiIn;
 }

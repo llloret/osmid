@@ -117,7 +117,7 @@ int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions& prog
     return 0;
 }
 
-void prepareMidiProcessors(vector<shared_ptr<MidiInProcessor> >& midiInputProcessors, const ProgramOptions& popts, vector<shared_ptr<OscOutput> > oscOutputs)
+void prepareMidiProcessors(vector<unique_ptr<MidiInProcessor> >& midiInputProcessors, const ProgramOptions& popts, vector<shared_ptr<OscOutput> >& oscOutputs)
 {
     // Should we open all devices, or just the ones passed as parameters?
     vector<string> midiInputsToOpen = (popts.allMidiInputs ? MidiIn::getInputNames() : popts.midiInputNames);
@@ -137,17 +137,35 @@ void prepareMidiProcessors(vector<shared_ptr<MidiInProcessor> >& midiInputProces
     }
 }
 
-void sendHeartBeat(const vector<shared_ptr<MidiInProcessor> >& midiProcessors, const vector<shared_ptr<OscOutput> >& oscOutputs)
+static std::atomic<bool> g_wantToExit(false);
+
+#if WIN32
+BOOL ctrlHandler(DWORD fdwCtrlType)
+{
+    if (fdwCtrlType == CTRL_C_EVENT) {
+        g_wantToExit = true;
+    }
+    return TRUE;
+}
+#else
+void ctrlHandler(int signal)
+{
+    cout << "Ctrl-C event" << endl;
+    g_wantToExit = true;
+}
+#endif
+
+void sendHeartBeat(const vector<unique_ptr<MidiInProcessor> >& midiProcessors, const vector<shared_ptr<OscOutput> >& oscOutputs)
 {
     char buffer[2048];
     osc::OutboundPacketStream p(buffer, 2048);
     p << osc::BeginMessage("/midi/heartbeat");
-    for (auto midiProcessor : midiProcessors) {
+    for (const auto& midiProcessor : midiProcessors) {
         p << midiProcessor->getInputId() << midiProcessor->getInputPortname().c_str();
     }
     p << osc::EndMessage;
     MonitorLogger::getInstance().debug("sending OSC: [/o2m/heartbeat] -> ");
-    for (auto midiProcessor : midiProcessors) {
+    for (const auto& midiProcessor : midiProcessors) {
         MonitorLogger::getInstance().debug("   {}, {}", midiProcessor->getInputId(), midiProcessor->getInputPortname());
     }
 
@@ -160,7 +178,7 @@ void sendHeartBeat(const vector<shared_ptr<MidiInProcessor> >& midiProcessors, c
 int main(int argc, char* argv[])
 {
     // midiInputProcessors will contain the list of active MidiIns at a given time
-    vector<shared_ptr<MidiInProcessor> > midiInputProcessors;
+    vector<unique_ptr<MidiInProcessor> > midiInputProcessors;
     // oscOutputs will contain the list of active OSC output ports
     vector<shared_ptr<OscOutput> > oscOutputs;
     ProgramOptions popts;
@@ -201,9 +219,22 @@ int main(int argc, char* argv[])
         return -1;
     }
 
+    // Exit nicely with CTRL-C
+#if WIN32
+    SetConsoleCtrlHandler((PHANDLER_ROUTINE)ctrlHandler, TRUE);
+#else
+    struct sigaction intHandler;
+
+    intHandler.sa_handler = ctrlHandler;
+    sigemptyset(&intHandler.sa_mask);
+    intHandler.sa_flags = 0;
+    sigaction(SIGINT, &intHandler, NULL);
+#endif
+
+
     // For hotplugging
     vector<string> lastAvailablePorts = MidiIn::getInputNames();
-    while (true) {
+    while (!g_wantToExit) {
         std::chrono::milliseconds timespan(1000);
         std::this_thread::sleep_for(timespan);
         vector<string> newAvailablePorts = MidiIn::getInputNames();

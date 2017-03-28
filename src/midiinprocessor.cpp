@@ -221,7 +221,7 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput* source, const MidiMes
         }
     } else {
         for (int i = 1; i < nBytes; i++) {
-            m_logger.info("   [{}]", (int)message[i]);
+            m_logger.info("   [{:02x}]", (int)message[i]);
         }
     }
 

@@ -53,9 +53,9 @@ public:
         std::cout << "OscInProcessor destructor" << std::endl;
     }
 
-    int getNMidiOuts();
-    std::string getMidiOutName(int n);
-    int getMidiOutId(int n);
+    int getNMidiOuts() const;
+    std::string getMidiOutName(int n) const;
+    int getMidiOutId(int n) const;
 
 private:
     void send(const std::string& outDevice, const MidiMessage& msg);

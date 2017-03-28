@@ -436,17 +436,17 @@ void OscInProcessor::ProcessBundle(const osc::ReceivedBundle& b, const IpEndpoin
     m_logger.error("Received OSC bundle. Ignoring for now!");
 }
 
-int OscInProcessor::getNMidiOuts()
+int OscInProcessor::getNMidiOuts() const
 {
     return static_cast<int>(m_outputs.size());
 }
 
-int OscInProcessor::getMidiOutId(int n)
+int OscInProcessor::getMidiOutId(int n) const
 {
     return m_outputs[n]->getPortId();
 }
 
-string OscInProcessor::getMidiOutName(int n)
+string OscInProcessor::getMidiOutName(int n) const
 {
     return m_outputs[n]->getPortName();
 }
