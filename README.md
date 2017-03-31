@@ -19,7 +19,7 @@ Having two separate tools follows Unix ideas of having a number of smaller stand
 * Compact
 * Very low latency
 * Customizable: can open a number of midi inputs, or all, and can configure the output UDP socket (if it is necessary to forward differnet MIDI devices to different OSC destinations, it is possible to do that invoking the program multiple times, with the appropriate arguments)
-* OSC address templates, that is, the format of the OSC address can be passed as an argument to the program. If the template parameter is not passed, then templates are NOT used (for example, if you REALLY care about latency - but we are talking about tens of microseconds here...). 
+* OSC address templates, that is, the format of the OSC address can be passed as an argument to the program. If the template parameter is not passed, then templates are NOT used (for example, if you REALLY care about latency - but we are talking about tens of microseconds here...).
 
 
 ## o2m features
@@ -31,7 +31,7 @@ Having two separate tools follows Unix ideas of having a number of smaller stand
 ## Building
 For build instruction see INSTALL.md.
 
-osmid is built with C++11/14. The build system is based on cmake. Target compiler in Windows is MSVC 2015 Win64, and in Linux is gcc 4.9 or later. Under Windows, prepare using something like: `cmake -G "Visual Studio 14 2015 Win64" .. -DBOOSTROOT=d:\sdk\boost_1_61_0`. With Linux `cmake ..` should be enough provided the dependencies (boost) are installed.
+osmid is built with C++11. The build system is based on cmake. Tested target compiler in Windows is MSVC 2015 Win64, and in Linux is gcc 4.9 or later. Under Windows, prepare using something like: `cmake -G "Visual Studio 14 2015 Win64" .. -DBOOSTROOT=d:\sdk\boost_1_61_0`. With Linux `cmake ..` should be enough provided the dependencies (boost) are installed.
 
 osmid uses the following libs:
 * JUCE for the midi handling and OSC handling (included in the tree)
@@ -57,7 +57,7 @@ osmid uses the following libs:
 The address by default is: /midi/<port id>/<channel>(if the message contains channel information).
 The address can be templated with the -t argument.
 
-The message body is: 
+The message body is:
 * By default: (int)<port id>, (string)<port name>, <decoded message data>(i.e. for note_on messages, it will be 2 integers: note, velocity)
 * if -r specified: (int)<port id>, (string)<port name>, (blob)<raw midi data>.
 
@@ -79,7 +79,7 @@ OSC address pattern: /midi/heartbeat. Message body is OSC array of pairs <midi d
 
 
 ## o2m incoming OSC message format
-- The expected OSC address pattern is /(string)"out midi device name or global"/(string)"midi command". 
+- The expected OSC address pattern is /(string)"out midi device name or global"/(string)"midi command".
   You can use * in the device name to send to all devices
 - Recognized midi commands, and the expected OSC body:
 	- raw: send a midi command as is. Body can be either a blob or a sequence of int32s

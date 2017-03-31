@@ -29,14 +29,14 @@ using namespace juce;
 
 OscInProcessor::OscInProcessor(bool local, int oscListenPort)
 {
-    m_input = make_unique<OscIn>(local, oscListenPort, this);
+    m_input = local_utils::make_unique<OscIn>(local, oscListenPort, this);
 }
 
 void OscInProcessor::prepareOutputs(const vector<string>& outputNames)
 {
     m_outputs.clear();
     for (auto& outputName : outputNames) {
-        auto midiOut = make_unique<MidiOut>(outputName);
+        auto midiOut = local_utils::make_unique<MidiOut>(outputName);
         m_outputs.push_back(move(midiOut));
     }
 }

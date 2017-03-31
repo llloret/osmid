@@ -41,7 +41,7 @@ MidiInProcessor::MidiInProcessor(const std::string& inputName, vector<shared_ptr
       m_useOscTemplate(false),
       m_oscRawMidiMessage(false)
 {
-    m_input = make_unique<MidiIn>(inputName, this, isVirtual);
+    m_input = local_utils::make_unique<MidiIn>(inputName, this, isVirtual);
 }
 
 void MidiInProcessor::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& midiMessage)
@@ -174,7 +174,7 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput* source, const MidiMes
     stringstream path;
     string portNameWithoutSpaces(m_input->getPortName());
     int portId = m_input->getPortId();
-    replace_chars(portNameWithoutSpaces, ' ', '_');
+    local_utils::replace_chars(portNameWithoutSpaces, ' ', '_');
 
     // Was a template specified?
     if (m_useOscTemplate) {
@@ -230,7 +230,7 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput* source, const MidiMes
     // And send the message to the specified output ports
     for (auto& output : m_outputs) {
         output->sendUDP(p.Data(), p.Size());
-        logOSCMessage(p.Data(), p.Size());
+        local_utils::logOSCMessage(p.Data(), p.Size());
     }
 
     //end_time = chrono::high_resolution_clock::now();

@@ -26,6 +26,8 @@
 #include "monitorlogger.h"
 
 using namespace std;
+
+namespace local_utils{
 void replace_chars(string& str, char from, char to)
 {
     replace_if(str.begin(), str.end(), [from, to](char c) { return c == from; }, to);
@@ -42,4 +44,7 @@ void logOSCMessage(const char* data, size_t size)
         else
             MonitorLogger::getInstance().trace("[{:02x}]", udata);
     }
+}
+
+
 }

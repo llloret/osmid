@@ -171,7 +171,7 @@ void sendHeartBeat(const OscInProcessor& oscInputProcessor, OscOutput& oscOutput
     }
 
     oscOutput.sendUDP(p.Data(), p.Size());
-    logOSCMessage(p.Data(), p.Size());
+    local_utils::logOSCMessage(p.Data(), p.Size());
 }
 
 int main(int argc, char* argv[])
@@ -196,7 +196,7 @@ int main(int argc, char* argv[])
     oscOutput = make_shared<OscOutput>(popts.oscOutputHost, popts.oscOutputPort);
     MonitorLogger::getInstance().setOscOutput(oscOutput);
 
-    auto oscInputProcessor = make_unique<OscInProcessor>(popts.oscLocal, popts.oscInputPort);
+    auto oscInputProcessor = local_utils::make_unique<OscInProcessor>(popts.oscLocal, popts.oscInputPort);
     // Prepare the OSC input and MIDI outputs
     try {
         prepareOscProcessorOutputs(oscInputProcessor, popts);
