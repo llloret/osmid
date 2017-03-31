@@ -19,9 +19,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-#ifdef WIN32
-#include <windows.h>
-#endif
 
 #include <stdexcept>
 #include <chrono>
@@ -29,7 +26,7 @@
 #include <mutex>
 #include <iostream>
 #include <atomic>
-#include <boost/program_options.hpp>
+#include "cxxopts.hpp"
 #include "midiout.h"
 #include "oscin.h"
 #include "oscout.h"
@@ -40,8 +37,6 @@
 #include "monitorlogger.h"
 
 using namespace std;
-
-namespace po = boost::program_options;
 
 void listAvailablePorts()
 {
@@ -71,39 +66,36 @@ void showVersion()
 
 int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions& programOptions)
 {
-    po::options_description desc("o2m Usage");
+    cxxopts::Options options("o2m", "Bridges OSC to MIDI");
 
-    desc.add_options()
-    ("list,l", po::bool_switch(&programOptions.listPorts)->default_value(false), "List output MIDI devices")
-    ("midiout,o", po::value<vector<string> >(&programOptions.midiOutputNames), "MIDI Output devices (default: all) - can be specified multiple times")
-    ("oscport,i", po::value<unsigned int>(&programOptions.oscInputPort)->default_value(57200), "OSC Input port (default:57200)")
-    ("local,L", po::bool_switch(&programOptions.oscLocal)->default_value(false), "OSC listen only on the local network interface")
-    ("heartbeat,b", po::bool_switch(&programOptions.oscHeartbeat)->default_value(false), "OSC send the heartbeat with info about the active MIDI devices")
-    ("oscoutputhost,H", po::value<string>(&programOptions.oscOutputHost)->default_value("127.0.0.1"), "OSC Output host (default:127.0.0.1). Used for heartbeat")
-    ("oscoutputport,O", po::value<unsigned int>(&programOptions.oscOutputPort)->default_value(57120), "OSC Output port (default:57120). Used for heartbeat")
-    ("monitor,m", po::value<unsigned int>(&programOptions.monitor)->default_value(2)->implicit_value(1), "Monitor and logging level (lower more verbose)")
-    ("help,h", "Display this help message")
+    options.add_options()
+    ("l,list", "List output MIDI devices", cxxopts::value<bool>(programOptions.listPorts))
+    ("o,midiout", "MIDI Output devices (default: all) - can be specified multiple times", cxxopts::value<vector<string> >(programOptions.midiOutputNames))
+    ("i,oscport", "OSC Input port (default:57200)", cxxopts::value<unsigned int>(programOptions.oscInputPort)->default_value("57200"))
+    ("L,local", "OSC listen only on the local network interface", cxxopts::value<bool>(programOptions.oscLocal))
+    ("b,heartbeat", "OSC send the heartbeat with info about the active MIDI devices", cxxopts::value<bool>(programOptions.oscHeartbeat))
+    ("H,oscoutputhost", "OSC Output host (default:127.0.0.1). Used for heartbeat", cxxopts::value<string>(programOptions.oscOutputHost)->default_value("127.0.0.1"))
+    ("O,oscoutputport", "OSC Output port (default:57120). Used for heartbeat", cxxopts::value<unsigned int>(programOptions.oscOutputPort)->default_value("57120"))
+    ("m,monitor", "Monitor and logging level (lower more verbose)", cxxopts::value<unsigned int>(programOptions.monitor)->default_value("2")->implicit_value("1"))
+    ("h,help", "Display this help message")
     ("version", "Show the version number");
 
-    po::variables_map args;
-    try {
-        po::store(po::command_line_parser(argc, argv).options(desc).run(), args);
-        po::notify(args);
-    } catch (const po::unknown_option& e) {
-        cout << e.what() << endl;
-        return -1;
-    }
+    options.parse(argc, argv);
 
-    if (args.count("help")) {
-        cout << desc << "\n";
+    if (options.count("help")) {
+        cout << options.help() << endl;
         return 1;
     }
 
-    if (args.count("version")) {
+    if (options.count("version")) {
         showVersion();
     }
 
-    if (!args.count("midiout")) {
+    programOptions.oscLocal = (options.count("local") ? true : false);
+    programOptions.oscHeartbeat = (options.count("heartbeat") ? true : false);
+    programOptions.listPorts = (options.count("list") ? true : false);
+
+    if (!options.count("midiout")) {
         // by default add all input devices
         programOptions.midiOutputNames = MidiOut::getOutputNames();
         programOptions.allMidiOutputs = true;
