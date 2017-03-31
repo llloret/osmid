@@ -22,13 +22,13 @@
 #include <iomanip>
 #include <iostream>
 #include "oscout.h"
-//#include "utils.h"
+#include "utils.h"
 
 using namespace std;
 
 OscOutput::OscOutput(string dstOscHost, int dstOscPort)
 {
-    m_transmitSocket = make_unique<UdpTransmitSocket>(IpEndpointName(dstOscHost.c_str(), dstOscPort));
+    m_transmitSocket = local_utils::make_unique<UdpTransmitSocket>(IpEndpointName(dstOscHost.c_str(), dstOscPort));
 }
 
 void OscOutput::sendUDP(const char* data, size_t size)

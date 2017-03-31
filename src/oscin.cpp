@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 #include <iostream>
+#include "utils.h"
 #include "oscin.h"
 
 using namespace std;
@@ -28,7 +29,7 @@ using namespace std;
 OscIn::OscIn(bool local, int listenOscPort, osc::OscPacketListener* listener)
 {
     if (local)
-        m_socket = make_unique<UdpListeningReceiveSocket>(IpEndpointName("localhost", listenOscPort), listener);
+        m_socket = local_utils::make_unique<UdpListeningReceiveSocket>(IpEndpointName("localhost", listenOscPort), listener);
     else
-        m_socket = make_unique<UdpListeningReceiveSocket>(IpEndpointName(listenOscPort), listener);
+        m_socket = local_utils::make_unique<UdpListeningReceiveSocket>(IpEndpointName(listenOscPort), listener);
 }
