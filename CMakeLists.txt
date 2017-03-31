@@ -1,5 +1,3 @@
-# If Boost is not found call with -DBOOSTROOT=<path_to_boost>
-
 project (osmid)
 cmake_minimum_required (VERSION 3.0)
 
@@ -13,10 +11,6 @@ if(NOT MSVC)
     endif(APPLE)
 endif(NOT MSVC)
 
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_MULTITHREADED ON)
-
-find_package(Boost REQUIRED COMPONENTS program_options)
 if(APPLE)
 
 elseif(UNIX)
@@ -26,7 +20,7 @@ endif(APPLE)
 
 set(oscpack_path ${PROJECT_SOURCE_DIR}/external_libs/oscpack_1_1_0)
 add_subdirectory(${oscpack_path})
-include_directories(${oscpack_path} ${PROJECT_SOURCE_DIR}/external_libs/spdlog-0.11.0/include ${Boost_INCLUDE_DIR} JuceLibraryCode JuceLibraryCode/modules)
+include_directories(${oscpack_path} ${PROJECT_SOURCE_DIR}/external_libs/spdlog-0.11.0/include JuceLibraryCode JuceLibraryCode/modules  ${PROJECT_SOURCE_DIR}/external_libs/cxxopts)
 
 set(m2o_sources
     src/m2o.cpp
@@ -69,19 +63,14 @@ else(APPLE)
     )
 endif(APPLE)
 
-link_directories(${Boost_LIBRARY_DIR_DEBUG})
 # m2o
 add_executable(m2o ${m2o_sources} ${juce_sources})
 target_link_libraries(m2o oscpack)
-target_link_libraries(m2o debug ${Boost_PROGRAM_OPTIONS_LIBRARY_DEBUG} optimized ${Boost_PROGRAM_OPTIONS_LIBRARY_RELEASE})
 
-#o2m
+# o2m
 add_executable(o2m ${o2m_sources} ${juce_sources})
 target_link_libraries(o2m oscpack)
-target_link_libraries(o2m debug ${Boost_PROGRAM_OPTIONS_LIBRARY_DEBUG} optimized ${Boost_PROGRAM_OPTIONS_LIBRARY_RELEASE})
 
-
-add_definitions("-DBOOST_REGEX_NO_LIB")
 
 if(MSVC)
     add_definitions(-D_WIN32_WINNT=0x0600 -DJUCER_VS2015_78A5022=1 -DJUCE_APP_VERSION=1.0.0 -DJUCE_APP_VERSION_HEX=0x10000)

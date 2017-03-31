@@ -32,13 +32,13 @@ Having two separate tools follows Unix ideas of having a number of smaller stand
 For build instruction see INSTALL.md.
 
 osmid is built assuming C++14. The build system is based on cmake. Tested target compiler in Windows is MSVC 2015 Win64, in Linux is gcc 4.9 or later, and on Mac, clang 5.1
-or later. Under Windows, prepare using something like: `cmake -G "Visual Studio 14 2015 Win64" .. -DBOOSTROOT=d:\sdk\boost_1_61_0`. On Linux and Mac `cmake ..` should be enough provided the dependencies (boost) are installed.
+or later. Under Windows, prepare using something like: `cmake -G "Visual Studio 14 2015 Win64" .. `. On Linux and Mac `cmake ..` should be enough.
 
 osmid uses the following libs:
 * JUCE for the midi handling and OSC handling (included in the tree)
 * oscpack, for the OSC handling and UDP networking (included in the tree)
 * spdlog, for logging (included in the tree)
-* boost, for program options parsing (external dependency)
+* cxxopts, for program options parsing (included in the tree)
 
 
 

@@ -50,7 +50,7 @@ public:
 
     ~OscInProcessor()
     {
-        std::cout << "OscInProcessor destructor" << std::endl;
+        m_logger.trace("OscInProcessor destructor");
     }
 
     int getNMidiOuts() const;

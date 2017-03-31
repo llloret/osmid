@@ -21,8 +21,8 @@
 // SOFTWARE.
 
 #include <stdexcept>
-#include <boost/program_options.hpp>
 #include <iostream>
+#include "cxxopts.hpp"
 #include "midiin.h"
 #include "oscout.h"
 #include "midiinprocessor.h"
@@ -31,8 +31,6 @@
 #include "utils.h"
 
 using namespace std;
-
-namespace po = boost::program_options;
 
 void listAvailablePorts()
 {
@@ -64,45 +62,39 @@ void showVersion()
 
 int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions& programOptions)
 {
-    po::options_description desc("m2o Usage");
+    cxxopts::Options options("m2o", "Bridges MIDI to OSC");
 
-    desc.add_options()
-    ("list,l", po::bool_switch(&programOptions.listPorts)->default_value(false), "List input MIDI devices")
-    ("virtualport,v", po::bool_switch(&programOptions.virtualPort)->default_value(false), "Create a Virtual MIDI output port that will be monitored for MIDI (useful to have MIDI->OSC inside your favourite DAW)")
-    ("midiin,i", po::value<vector<string> >(&programOptions.midiInputNames), "MIDI Input device (default: all) - can be specified multiple times")
-    ("oschost,H", po::value<string>(&programOptions.oscOutputHost)->default_value("127.0.0.1"), "OSC Output host (default:127.0.0.1)")
-    ("oscport,o", po::value<vector<int> >(&programOptions.oscOutputPorts), "OSC Output port (default:57120) - can be specified multiple times")
-    ("osctemplate,t", po::value<string>(&programOptions.oscTemplate), "OSC output template (use $n: midi port name, $i: midi port id, $c: midi channel, $m: message_type")
-    ("oscrawmidimessage,r", po::bool_switch(&programOptions.oscRawMidiMessage)->default_value(false), "OSC send the raw MIDI data as part of the OSC message")
-    ("heartbeat,b", po::bool_switch(&programOptions.oscHeartbeat)->default_value(false), "OSC send the heartbeat with info about the active MIDI devices")
-    ("monitor,m", po::value<unsigned int>(&programOptions.monitor)->default_value(2)->implicit_value(1), "Monitor and logging level (lower more verbose)")
-    ("help,h", "Display this help message")
+    options.add_options()
+    ("l,list", "List input MIDI devices", cxxopts::value<bool>(programOptions.listPorts))
+    ("v,virtualport", "Create a Virtual MIDI output port that will be monitored for MIDI (useful to have MIDI->OSC inside your favourite DAW)", cxxopts::value<bool>(programOptions.virtualPort))
+    ("i,midiin", "MIDI Input device (default: all) - can be specified multiple times", cxxopts::value<vector<string> >(programOptions.midiInputNames))
+    ("H,oschost", "OSC Output host (default:127.0.0.1)", cxxopts::value<string>(programOptions.oscOutputHost)->default_value("127.0.0.1"))
+    ("o,oscport", "OSC Output port (default:57120) - can be specified multiple times", cxxopts::value<vector<int> >(programOptions.oscOutputPorts))
+    ("t,osctemplate", "OSC output template (use $n: midi port name, $i: midi port id, $c: midi channel, $m: message_type", cxxopts::value<string>(programOptions.oscTemplate))
+    ("r,oscrawmidimessage", "OSC send the raw MIDI data as part of the OSC message", cxxopts::value<bool>(programOptions.oscRawMidiMessage))
+    ("b,heartbeat", "OSC send the heartbeat with info about the active MIDI devices", cxxopts::value<bool>(programOptions.oscHeartbeat))
+    ("m,monitor", "Monitor and logging level (lower more verbose)", cxxopts::value<unsigned int>(programOptions.monitor)->default_value("2")->implicit_value("1"))
+    ("h,help", "Display this help message")
     ("version", "Show the version number");
 
-    po::variables_map args;
-    try {
-        po::store(po::command_line_parser(argc, argv).options(desc).run(), args);
-        po::notify(args);
-    } catch (const po::unknown_option& e) {
-        cout << e.what() << endl;
-        return -1;
-    }
+    options.parse(argc, argv);
 
-    if (args.count("help")) {
-        cout << desc << "\n";
+    if (options.count("help")) {
+        cout << options.help() << endl;
         return 1;
     }
 
-    if (args.count("version")) {
+    if (options.count("version")) {
         showVersion();
     }
 
-    if (args.count("osctemplate"))
-        programOptions.useOscTemplate = true;
-    else
-        programOptions.useOscTemplate = false;
+    programOptions.useOscTemplate = (options.count("osctemplate") ? true : false);
+    programOptions.oscRawMidiMessage = (options.count("oscrawmidimessage") ? true : false);
+    programOptions.oscHeartbeat = (options.count("heartbeat") ? true : false);
+    programOptions.virtualPort = (options.count("virtualport") ? true : false);
+    programOptions.listPorts = (options.count("list") ? true : false);
 
-    if (!args.count("midiin")) {
+    if (!options.count("midiin")) {
         // by default add all input devices
         programOptions.midiInputNames = MidiIn::getInputNames();
         programOptions.allMidiInputs = true;
@@ -110,7 +102,7 @@ int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions& prog
         programOptions.allMidiInputs = false;
     }
 
-    if (!args.count("oscport")) {
+    if (!options.count("oscport")) {
         programOptions.oscOutputPorts.push_back(57120);
     }
 
@@ -123,7 +115,6 @@ void prepareMidiProcessors(vector<unique_ptr<MidiInProcessor> >& midiInputProces
     vector<string> midiInputsToOpen = (popts.allMidiInputs ? MidiIn::getInputNames() : popts.midiInputNames);
 
     for (auto& input : midiInputsToOpen) {
-        cout << "Opening input: " << input << endl;
         try {
             auto midiInputProcessor = make_unique<MidiInProcessor>(input, oscOutputs, false);
             if (popts.useOscTemplate)

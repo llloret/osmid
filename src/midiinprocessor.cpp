@@ -188,9 +188,6 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput* source, const MidiMes
         }
         path << "/" << message_type;
     }
-    //auto end_time = chrono::high_resolution_clock::now();
-    //auto e = chrono::duration <double, micro>(end_time - start_time).count();
-    //cout << "Prepare string: " << e << endl << flush;
 
     // And now prepare the OSC message body
     char buffer[1024];
@@ -232,10 +229,6 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput* source, const MidiMes
         output->sendUDP(p.Data(), p.Size());
         local_utils::logOSCMessage(p.Data(), p.Size());
     }
-
-    //end_time = chrono::high_resolution_clock::now();
-    //e = chrono::duration <double, micro>(end_time - start_time).count();
-    //cout << "SEND: " << e << endl << flush;
 }
 
 void MidiInProcessor::setOscTemplate(const std::string& oscTemplate)
