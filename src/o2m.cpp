@@ -196,7 +196,7 @@ int main(int argc, char* argv[])
     oscOutput = make_shared<OscOutput>(popts.oscOutputHost, popts.oscOutputPort);
     MonitorLogger::getInstance().setOscOutput(oscOutput);
 
-    auto oscInputProcessor = local_utils::make_unique<OscInProcessor>(popts.oscLocal, popts.oscInputPort);
+    auto oscInputProcessor = make_unique<OscInProcessor>(popts.oscLocal, popts.oscInputPort);
     // Prepare the OSC input and MIDI outputs
     try {
         prepareOscProcessorOutputs(oscInputProcessor, popts);

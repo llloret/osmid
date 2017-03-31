@@ -31,7 +31,8 @@ Having two separate tools follows Unix ideas of having a number of smaller stand
 ## Building
 For build instruction see INSTALL.md.
 
-osmid is built with C++11. The build system is based on cmake. Tested target compiler in Windows is MSVC 2015 Win64, and in Linux is gcc 4.9 or later. Under Windows, prepare using something like: `cmake -G "Visual Studio 14 2015 Win64" .. -DBOOSTROOT=d:\sdk\boost_1_61_0`. With Linux `cmake ..` should be enough provided the dependencies (boost) are installed.
+osmid is built assuming C++14. The build system is based on cmake. Tested target compiler in Windows is MSVC 2015 Win64, in Linux is gcc 4.9 or later, and on Mac, clang 5.1
+or later. Under Windows, prepare using something like: `cmake -G "Visual Studio 14 2015 Win64" .. -DBOOSTROOT=d:\sdk\boost_1_61_0`. On Linux and Mac `cmake ..` should be enough provided the dependencies (boost) are installed.
 
 osmid uses the following libs:
 * JUCE for the midi handling and OSC handling (included in the tree)

@@ -28,10 +28,4 @@
 namespace local_utils {
 void replace_chars(std::string& str, char from, char to);
 void logOSCMessage(const char* data, size_t size);
-// Since we are in C++11 (not C++14) provide our own make_unique
-template<typename T, typename... Args>
-std::unique_ptr<T> make_unique(Args&&... args)
-{
-    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-}
 }

@@ -41,7 +41,7 @@ MidiInProcessor::MidiInProcessor(const std::string& inputName, vector<shared_ptr
       m_useOscTemplate(false),
       m_oscRawMidiMessage(false)
 {
-    m_input = local_utils::make_unique<MidiIn>(inputName, this, isVirtual);
+    m_input = make_unique<MidiIn>(inputName, this, isVirtual);
 }
 
 void MidiInProcessor::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& midiMessage)
