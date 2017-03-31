@@ -37,7 +37,7 @@ void OscInProcessor::prepareOutputs(const vector<string>& outputNames)
     m_outputs.clear();
     for (auto& outputName : outputNames) {
         auto midiOut = local_utils::make_unique<MidiOut>(outputName);
-        m_outputs.push_back(move(midiOut));
+        m_outputs.push_back(std::move(midiOut));
     }
 }
 

@@ -129,7 +129,7 @@ void prepareMidiProcessors(vector<unique_ptr<MidiInProcessor> >& midiInputProces
             if (popts.useOscTemplate)
                 midiInputProcessor->setOscTemplate(popts.oscTemplate);
             midiInputProcessor->setOscRawMidiMessage(popts.oscRawMidiMessage);
-            midiInputProcessors.push_back(move(midiInputProcessor));
+            midiInputProcessors.push_back(std::move(midiInputProcessor));
         } catch (const std::out_of_range&) {
             cout << "The device " << input << " does not exist";
             throw;
@@ -198,7 +198,7 @@ int main(int argc, char* argv[])
     // Open the OSC output ports
     for (auto port : popts.oscOutputPorts) {
         auto oscOutput = make_shared<OscOutput>(popts.oscOutputHost, port);
-        oscOutputs.push_back(move(oscOutput));
+        oscOutputs.push_back(std::move(oscOutput));
     }
 
     // Will configure logging on the first OSC port (may want to change this in the future, so that it sends to every port, or be able to select one)
