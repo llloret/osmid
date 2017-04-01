@@ -55,6 +55,7 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput* source, const MidiMes
 
     if ((message[0] & 0xf0) != 0xf0) {
         channel = message[0] & 0x0f;
+        channel++; // Make channel 1-16, instead of 0-15
         status = message[0] & 0xf0;
     } else {
         status = message[0];
