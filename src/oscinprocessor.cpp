@@ -77,7 +77,7 @@ void OscInProcessor::ProcessMessage(const osc::ReceivedMessage& message, const I
             processContinueMessage(outDevice);
         } else if (command == "stop") {
             processStopMessage(outDevice);
-        } else if (command == "active_sense") {
+        } else if (command == "active_sensing") {
             processActiveSenseMessage(outDevice);
         } else if (command == "program_change") {
             processProgramChangeMessage(outDevice, message);

@@ -95,7 +95,7 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput* source, const MidiMes
         break;
 
     case 0xE0:
-        message_type = "pitch_bend_change";
+        message_type = "pitch_bend";
         assert(nBytes == 3);
         break;
 
@@ -107,17 +107,17 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput* source, const MidiMes
         break;
 
     case 0xF1:
-        message_type = "syscommon_MTC";
+        message_type = "MTC";
         assert(nBytes == 2);
         break;
 
     case 0xF2:
-        message_type = "syscommon_song_position";
+        message_type = "song_position";
         assert(nBytes == 3);
         break;
 
     case 0xF3:
-        message_type = "syscommon_song_select";
+        message_type = "song_select";
         assert(nBytes == 2);
         break;
 
@@ -128,12 +128,12 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput* source, const MidiMes
         break;
 
     case 0xF6:
-        message_type = "syscommon_tune_request";
+        message_type = "tune_request";
         assert(nBytes == 1);
         break;
 
     case 0xF8:
-        message_type = "sysrt_timing_tick";
+        message_type = "clock";
         assert(nBytes == 1);
         break;
 
@@ -144,22 +144,22 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput* source, const MidiMes
         break;
 
     case 0xFA:
-        message_type = "sysrt_start_song";
+        message_type = "start";
         assert(nBytes == 1);
         break;
 
     case 0xFB:
-        message_type = "sysrt_continue_song";
+        message_type = "continue";
         assert(nBytes == 1);
         break;
 
     case 0xFC:
-        message_type = "sysrt_stop_song";
+        message_type = "stop";
         assert(nBytes == 1);
         break;
 
     case 0xFE:
-        message_type = "sysrt_active_sensing";
+        message_type = "active_sensing";
         assert(nBytes == 1);
         break;
 
