@@ -95,7 +95,7 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput* source, const MidiMes
         break;
 
     case 0xE0:
-        message_type = "pitch_bend_change";
+        message_type = "pitch_bend";
         assert(nBytes == 3);
         break;
 
