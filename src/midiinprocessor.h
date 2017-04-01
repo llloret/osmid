@@ -32,7 +32,7 @@
 class MidiInProcessor : public MidiInputCallback {
 public:
     MidiInProcessor(const std::string& inputName, std::vector<std::shared_ptr<OscOutput> > outputs, bool isVirtual = false);
-    void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& midiMessage) override;
+    void handleIncomingMidiMessage(MidiInput* source, const juce::MidiMessage& midiMessage) override;
     void setOscTemplate(const std::string& oscTemplate);
     void setOscRawMidiMessage(bool oscRawMidiMessage);
     int getInputId() const { return m_input->getPortId(); };

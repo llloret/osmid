@@ -47,7 +47,7 @@ MidiOut::~MidiOut()
     delete m_midiOut;
 }
 
-void MidiOut::send(const MidiMessage& message)
+void MidiOut::send(const juce::MidiMessage& message)
 {
     m_logger.info("Sending MIDI to: {} ->", m_portName);
     auto* data = message.getRawData();

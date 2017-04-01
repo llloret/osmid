@@ -44,7 +44,7 @@ MidiInProcessor::MidiInProcessor(const std::string& inputName, vector<shared_ptr
     m_input = make_unique<MidiIn>(inputName, this, isVirtual);
 }
 
-void MidiInProcessor::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& midiMessage)
+void MidiInProcessor::handleIncomingMidiMessage(MidiInput* source, const juce::MidiMessage& midiMessage)
 {
     unsigned char channel = 0xff, status = 0;
     string message_type;
@@ -170,8 +170,6 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput* source, const MidiMes
     }
 
     // Prepare the OSC address
-    //auto start_time = chrono::high_resolution_clock::now();
-
     stringstream path;
     string portNameWithoutSpaces(m_input->getPortName());
     int portId = m_input->getPortId();
@@ -205,8 +203,15 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput* source, const MidiMes
             p << osc::Blob(message, static_cast<osc::osc_bundle_element_size_t>(nBytes));
         }
     } else {
-        for (int i = 1; i < nBytes; i++) {
-            p << (int)message[i];
+        // We treat the pitch bend differently. Instead of sending the bytes separately, 
+        // we send the processed 14 bits value
+        if (midiMessage.isPitchWheel()) {
+            p << (int)(midiMessage.getPitchWheelValue());
+        }
+        else {
+            for (int i = 1; i < nBytes; i++) {
+                p << (int)message[i];
+            }
         }
     }
     p << osc::EndMessage;

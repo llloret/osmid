@@ -37,7 +37,7 @@ public:
 
     ~MidiOut();
 
-    void send(const MidiMessage& message);
+    void send(const juce::MidiMessage& message);
 
     static std::vector<std::string> getOutputNames();
 
