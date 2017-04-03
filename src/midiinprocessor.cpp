@@ -193,9 +193,6 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput* source, const juce::M
     osc::OutboundPacketStream p(buffer, 1024);
     p << osc::BeginMessage(path.str().c_str());
 
-    // send device id and name as part of the message
-    p << static_cast<int>(portId) << portNameWithoutSpaces.c_str();
-
     // send the raw midi message as part of the body
     // do we want a raw midi message?
     if (m_oscRawMidiMessage) {
