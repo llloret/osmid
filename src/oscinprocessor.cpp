@@ -47,7 +47,7 @@ void OscInProcessor::ProcessMessage(const osc::ReceivedMessage& message, const I
     m_logger.info("Received OSC message with address pattern: {}", addressPattern);
     dumpOscBody(message);
 
-    regex addressRegex("/(([[:alnum:]]|\\s|\\*)+)/(([[:alnum:]]|_)+)");
+    regex addressRegex("/(([[:alnum:]]|\\:|\\s|\\*)+)/(([[:alnum:]]|_)+)");
     smatch match;
 
     if (regex_match(addressPattern, match, addressRegex)) {
