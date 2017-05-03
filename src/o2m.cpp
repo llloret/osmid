@@ -80,7 +80,13 @@ int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions& prog
     ("h,help", "Display this help message")
     ("version", "Show the version number");
 
-    options.parse(argc, argv);
+    try{
+        options.parse(argc, argv);
+    } catch(const cxxopts::OptionParseException& e){
+        cout << e.what() << "\n\n";
+        cout << options.help() << endl;
+        return -1;
+    }
 
     if (options.count("help")) {
         cout << options.help() << endl;

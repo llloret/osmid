@@ -50,7 +50,8 @@ struct ProgramOptions {
     string oscTemplate;
     bool oscRawMidiMessage;
     bool oscHeartbeat;
-    bool virtualPort;
+    bool useVirtualPort;
+    string virtualPortName;
     unsigned int monitor;
     bool listPorts;
 };
@@ -66,7 +67,7 @@ int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions& prog
 
     options.add_options()
     ("l,list", "List input MIDI devices", cxxopts::value<bool>(programOptions.listPorts))
-    ("v,virtualport", "Create a Virtual MIDI output port that will be monitored for MIDI (useful to have MIDI->OSC inside your favourite DAW)", cxxopts::value<bool>(programOptions.virtualPort))
+    ("v,virtualport", "Create a Virtual MIDI output port that will be monitored for MIDI (useful to have MIDI->OSC inside your favourite DAW)", cxxopts::value<string>(programOptions.virtualPortName))
     ("i,midiin", "MIDI Input device (default: all) - can be specified multiple times", cxxopts::value<vector<string> >(programOptions.midiInputNames))
     ("H,oschost", "OSC Output host (default:127.0.0.1)", cxxopts::value<string>(programOptions.oscOutputHost)->default_value("127.0.0.1"))
     ("o,oscport", "OSC Output port (default:57120) - can be specified multiple times", cxxopts::value<vector<int> >(programOptions.oscOutputPorts))
@@ -77,7 +78,13 @@ int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions& prog
     ("h,help", "Display this help message")
     ("version", "Show the version number");
 
-    options.parse(argc, argv);
+    try{
+        options.parse(argc, argv);
+    } catch(const cxxopts::OptionParseException& e){
+        cout << e.what() << "\n\n";
+        cout << options.help() << endl;
+        return -1;
+    }
 
     if (options.count("help")) {
         cout << options.help() << endl;
@@ -91,7 +98,7 @@ int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions& prog
     programOptions.useOscTemplate = (options.count("osctemplate") ? true : false);
     programOptions.oscRawMidiMessage = (options.count("oscrawmidimessage") ? true : false);
     programOptions.oscHeartbeat = (options.count("heartbeat") ? true : false);
-    programOptions.virtualPort = (options.count("virtualport") ? true : false);
+    programOptions.useVirtualPort = (options.count("virtualport") ? true : false);
     programOptions.listPorts = (options.count("list") ? true : false);
 
     if (!options.count("midiin")) {
@@ -198,8 +205,8 @@ int main(int argc, char* argv[])
 // Create the virtual output port?
 #ifndef WIN32
     unique_ptr<MidiInProcessor> virtualIn;
-    if (popts.virtualPort) {
-        virtualIn = make_unique<MidiInProcessor>("TO Virtual osmid", oscOutputs, true);
+    if (popts.useVirtualPort) {
+        virtualIn = make_unique<MidiInProcessor>(popts.virtualPortName, oscOutputs, true);
     }
 #endif
 
