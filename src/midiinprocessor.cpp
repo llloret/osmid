@@ -171,17 +171,15 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput* source, const juce::M
 
     // Prepare the OSC address
     stringstream path;
-    string portNameWithoutSpaces(m_input->getPortName());
+    string normalizedPortName(m_input->getNormalizedPortName());
     int portId = m_input->getPortId();
-    local_utils::replace_chars(portNameWithoutSpaces, ' ', '_');
-
     // Was a template specified?
     if (m_useOscTemplate) {
         string templateSubst(m_oscTemplate);
-        doTemplateSubst(templateSubst, portNameWithoutSpaces, portId, channel, message_type);
+        doTemplateSubst(templateSubst, normalizedPortName, portId, channel, message_type);
         path << templateSubst;
     } else {
-        path << "/midi/" << portId;
+        path << "/midi/" << normalizedPortName << "/" << portId;
         if (channel != 0xff) {
             path << "/" << (int)channel;
         }
@@ -214,7 +212,7 @@ void MidiInProcessor::handleIncomingMidiMessage(MidiInput* source, const juce::M
     p << osc::EndMessage;
 
     // Dump the OSC message
-    m_logger.info("sending OSC: [{}] -> {}, {}", path.str(), portId, portNameWithoutSpaces);
+    m_logger.info("sending OSC: [{}] -> {}, {}", path.str(), portId, normalizedPortName);
     if (m_oscRawMidiMessage) {
         if (nBytes > 0) {
             m_logger.info("  <raw_midi_message>");

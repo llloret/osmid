@@ -27,5 +27,7 @@
 
 namespace local_utils {
 void replace_chars(std::string& str, char from, char to);
+void downcase(std::string& str);
+void safe_osc_string(std::string& str);
 void logOSCMessage(const char* data, size_t size);
 }

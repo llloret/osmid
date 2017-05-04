@@ -33,6 +33,40 @@ void replace_chars(string& str, char from, char to)
     replace_if(str.begin(), str.end(), [from, to](char c) { return c == from; }, to);
 }
 
+void downcase(string& str)
+{
+    transform(str.begin(), str.end(), str.begin(), ::tolower);
+}
+
+void safe_osc_string(string& str)
+{
+  /*ASCII characters not allowed in names of OSC paths
+    See: http://opensoundcontrol.org/spec-1_0
+    ' ' space             32
+    #   number sign       35
+    *   asterisk          42
+    ,   comma             44
+    /   forward slash     47
+    ?   question mark     63
+    [   open bracket      91
+    ]   close bracket     93
+    {   open curly brace  123
+    }   close curly brace 125
+  */
+
+    replace_chars(str, ' ', '_');
+    replace_chars(str, '#', '_');
+    replace_chars(str, '*', '_');
+    replace_chars(str, ',', '_');
+    replace_chars(str, '/', '_');
+    replace_chars(str, '?', '_');
+    replace_chars(str, '[', '_');
+    replace_chars(str, ']', '_');
+    replace_chars(str, '{', '_');
+    replace_chars(str, '}', '_');
+    downcase(str);
+}
+
 void logOSCMessage(const char* data, size_t size)
 {
     MonitorLogger::getInstance().trace("sent UDP message: ");

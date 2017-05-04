@@ -22,6 +22,7 @@
 
 #include <iostream>
 #include "midiin.h"
+#include "utils.h"
 
 using namespace std;
 
@@ -30,6 +31,9 @@ MidiIn::MidiIn(string portName, MidiInputCallback* midiInputCallback, bool isVir
     m_logger.debug("MidiIn constructor for {}", portName);
     updateMidiDevicesNamesMapping();
     m_portName = portName;
+    local_utils::safe_osc_string(portName);
+    m_normalizedPortName = portName;
+
     if (!nameInStickyTable(m_portName))
         m_stickyId = addNameToStickyTable(m_portName);
     else

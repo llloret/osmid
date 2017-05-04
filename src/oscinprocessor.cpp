@@ -47,13 +47,18 @@ void OscInProcessor::ProcessMessage(const osc::ReceivedMessage& message, const I
     m_logger.info("Received OSC message with address pattern: {}", addressPattern);
     dumpOscBody(message);
 
-    regex addressRegex("/(([[:alnum:]]|\\:|\\s|\\*)+)/(([[:alnum:]]|_)+)");
+    regex addressRegex("/(.+?)/(.+)");
     smatch match;
-
     if (regex_match(addressPattern, match, addressRegex)) {
         // We are interested in groups [1] and [2]. [1] -> device, [3] -> command / raw
-        const string& outDevice = match[1];
-        const string& command = match[3];
+        string rawOutDeviceName = match[1];
+        // don't normalize name if we are given the wildcard name of *
+        if (rawOutDeviceName != "*") {
+            local_utils::safe_osc_string(rawOutDeviceName);
+        }
+
+        const string& command = match[2];
+        const string& outDevice = rawOutDeviceName;
 
         if (command == "clock") {
             processClockMessage(outDevice);
@@ -125,7 +130,7 @@ void OscInProcessor::send(const string& outDevice, const MidiMessage& msg)
         // send to the specified midi device
         // Look for it
         for (auto& output : m_outputs) {
-            if (output->getPortName() == outDevice) {
+            if (output->getNormalizedPortName() == outDevice) {
                 output->send(msg);
                 return;
             }
