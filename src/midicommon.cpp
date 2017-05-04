@@ -41,6 +41,11 @@ string MidiCommon::getPortName() const
     return m_portName;
 }
 
+string MidiCommon::getNormalizedPortName() const
+{
+    return m_normalizedPortName;
+}
+
 int MidiCommon::getPortId() const
 {
     return m_stickyId;

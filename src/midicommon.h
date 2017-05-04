@@ -43,6 +43,7 @@ public:
     bool checkValid() const;
 
     std::string getPortName() const;
+    std::string getNormalizedPortName() const;
     int getPortId() const;
 
     static int getJuceMidiIdFromName(std::string portName);
@@ -50,6 +51,7 @@ public:
 protected:
     virtual void updateMidiDevicesNamesMapping() = 0;
     std::string m_portName;
+    std::string m_normalizedPortName;
     int m_juceMidiId;
     int m_stickyId;
     static bool nameInStickyTable(std::string portName);
