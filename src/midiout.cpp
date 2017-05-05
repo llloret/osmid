@@ -31,7 +31,7 @@ MidiOut::MidiOut(string portName)
     m_logger.debug("MidiOut constructor for {}", portName);
     updateMidiDevicesNamesMapping();
     m_portName = portName;
-    local_utils::safe_osc_string(portName);
+    local_utils::safeOscString(portName);
     m_normalizedPortName = portName;
     if (!nameInStickyTable(m_portName))
         m_stickyId = addNameToStickyTable(m_portName);

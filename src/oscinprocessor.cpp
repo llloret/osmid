@@ -54,7 +54,7 @@ void OscInProcessor::ProcessMessage(const osc::ReceivedMessage& message, const I
         string rawOutDeviceName = match[1];
         // don't normalize name if we are given the wildcard name of *
         if (rawOutDeviceName != "*") {
-            local_utils::safe_osc_string(rawOutDeviceName);
+            local_utils::safeOscString(rawOutDeviceName);
         }
 
         const string& command = match[2];
