@@ -38,7 +38,7 @@ void downcase(string& str)
     transform(str.begin(), str.end(), str.begin(), ::tolower);
 }
 
-void safe_osc_string(string& str)
+void safeOscString(string& str)
 {
   /*ASCII characters not allowed in names of OSC paths
     See: http://opensoundcontrol.org/spec-1_0

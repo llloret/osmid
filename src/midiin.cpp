@@ -31,7 +31,7 @@ MidiIn::MidiIn(string portName, MidiInputCallback* midiInputCallback, bool isVir
     m_logger.debug("MidiIn constructor for {}", portName);
     updateMidiDevicesNamesMapping();
     m_portName = portName;
-    local_utils::safe_osc_string(portName);
+    local_utils::safeOscString(portName);
     m_normalizedPortName = portName;
 
     if (!nameInStickyTable(m_portName))
