@@ -10,8 +10,7 @@
 
 */
 
-#ifndef __APPHEADERFILE_MEVJYY__
-#define __APPHEADERFILE_MEVJYY__
+#pragma once
 
 #include "AppConfig.h"
 
@@ -23,6 +22,7 @@
 #include <juce_events/juce_events.h>
 #include <juce_osc/juce_osc.h>
 
+
 #if ! DONT_SET_USING_JUCE_NAMESPACE
  // If your code uses a lot of JUCE classes, then this will obviously save you
  // a lot of typing, but can be disabled by setting DONT_SET_USING_JUCE_NAMESPACE.
@@ -32,10 +32,8 @@
 #if ! JUCE_DONT_DECLARE_PROJECTINFO
 namespace ProjectInfo
 {
-    const char* const  projectName    = "osmid-juce";
+    const char* const  projectName    = "NewProject";
     const char* const  versionString  = "1.0.0";
     const int          versionNumber  = 0x10000;
 }
 #endif
-
-#endif   // __APPHEADERFILE_MEVJYY__
