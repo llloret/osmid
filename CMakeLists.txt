@@ -43,23 +43,23 @@ set(o2m_sources
 
 if(APPLE)
     set(juce_sources
-        JuceLibraryCode/juce_audio_basics.mm
-        JuceLibraryCode/juce_audio_devices.mm
-        JuceLibraryCode/juce_audio_formats.mm
-        JuceLibraryCode/juce_core.mm
-        JuceLibraryCode/juce_data_structures.mm
-        JuceLibraryCode/juce_events.mm
-        JuceLibraryCode/juce_osc.cpp
+        JuceLibraryCode/include_juce_audio_basics.mm
+        JuceLibraryCode/include_juce_audio_devices.mm
+        JuceLibraryCode/include_juce_audio_formats.mm
+        JuceLibraryCode/include_juce_core.mm
+        JuceLibraryCode/include_juce_data_structures.mm
+        JuceLibraryCode/include_juce_events.mm
+        JuceLibraryCode/include_juce_osc.cpp
     )
 else(APPLE)
     set(juce_sources
-        JuceLibraryCode/juce_audio_basics.cpp
-        JuceLibraryCode/juce_audio_devices.cpp
-        JuceLibraryCode/juce_audio_formats.cpp
-        JuceLibraryCode/juce_core.cpp
-        JuceLibraryCode/juce_data_structures.cpp
-        JuceLibraryCode/juce_events.cpp
-        JuceLibraryCode/juce_osc.cpp
+        JuceLibraryCode/include_juce_audio_basics.cpp
+        JuceLibraryCode/include_juce_audio_devices.cpp
+        JuceLibraryCode/include_juce_audio_formats.cpp
+        JuceLibraryCode/include_juce_core.cpp
+        JuceLibraryCode/include_juce_data_structures.cpp
+        JuceLibraryCode/include_juce_events.cpp
+        JuceLibraryCode/include_juce_osc.cpp
     )
 endif(APPLE)
 
