@@ -71,6 +71,7 @@ target_link_libraries(m2o oscpack)
 add_executable(o2m ${o2m_sources} ${juce_sources})
 target_link_libraries(o2m oscpack)
 
+add_definitions(-DJUCE_ALSA_MIDI_NAME="osmid_midi")
 
 if(MSVC)
     add_definitions(-D_WIN32_WINNT=0x0600 -DJUCER_VS2015_78A5022=1 -DJUCE_APP_VERSION=1.0.0 -DJUCE_APP_VERSION_HEX=0x10000)
