@@ -160,7 +160,7 @@ void sendHeartBeat(const OscInProcessor& oscInputProcessor, OscOutput& oscOutput
     osc::OutboundPacketStream p(buffer, 2048);
     p << osc::BeginMessage("/o2m/heartbeat");
     for (int i = 0; i < oscInputProcessor.getNMidiOuts(); i++) {
-        p << oscInputProcessor.getMidiOutId(i) << oscInputProcessor.getMidiOutName(i).c_str();
+      p << oscInputProcessor.getMidiOutId(i) << oscInputProcessor.getMidiOutName(i).c_str() << oscInputProcessor.getNormalizedMidiOutName(i).c_str();
     }
     p << osc::EndMessage;
     MonitorLogger::getInstance().debug("sending OSC: [/o2m/heartbeat] -> ");

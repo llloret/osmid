@@ -55,6 +55,7 @@ public:
 
     int getNMidiOuts() const;
     std::string getMidiOutName(int n) const;
+    std::string getNormalizedMidiOutName(int n) const;
     int getMidiOutId(int n) const;
 
 private:

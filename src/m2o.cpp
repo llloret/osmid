@@ -159,7 +159,8 @@ void sendHeartBeat(const vector<unique_ptr<MidiInProcessor> >& midiProcessors, c
     osc::OutboundPacketStream p(buffer, 2048);
     p << osc::BeginMessage("/m2o/heartbeat");
     for (const auto& midiProcessor : midiProcessors) {
-        p << midiProcessor->getInputId() << midiProcessor->getInputPortname().c_str();
+
+      p << midiProcessor->getInputId() << midiProcessor->getInputPortname().c_str() << midiProcessor->getInputNormalizedPortName().c_str();
     }
     p << osc::EndMessage;
     MonitorLogger::getInstance().debug("sending OSC: [/m2o/heartbeat] -> ");

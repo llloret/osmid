@@ -455,3 +455,8 @@ string OscInProcessor::getMidiOutName(int n) const
 {
     return m_outputs[n]->getPortName();
 }
+
+string OscInProcessor::getNormalizedMidiOutName(int n) const
+{
+    return m_outputs[n]->getNormalizedPortName();
+}
