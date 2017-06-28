@@ -157,12 +157,13 @@ void sendHeartBeat(const vector<unique_ptr<MidiInProcessor> >& midiProcessors, c
 {
     char buffer[2048];
     osc::OutboundPacketStream p(buffer, 2048);
-    p << osc::BeginMessage("/midi/heartbeat");
+    p << osc::BeginMessage("/m2o/heartbeat");
     for (const auto& midiProcessor : midiProcessors) {
-        p << midiProcessor->getInputId() << midiProcessor->getInputPortname().c_str();
+
+      p << midiProcessor->getInputId() << midiProcessor->getInputPortname().c_str() << midiProcessor->getInputNormalizedPortName().c_str();
     }
     p << osc::EndMessage;
-    MonitorLogger::getInstance().debug("sending OSC: [/o2m/heartbeat] -> ");
+    MonitorLogger::getInstance().debug("sending OSC: [/m2o/heartbeat] -> ");
     for (const auto& midiProcessor : midiProcessors) {
         MonitorLogger::getInstance().debug("   {}, {}", midiProcessor->getInputId(), midiProcessor->getInputPortname());
     }

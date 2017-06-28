@@ -36,6 +36,7 @@ public:
     void setOscTemplate(const std::string& oscTemplate);
     void setOscRawMidiMessage(bool oscRawMidiMessage);
     int getInputId() const { return m_input->getPortId(); };
+    std::string getInputNormalizedPortName() const { return m_input->getNormalizedPortName(); };
     std::string getInputPortname() const { return m_input->getPortName(); };
 
 protected:
