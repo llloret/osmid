@@ -24,7 +24,8 @@
   ==============================================================================
 */
 
-#pragma once
+namespace juce
+{
 
 //==============================================================================
 
@@ -42,6 +43,8 @@ typedef Array<OSCType> OSCTypeList;
 
     Note: this implementation does not support any additional type tags that
     are not part of the specification.
+
+    @tags{OSC}
 */
 class JUCE_API  OSCTypes
 {
@@ -62,6 +65,8 @@ public:
 
 //==============================================================================
 /** Base class for exceptions that can be thrown by methods in the OSC module.
+
+    @tags{OSC}
 */
 struct OSCException  : public std::exception
 {
@@ -79,6 +84,8 @@ struct OSCException  : public std::exception
 //==============================================================================
 /** Exception type thrown when the OSC module fails to parse something because
     of a data format not compatible with the OpenSoundControl 1.0 specification.
+
+    @tags{OSC}
 */
 struct OSCFormatError : public OSCException
 {
@@ -90,8 +97,12 @@ struct OSCFormatError : public OSCException
 
     Note: this should never happen, and all the places where this is thrown
     should have a preceding jassertfalse to facilitate debugging.
+
+    @tags{OSC}
 */
 struct OSCInternalError : public OSCException
 {
     OSCInternalError (const String& desc) : OSCException (desc) {}
 };
+
+} // namespace juce

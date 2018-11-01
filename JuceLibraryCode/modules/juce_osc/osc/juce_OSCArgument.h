@@ -24,8 +24,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -35,6 +35,8 @@
     or blob (raw binary data).
 
     OSCMessage objects are essentially arrays of OSCArgument objects.
+
+    @tags{OSC}
 */
 class JUCE_API  OSCArgument
 {
@@ -89,7 +91,7 @@ public:
     String getString() const noexcept;
 
     /** Returns the binary data contained in the blob and owned by the OSCArgument,
-        as a reference to a Juce MemoryBlock object.
+        as a reference to a JUCE MemoryBlock object.
 
         If the type of the OSCArgument is not blob, the behaviour is undefined.
      */
@@ -109,3 +111,5 @@ private:
     String stringValue;
     MemoryBlock blob;
 };
+
+} // namespace juce
