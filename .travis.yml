@@ -5,7 +5,7 @@ os:
  - linux
  - osx
 
-osx_image: xcode7.3
+#osx_image: xcode7.3
 
 cache:
  - apt
@@ -37,8 +37,8 @@ addons:
 before_install:
   - ifmac () { if [[ $TRAVIS_OS_NAME == osx ]]; then eval $@; fi; }
   - iflin () { if [[ $TRAVIS_OS_NAME == linux ]]; then eval $@; fi; }
-  - ifmac brew update
-  - ifmac brew outdated cmake || brew upgrade cmake
+  #- ifmac brew update
+  #- ifmac brew outdated cmake || brew upgrade cmake
   - iflin sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
   - iflin sudo apt-get update
   - iflin sudo apt-get install --yes libboost-system-dev libboost-program-options-dev
