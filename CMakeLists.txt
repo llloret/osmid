@@ -90,4 +90,5 @@ endif(MSVC)
 
 if(UNIX)
     install (TARGETS m2o DESTINATION bin)
+    install (TARGETS o2m DESTINATION bin)
 endif(UNIX)
