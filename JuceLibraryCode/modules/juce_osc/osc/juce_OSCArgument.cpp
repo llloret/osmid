@@ -24,6 +24,9 @@
   ==============================================================================
 */
 
+namespace juce
+{
+
 OSCArgument::OSCArgument (int32 value) noexcept
     : type (OSCTypes::int32), intValue (value)
 {
@@ -88,7 +91,7 @@ const MemoryBlock& OSCArgument::getBlob() const noexcept
 class OSCArgumentTests  : public UnitTest
 {
 public:
-    OSCArgumentTests() : UnitTest ("OSCArgument class") {}
+    OSCArgumentTests() : UnitTest ("OSCArgument class", "OSC") {}
 
 
     MemoryBlock getMemoryBlockWithRandomData (size_t numBytes)
@@ -226,3 +229,5 @@ public:
 static OSCArgumentTests OSCArgumentUnitTests;
 
 #endif // JUCE_UNIT_TESTS
+
+} // namespace juce
