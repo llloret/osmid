@@ -4,7 +4,7 @@ osmid uses cmake for build management.
 ## Requisites:
 ### Windows:
 * cmake (version 3.0 or later)
-* Microsoft Visual C++ 2015 (Community or Express editions are fine)
+* Microsoft Visual C++ 2015 or Visual C++ 2017 (Community or Express editions are fine)
 
 ### Linux (you can normally install all these using your distribution package manager)
 * cmake (version 3.0 or later)
