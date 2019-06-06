@@ -32,8 +32,6 @@ namespace juce
     Reads and Writes WAV format audio files.
 
     @see AudioFormat
-
-    @tags{Audio}
 */
 class JUCE_API  WavAudioFormat  : public AudioFormat
 {

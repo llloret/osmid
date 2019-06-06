@@ -141,12 +141,12 @@ AudioFormatReader* AudioFormatManager::createReaderFor (InputStream* audioFileSt
 
     if (audioFileStream != nullptr)
     {
-        std::unique_ptr<InputStream> in (audioFileStream);
+        ScopedPointer<InputStream> in (audioFileStream);
         auto originalStreamPos = in->getPosition();
 
         for (auto* af : knownFormats)
         {
-            if (auto* r = af->createReaderFor (in.get(), false))
+            if (auto* r = af->createReaderFor (in, false))
             {
                 in.release();
                 return r;
