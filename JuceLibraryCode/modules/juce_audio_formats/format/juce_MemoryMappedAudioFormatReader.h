@@ -41,8 +41,6 @@ namespace juce
     read has been mapped.
 
     @see AudioFormat::createMemoryMappedReader, AudioFormatReader
-
-    @tags{Audio}
 */
 class JUCE_API  MemoryMappedAudioFormatReader  : public AudioFormatReader
 {
@@ -85,7 +83,7 @@ public:
 protected:
     File file;
     Range<int64> mappedSection;
-    std::unique_ptr<MemoryMappedFile> map;
+    ScopedPointer<MemoryMappedFile> map;
     int64 dataChunkStart, dataLength;
     int bytesPerFrame;
 
@@ -102,7 +100,7 @@ protected:
     template <typename SampleType, typename Endianness>
     Range<float> scanMinAndMaxInterleaved (int channel, int64 startSampleInFile, int64 numSamples) const noexcept
     {
-        using SourceType = AudioData::Pointer <SampleType, Endianness, AudioData::Interleaved, AudioData::Const>;
+        typedef AudioData::Pointer <SampleType, Endianness, AudioData::Interleaved, AudioData::Const> SourceType;
 
         return SourceType (addBytesToPointer (sampleToPointer (startSampleInFile), ((int) bitsPerSample / 8) * channel), (int) numChannels)
                 .findMinAndMax ((size_t) numSamples);

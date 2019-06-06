@@ -35,8 +35,6 @@ namespace juce
 
     OSC messages are the elementary objects that are used to exchange any data
     via OSC. An OSCSender can send OSCMessage objects to an OSCReceiver.
-
-    @tags{OSC}
 */
 class JUCE_API  OSCMessage
 {
@@ -55,6 +53,7 @@ public:
     OSCMessage (const OSCAddressPattern& ap) noexcept;
 
 
+   #if JUCE_COMPILER_SUPPORTS_VARIADIC_TEMPLATES
     /** Constructs an OSCMessage object with the given address pattern and list
         of arguments.
 
@@ -69,6 +68,7 @@ public:
     */
     template <typename Arg1, typename... Args>
     OSCMessage (const OSCAddressPattern& ap, Arg1&& arg1, Args&&... args);
+   #endif
 
     /** Sets the address pattern of the OSCMessage.
 
@@ -93,8 +93,7 @@ public:
         This method does not check the range and results in undefined behaviour
         in case i < 0 or i >= size().
     */
-    OSCArgument& operator[] (const int i) noexcept;
-    const OSCArgument& operator[] (const int i) const noexcept;
+    OSCArgument& operator[] (const int i) const noexcept;
 
     /** Returns a pointer to the first OSCArgument in the OSCMessage object.
         This method is provided for compatibility with standard C++ iteration mechanisms.
@@ -108,6 +107,7 @@ public:
 
     /** Removes all arguments from the OSCMessage. */
     void clear();
+
 
     //==============================================================================
     /** Creates a new OSCArgument of type int32 with a given value
@@ -143,6 +143,7 @@ public:
 private:
 
     //==============================================================================
+   #if JUCE_COMPILER_SUPPORTS_VARIADIC_TEMPLATES
     template <typename Arg1, typename... Args>
     void addArguments (Arg1&& arg1, Args&&... args)
     {
@@ -151,6 +152,7 @@ private:
     }
 
     void addArguments() {}
+   #endif
 
     //==============================================================================
     OSCAddressPattern addressPattern;
@@ -159,11 +161,13 @@ private:
 
 
 //==============================================================================
-template <typename Arg1, typename... Args>
-OSCMessage::OSCMessage (const OSCAddressPattern& ap, Arg1&& arg1, Args&&... args)
-    : addressPattern (ap)
-{
-    addArguments (std::forward<Arg1> (arg1), std::forward<Args> (args)...);
-}
+#if JUCE_COMPILER_SUPPORTS_VARIADIC_TEMPLATES
+ template <typename Arg1, typename... Args>
+ OSCMessage::OSCMessage (const OSCAddressPattern& ap, Arg1&& arg1, Args&&... args)
+     : addressPattern (ap)
+ {
+     addArguments (std::forward<Arg1> (arg1), std::forward<Args> (args)...);
+ }
+#endif
 
 } // namespace juce

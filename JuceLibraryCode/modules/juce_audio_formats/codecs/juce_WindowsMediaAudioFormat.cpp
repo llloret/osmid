@@ -339,7 +339,7 @@ bool WindowsMediaAudioFormat::isCompressed()    { return true; }
 //==============================================================================
 AudioFormatReader* WindowsMediaAudioFormat::createReaderFor (InputStream* sourceStream, bool deleteStreamIfOpeningFails)
 {
-    std::unique_ptr<WindowsMediaCodec::WMAudioReader> r (new WindowsMediaCodec::WMAudioReader (sourceStream));
+    ScopedPointer<WindowsMediaCodec::WMAudioReader> r (new WindowsMediaCodec::WMAudioReader (sourceStream));
 
     if (r->sampleRate > 0)
         return r.release();

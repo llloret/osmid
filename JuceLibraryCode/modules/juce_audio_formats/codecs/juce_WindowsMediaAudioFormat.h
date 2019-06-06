@@ -32,8 +32,6 @@ namespace juce
 //==============================================================================
 /**
     Audio format which uses the Windows Media codecs (Windows only).
-
-    @tags{Audio}
 */
 class WindowsMediaAudioFormat  : public AudioFormat
 {

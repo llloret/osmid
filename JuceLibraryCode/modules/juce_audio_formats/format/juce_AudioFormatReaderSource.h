@@ -32,8 +32,6 @@ namespace juce
     A type of AudioSource that will read from an AudioFormatReader.
 
     @see PositionableAudioSource, AudioTransportSource, BufferingAudioSource
-
-    @tags{Audio}
 */
 class JUCE_API  AudioFormatReaderSource  : public PositionableAudioSource
 {
@@ -93,8 +91,8 @@ private:
     //==============================================================================
     OptionalScopedPointer<AudioFormatReader> reader;
 
-    int64 nextPlayPos;
-    bool looping;
+    int64 volatile nextPlayPos;
+    bool volatile looping;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioFormatReaderSource)
 };

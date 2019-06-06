@@ -102,7 +102,7 @@ public:
             expect (! copyTag.isImmediately());
         }
 
-        beginTest ("Conversion to/from JUCE Time");
+        beginTest ("Conversion to/from Juce Time");
 
         {
             Time time;

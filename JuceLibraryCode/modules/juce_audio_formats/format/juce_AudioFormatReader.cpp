@@ -100,8 +100,10 @@ bool AudioFormatReader::read (int* const* destSamples,
     return true;
 }
 
-static void readChannels (AudioFormatReader& reader, int** chans, AudioBuffer<float>* buffer,
-                          int startSample, int numSamples, int64 readerStartSample, int numTargetChannels)
+static void readChannels (AudioFormatReader& reader,
+                          int** const chans, AudioSampleBuffer* const buffer,
+                          const int startSample, const int numSamples,
+                          const int64 readerStartSample, const int numTargetChannels)
 {
     for (int j = 0; j < numTargetChannels; ++j)
         chans[j] = reinterpret_cast<int*> (buffer->getWritePointer (j, startSample));
@@ -110,7 +112,7 @@ static void readChannels (AudioFormatReader& reader, int** chans, AudioBuffer<fl
     reader.read (chans, numTargetChannels, readerStartSample, numSamples, true);
 }
 
-void AudioFormatReader::read (AudioBuffer<float>* buffer,
+void AudioFormatReader::read (AudioSampleBuffer* buffer,
                               int startSample,
                               int numSamples,
                               int64 readerStartSample,
@@ -184,17 +186,16 @@ void AudioFormatReader::readMaxLevels (int64 startSampleInFile, int64 numSamples
         return;
     }
 
-    auto bufferSize = (int) jmin (numSamples, (int64) 4096);
-    AudioBuffer<float> tempSampleBuffer ((int) channelsToRead, bufferSize);
+    const int bufferSize = (int) jmin (numSamples, (int64) 4096);
+    AudioSampleBuffer tempSampleBuffer ((int) channelsToRead, bufferSize);
 
-    auto floatBuffer = tempSampleBuffer.getArrayOfWritePointers();
-    auto intBuffer = reinterpret_cast<int* const*> (floatBuffer);
+    float* const* const floatBuffer = tempSampleBuffer.getArrayOfWritePointers();
+    int* const* intBuffer = reinterpret_cast<int* const*> (floatBuffer);
     bool isFirstBlock = true;
 
     while (numSamples > 0)
     {
-        auto numToDo = (int) jmin (numSamples, (int64) bufferSize);
-
+        const int numToDo = (int) jmin (numSamples, (int64) bufferSize);
         if (! read (intBuffer, channelsToRead, startSampleInFile, numToDo, false))
             break;
 
@@ -208,7 +209,7 @@ void AudioFormatReader::readMaxLevels (int64 startSampleInFile, int64 numSamples
             }
             else
             {
-                auto intRange = Range<int>::findMinAndMax (intBuffer[i], numToDo);
+                Range<int> intRange (Range<int>::findMinAndMax (intBuffer[i], numToDo));
 
                 r = Range<float> (intRange.getStart() / (float) std::numeric_limits<int>::max(),
                                   intRange.getEnd()   / (float) std::numeric_limits<int>::max());
@@ -247,9 +248,9 @@ void AudioFormatReader::readMaxLevels (int64 startSampleInFile, int64 numSamples
 
 int64 AudioFormatReader::searchForLevel (int64 startSample,
                                          int64 numSamplesToSearch,
-                                         double magnitudeRangeMinimum,
-                                         double magnitudeRangeMaximum,
-                                         int minimumConsecutiveSamples)
+                                         const double magnitudeRangeMinimum,
+                                         const double magnitudeRangeMaximum,
+                                         const int minimumConsecutiveSamples)
 {
     if (numSamplesToSearch == 0)
         return -1;
@@ -274,7 +275,7 @@ int64 AudioFormatReader::searchForLevel (int64 startSample,
 
     while (numSamplesToSearch != 0)
     {
-        auto numThisTime = (int) jmin (std::abs (numSamplesToSearch), (int64) bufferSize);
+        auto numThisTime = (int) jmin (abs64 (numSamplesToSearch), (int64) bufferSize);
         int64 bufferStart = startSample;
 
         if (numSamplesToSearch < 0)
@@ -389,15 +390,15 @@ bool MemoryMappedAudioFormatReader::mapSectionOfFile (Range<int64> samplesToMap)
 {
     if (map == nullptr || samplesToMap != mappedSection)
     {
-        map.reset();
+        map = nullptr;
 
         const Range<int64> fileRange (sampleToFilePos (samplesToMap.getStart()),
                                       sampleToFilePos (samplesToMap.getEnd()));
 
-        map.reset (new MemoryMappedFile (file, fileRange, MemoryMappedFile::readOnly));
+        map = new MemoryMappedFile (file, fileRange, MemoryMappedFile::readOnly);
 
         if (map->getData() == nullptr)
-            map.reset();
+            map = nullptr;
         else
             mappedSection = Range<int64> (jmax ((int64) 0, filePosToSample (map->getRange().getStart() + (bytesPerFrame - 1))),
                                           jmin (lengthInSamples, filePosToSample (map->getRange().getEnd())));
