@@ -77,12 +77,12 @@ int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions& prog
 
     options.add_options()
     ("l,list", "List output MIDI devices", cxxopts::value<bool>(programOptions.listPorts))
-    ("o,midiout", "MIDI Output devices (default: all) - can be specified multiple times", cxxopts::value<vector<string> >(programOptions.midiOutputNames))
-    ("i,oscport", "OSC Input port (default:57200)", cxxopts::value<unsigned int>(programOptions.oscInputPort)->default_value("57200"))
+    ("o,midiout", "MIDI Output devices - can be specified multiple times (default: all)", cxxopts::value<vector<string> >(programOptions.midiOutputNames))
+    ("i,oscport", "OSC Input port", cxxopts::value<unsigned int>(programOptions.oscInputPort)->default_value("57200"))
     ("L,local", "OSC listen only on the local network interface", cxxopts::value<bool>(programOptions.oscLocal))
     ("b,heartbeat", "OSC send the heartbeat with info about the active MIDI devices", cxxopts::value<bool>(programOptions.oscHeartbeat))
-    ("H,oscoutputhost", "OSC Output host (default:127.0.0.1). Used for heartbeat", cxxopts::value<string>(programOptions.oscOutputHost)->default_value("127.0.0.1"))
-    ("O,oscoutputport", "OSC Output port (default:57120). Used for heartbeat", cxxopts::value<unsigned int>(programOptions.oscOutputPort)->default_value("57120"))
+    ("H,oscoutputhost", "OSC Output host. Used for heartbeat", cxxopts::value<string>(programOptions.oscOutputHost)->default_value("127.0.0.1"))
+    ("O,oscoutputport", "OSC Output port. Used for heartbeat", cxxopts::value<unsigned int>(programOptions.oscOutputPort)->default_value("57120"))
     ("m,monitor", "Monitor and logging level (lower more verbose)", cxxopts::value<unsigned int>(programOptions.monitor)->default_value("2")->implicit_value("1"))
     ("h,help", "Display this help message")
     ("version", "Show the version number");
