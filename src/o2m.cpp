@@ -66,7 +66,14 @@ void showVersion()
 
 int setup_and_parse_program_options(int argc, char* argv[], ProgramOptions& programOptions)
 {
-    cxxopts::Options options("o2m", "Bridges OSC to MIDI");
+    // Prepare the help string
+    string helpString("Bridges OSC to MIDI\no2m understands the following OSC messages:\n");
+    for (const auto& message: OscInProcessor::getKnownOscMessages()){
+        helpString += "- ";
+        helpString += message;
+        helpString += "\n";
+    }
+    cxxopts::Options options("o2m", helpString);
 
     options.add_options()
     ("l,list", "List output MIDI devices", cxxopts::value<bool>(programOptions.listPorts))

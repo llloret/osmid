@@ -451,6 +451,13 @@ int OscInProcessor::getMidiOutId(int n) const
     return m_outputs[n]->getPortId();
 }
 
+const std::vector<std::string> OscInProcessor::getKnownOscMessages()
+{
+    return std::vector<std::string>{"clock", "raw", "note_on", "note_off", "control_change",
+        "pitch_bend", "channel_pressure", "poly_pressure", "start", "continue", "stop",
+        "active_sensing", "program_change", "log_level", "log_to_osc"};
+}
+
 string OscInProcessor::getMidiOutName(int n) const
 {
     return m_outputs[n]->getPortName();
