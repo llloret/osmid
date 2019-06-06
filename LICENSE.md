@@ -1,16 +1,13 @@
 osmid uses the JUCE library, with its license:
-Copyright (c) 2015 - ROLI Ltd.
+Copyright (c) 2017 - ROLI Ltd.
 
-Permission is granted to use this software under the terms of either:
-a) the GPL v2 (or any later version)
-b) the Affero GPL v3
+The core JUCE modules (juce_audio_basics, juce_audio_devices, juce_blocks_basics,
+juce_core and juce_events) are permissively licensed under the terms of the ISC 
+license. Other modules are covered by a GPL v3 license.
 
-Details of these licenses can be found at: www.gnu.org/licenses
-
-JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-
+JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+EXPRESSED OR IMPLIED, INCLUDING WARRANTY OF MERCHANTABILITY AND FITNESS FOR A
+PARTICULAR PURPOSE, ARE DISCLAIMED.
 
 
 -------------------------------------------------------------------------------
