@@ -33,7 +33,7 @@ MidiOut::MidiOut(const string& portName)
     m_portName = portName;
     m_normalizedPortName = portName;
     local_utils::safeOscString(m_normalizedPortName);
-    
+
     if (!nameInStickyTable(m_portName))
         m_stickyId = addNameToStickyTable(m_portName);
     else
