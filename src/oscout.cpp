@@ -26,7 +26,7 @@
 
 using namespace std;
 
-OscOutput::OscOutput(string dstOscHost, int dstOscPort)
+OscOutput::OscOutput(const string& dstOscHost, int dstOscPort)
 {
     m_transmitSocket = make_unique<UdpTransmitSocket>(IpEndpointName(dstOscHost.c_str(), dstOscPort));
 }

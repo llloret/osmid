@@ -46,7 +46,7 @@ public:
     std::string getNormalizedPortName() const;
     int getPortId() const;
 
-    static int getJuceMidiIdFromName(std::string portName);
+    static int getJuceMidiIdFromName(const std::string& portName);
 
 protected:
     virtual void updateMidiDevicesNamesMapping() = 0;
@@ -54,9 +54,9 @@ protected:
     std::string m_normalizedPortName;
     int m_juceMidiId;
     int m_stickyId;
-    static bool nameInStickyTable(std::string portName);
-    unsigned int addNameToStickyTable(std::string portName);
-    unsigned int getStickyIdFromName(std::string portName);
+    static bool nameInStickyTable(const std::string& portName);
+    unsigned int addNameToStickyTable(const std::string& portName);
+    unsigned int getStickyIdFromName(const std::string& portName);
     static std::map<std::string, int> m_midiNameToJuceMidiId;
     static std::vector<std::string> m_midiJuceMidiIdToName;
     static std::map<std::string, int> m_midiNameToStickyId;

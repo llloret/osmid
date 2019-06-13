@@ -67,24 +67,24 @@ bool MidiCommon::checkValid() const
     return true;
 }
 
-int MidiCommon::getJuceMidiIdFromName(string portName)
+int MidiCommon::getJuceMidiIdFromName(const string& portName)
 {
     return m_midiNameToJuceMidiId.at(portName);
 }
 
-bool MidiCommon::nameInStickyTable(string portName)
+bool MidiCommon::nameInStickyTable(const string& portName)
 {
     auto search = m_midiNameToStickyId.find(portName);
     return (search != m_midiNameToStickyId.end());
 }
 
-unsigned int MidiCommon::addNameToStickyTable(string portName)
+unsigned int MidiCommon::addNameToStickyTable(const string& portName)
 {
     m_midiNameToStickyId[portName] = m_nStickyIds;
     return m_nStickyIds++;
 }
 
-unsigned int MidiCommon::getStickyIdFromName(string portName)
+unsigned int MidiCommon::getStickyIdFromName(const string& portName)
 {
     return m_midiNameToStickyId[portName];
 }

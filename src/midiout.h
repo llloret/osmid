@@ -31,7 +31,7 @@
 // This class manages a MIDI output device as seen by JUCE
 class MidiOut : public MidiCommon {
 public:
-    MidiOut(std::string portName);
+    MidiOut(const std::string& portName);
     MidiOut(const MidiOut&) = delete;
     MidiOut& operator=(const MidiOut&) = delete;
 

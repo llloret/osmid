@@ -29,7 +29,7 @@
 
 class OscOutput {
 public:
-    OscOutput(std::string dstOscHost, int dstOscPort);
+    OscOutput(const std::string& dstOscHost, int dstOscPort);
     void sendUDP(const char* data, std::size_t size);
 
 private:

@@ -30,7 +30,7 @@
 // This class manages a MIDI input device as seen by JUCE
 class MidiIn : public MidiCommon {
 public:
-    MidiIn(std::string portName, MidiInputCallback* midiInputCallback, bool isVirtual = false);
+    MidiIn(const std::string& portName, MidiInputCallback* midiInputCallback, bool isVirtual = false);
     MidiIn(const MidiIn&) = delete;
     MidiIn& operator=(const MidiIn&) = delete;
 

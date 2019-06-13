@@ -26,13 +26,13 @@
 
 using namespace std;
 
-MidiIn::MidiIn(string portName, MidiInputCallback* midiInputCallback, bool isVirtual)
+MidiIn::MidiIn(const string& portName, MidiInputCallback* midiInputCallback, bool isVirtual)
 {
     m_logger.debug("MidiIn constructor for {}", portName);
     updateMidiDevicesNamesMapping();
     m_portName = portName;
-    local_utils::safeOscString(portName);
     m_normalizedPortName = portName;
+    local_utils::safeOscString(m_normalizedPortName);
 
     if (!nameInStickyTable(m_portName))
         m_stickyId = addNameToStickyTable(m_portName);

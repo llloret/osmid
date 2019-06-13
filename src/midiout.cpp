@@ -26,13 +26,14 @@
 
 using namespace std;
 
-MidiOut::MidiOut(string portName)
+MidiOut::MidiOut(const string& portName)
 {
     m_logger.debug("MidiOut constructor for {}", portName);
     updateMidiDevicesNamesMapping();
     m_portName = portName;
-    local_utils::safeOscString(portName);
     m_normalizedPortName = portName;
+    local_utils::safeOscString(m_normalizedPortName);
+    
     if (!nameInStickyTable(m_portName))
         m_stickyId = addNameToStickyTable(m_portName);
     else
