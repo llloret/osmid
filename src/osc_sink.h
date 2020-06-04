@@ -21,7 +21,7 @@ namespace sinks {
         {
         }
 
-        void flush() override
+        void _flush() override
         {
         }
 

@@ -11,16 +11,22 @@ if(NOT MSVC)
     endif(APPLE)
 endif(NOT MSVC)
 
-if(APPLE)
+set(USE_SYSTEM_SPDLOG OFF CACHE BOOL "Use the system's spdlog instead of the bundled one")
 
+if(APPLE)
 elseif(UNIX)
     find_package(ALSA REQUIRED)
 endif(APPLE)
 
+if (USE_SYSTEM_SPDLOG)
+    find_package(spdlog REQUIRED)
+else(USE_SYSTEM_SPDLOG)
+    include_directories(${PROJECT_SOURCE_DIR}/external_libs/spdlog-0.16.3/include)
+endif(USE_SYSTEM_SPDLOG)
 
 set(oscpack_path ${PROJECT_SOURCE_DIR}/external_libs/oscpack_1_1_0)
 add_subdirectory(${oscpack_path})
-include_directories(${oscpack_path} ${PROJECT_SOURCE_DIR}/external_libs/spdlog-0.11.0/include JuceLibraryCode JuceLibraryCode/modules  ${PROJECT_SOURCE_DIR}/external_libs/cxxopts)
+include_directories(${oscpack_path} JuceLibraryCode JuceLibraryCode/modules  ${PROJECT_SOURCE_DIR}/external_libs/cxxopts)
 
 set(m2o_sources
     src/m2o.cpp
